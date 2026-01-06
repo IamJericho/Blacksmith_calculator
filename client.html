@@ -8,8 +8,19 @@
 <style>
 body{background:#0e1117;color:#eaeaea}
 h1,h2{color:#ff4d4d}
-.table-zebra tbody tr:nth-child(odd){background:#0f141b}
-.table-zebra tbody tr:nth-child(even){background:#161b22}
+/* Zebra striping – override Bootstrap table-dark */
+.table-zebra tbody tr:nth-child(odd) td {
+  background-color: #0f141b !important;
+}
+
+.table-zebra tbody tr:nth-child(even) td {
+  background-color: #161b22 !important;
+}
+
+/* Row hover for readability */
+.table-zebra tbody tr:hover td {
+  background-color: #1f2633 !important;
+}
 .output{background:#161b22;padding:12px;border:1px solid #2a2f3a;margin-top:15px}
 pre{white-space:pre-wrap}
 </style>
@@ -34,6 +45,7 @@ pre{white-space:pre-wrap}
 <pre id="orderSummary"></pre>
 <button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
 <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+<button onclick="resetAll()">Reset</button>
 </div>
 
 <script src="blacksmith.js"></script>
@@ -79,6 +91,10 @@ function copyOrder(){
     m.style.display="inline";
     setTimeout(()=>m.style.display="none",1500);
   });
+}
+function resetAll(){
+  document.querySelectorAll("select").forEach(s=>s.value=0);
+  document.getElementById("orderSummary").textContent="";
 }
 </script>
 </body>
