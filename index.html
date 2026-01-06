@@ -46,12 +46,15 @@ button { margin-right:10px; }
 </div>
 
 <div class="output">
-<strong>Order Summary</strong>
-<pre id="orderSummary"></pre>
-<button onclick="copySummary()">Copy Summary</button>
-<div id="copyNotice" style="display:none; margin-top:8px; color:#4caf50;">
-  ✔ Order summary copied to clipboard</div>
-<button onclick="resetAll()">Reset</button>
+  <strong>Order Summary</strong>
+  <pre id="orderSummary"></pre>
+
+  <button onclick="copySummary()">Copy Summary</button>
+  <button onclick="resetAll()">Reset</button>
+
+  <div id="copyNotice" style="display:none; margin-top:8px; color:#4caf50;">
+    ✔ Order summary copied to clipboard
+  </div>
 </div>
 
 <script>
