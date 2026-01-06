@@ -1,41 +1,37 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ARK Saddle Calculator – Full 124 (Client Pricing)</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ARK Saddle Calculator – Client Pricing</title>
+
 <style>
 body { font-family: Arial, sans-serif; background:#0e1117; color:#eaeaea; }
 h1,h2 { color:#ff4d4d; }
-table { border-collapse: collapse; width:100%; margin-bottom:20px; }
-th,td { border:1px solid #2a2f3a; padding:6px; }
-input { width:60px; }
+table { width:100%; }
 .output { background:#161b22; padding:12px; border:1px solid #2a2f3a; margin-bottom:15px; }
 pre { white-space: pre-wrap; }
-button { padding:6px 10px; }
+select { width:80px; }
+button { margin-right:10px; }
 </style>
 </head>
+
 <body>
 
 <h1>Red, White, & Blueprint – Saddle Calculator</h1>
 
 <h2>Regular Saddles</h2>
-<div class="table-responsive">
 <table class="table table-dark table-sm">
 <thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
 <tbody id="regularTable"></tbody>
 </table>
-</div>
 
 <h2>Platform Saddles</h2>
-<div class="table-responsive">
 <table class="table table-dark table-sm">
 <thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
 <tbody id="platformTable"></tbody>
 </table>
-</div>
 
 <h2>Results</h2>
 
@@ -53,6 +49,7 @@ button { padding:6px 10px; }
 <strong>Order Summary</strong>
 <pre id="orderSummary"></pre>
 <button onclick="copySummary()">Copy Summary</button>
+<button onclick="resetAll()">Reset</button>
 </div>
 
 <script>
@@ -60,102 +57,118 @@ const MATERIAL_NAMES = {
   A:"Cementing Paste", B:"Silica Pearls", C:"Crystal", E:"Electronics", F:"Fiber",
   FW:"Fungal Wood", G:"Green Gems", H:"Hide", K:"Chitin / Keratin",
   M:"Metal Ingots", N:"Flint", O:"Obsidian", P:"Polymer", R:"Red Gems",
-  S:"Stone", T:"Thatch", V:"Blue Gems", W:"Wood", Y:"Clay"
+  S:"Stone", T:"Thatch", V:"Blue Gems", W:"Wood", Y:"Clay", RM:"Raw Metal"
 };
 
-/* ================= FULL REGULAR SADDLES (124) ================= */
+/* ================= REGULAR SADDLES ================= */
 
 const regularSaddles = {
-  "Allosaurus":{F:2158,M:154,H:4008,tek:25},
-  "Ankylosaurus":{F:1669,M:119,H:3100,tek:20},
-  "Araneo":{K:1345,H:3497,F:1883,tek:20},
+  "Allosaurus":{F:2394,M:422,H:4507,tek:25},
+  "Ankylosaurus":{F:2158,M:154,H:4008,tek:20},
+  "Araneo":{K:1345,H:3497,F:1883,tek:15},
   "Archelon":{F:8617,H:12208,M:2872,W:3590,tek:75},
-  "Argentavis":{K:2207,H:5151,F:2722,tek:20},
+  "Argentavis":{K:2207,H:5151,F:2722,tek:15},
   "Armadoggo":{F:3557,M:474,H:2845,P:79,tek:25},
   "Arthropluera":{A:211,N:112,M:423,W:282,F:705,H:1128,O:493,tek:25},
+  "Aurellax":{F:11357,M:4867,H:9734,P:1622,tek:235},
+
   "Baryonyx":{F:5190,M:370,H:3336,tek:25},
   "Basilisk":{A:1170,G:619,M:5852,F:2065,H:3717,tek:135},
   "Basilosaurus":{F:3532,M:777,H:2825,tek:35},
-  "Beelzebufo":{A:74,H:2520,F:1408,W:444,tek:20},
+  "Beelzebufo":{A:74,H:2520,F:1408,W:444,tek:15},
   "Bison":{A:1046,H:3836,F:2092,M:697,tek:30},
   "Brontosaurus":{F:2297,M:496,H:4346,tek:25},
-  "Carbonemys":{A:155,H:2636,F:1473,tek:20},
+
+  "Carbonemys":{A:155,H:2636,F:1473,tek:15},
   "Carcharodontosaurus":{K:276,H:6913,F:4839,M:2489,tek:65},
   "Carnotaurus":{F:2274,M:401,H:4281,tek:25},
   "Castoroides":{A:2109,H:4369,T:2711,F:3013,M:1506,tek:50},
   "Ceratosaurus":{F:3787,M:280,H:1823,tek:25},
-  "Chalicotherium":{F:2497,M:624,H:3676,tek:30},
+  "Chalicotherium":{F:2461,M:615,H:3623,tek:30},
+
   "Companion Ammo Box":{F:227,M:60,H:37,tek:20},
   "Companion Rucksack":{F:278,M:9,H:185,tek:20},
+
   "Daeodon":{F:1344,M:173,H:2515,tek:20},
-  "Deinonychus":{F:2425,W:746,H:4104,tek:20},
+  "Deinonychus":{F:2425,W:746,H:4104,tek:15},
   "Deinosuchus":{F:2662,M:665,H:5059,tek:30},
   "Deinotherium":{A:1968,H:1968,W:4594,F:7482,M:262,tek:25},
   "Diplodocus":{F:9545,M:3181,H:13522,W:3977,tek:80},
-  "Dire Bear":{A:1291,H:3873,F:1678,tek:20},
+  "Dire Bear":{A:1291,H:3873,F:1678,tek:15},
   "Doedicurus":{F:1695,M:77,H:3082,S:231,tek:20},
-  "Dunkleosteus":{A:1525,H:3812,F:2287,M:1016,tek:40},
-  "Equus":{F:2066,S:1033,H:3099,W:1097,tek:20},
+  "Dunkleosteus":{A:1749,H:4374,F:2624,M:1166,tek:40},
+
+  "Equus":{F:2066,S:1033,H:3099,W:1097,tek:15},
   "Fasolasuchus":{F:2629,M:394,H:1971,W:1314,tek:25},
-  "Gacha":{K:2241,H:5229,F:2764,tek:20},
+
+  "Gacha":{K:2241,H:5229,F:2764,tek:15},
   "Gallimimus":{F:2408,M:376,H:3613,W:1806,tek:25},
-  "Gasbags":{K:1885,H:4399,F:2325,tek:20},
+  "Gasbags":{K:1885,H:4399,F:2325,tek:15},
   "Giganotosaurus":{F:4838,M:1659,H:9401,tek:50},
   "Gigantoraptor":{F:2548,M:875,H:4538,W:1911,tek:35},
+
+  "Helicoprion":{F:3261,M:978,H:5217,tek:60},
   "Hyaenodon":{F:2160,M:278,H:4041,tek:25},
-  "Helicoprion":{F:7188,M:2156,H:11500,tek:60},
-  "Iguanodon":{F:669,W:200,H:1071,tek:20},
-  "Kaprosuchus":{K:1031,H:2617,F:1903,tek:20},
-  "Karkinos":{V:672,FW:1681,F:1891,H:1429,tek:20},
-  "Lymantria":{K:1399,H:1915,F:1841,tek:20},
-  "Maeguana":{F:2126,M:375,H:4002,tek:25},
+
+  "Iguanodon":{F:669,W:200,H:1071,tek:15},
+  "Ichthyosaurus":{F:795,H:874,W:318,N:127,RM:159,tek:20},
+
+  "Karkinos":{V:1202,FW:3005,F:3381,H:2555,tek:15},
+  "Lymantria":{K:1399,H:1915,F:1841,tek:15},
+
+  "Malwyn":{K:830,H:1038,F:3462,M:2492,tek:235},
   "Mammoth":{F:1926,M:137,H:3577,tek:20},
-  "Managarmr":{K:2326,H:5429,F:2869,tek:20},
   "Mantis":{F:1076,M:502,H:1722,tek:30},
   "Megalania":{F:3407,M:713,H:4992,tek:30},
   "Megaloceros":{F:1536,M:69,H:2793,tek:20},
-  "Megalodon":{A:427,H:4128,F:2206,tek:20},
   "Megalosaurus":{F:2507,M:442,H:4720,tek:25},
-  "Megatherium":{A:1331,H:4325,F:1730,M:732,tek:30},
+  "Megatherium":{A:1568,H:5099,F:2039,M:862,tek:35},
   "Megataptor":{F:10264,M:2566,H:17963,tek:70},
-  "Morellatops":{F:1074,W:402,H:1880,tek:20},
   "Mosasaurus":{A:1943,H:11105,B:1388,F:8328,M:5552,tek:130},
-  "Ossidon":{F:7637,M:5728,H:14511,tek:130},
-  "Pachy":{F:955,W:294,H:1617,tek:20},
-  "Pachyrhinosaurus":{F:1096,W:342,H:1918,tek:20},
+
+  "Ossidon":{F:2687,M:2015,H:5106,tek:60},
+
+  "Pachy":{F:955,W:294,H:1617,tek:15},
+  "Pachyrhinosaurus":{F:1096,W:342,H:1918,tek:15},
   "Pararacer":{F:1566,M:142,H:2848,tek:20},
-  "Parasaur":{F:646,W:194,H:1035,tek:20},
-  "Pelagornis":{K:1050,H:3222,F:1751,tek:20},
-  "Plesiosaur":{A:850,H:5231,F:3269,B:523,tek:35},
-  "Pulmonoscorpius":{F:1395,W:440,H:2496,tek:20},
-  "Pteranodon":{K:1118,H:3429,F:1863,tek:20},
-  "Quetzal":{A:1261,H:9462,F:6308,B:1072,tek:65},
-  "Raptor":{F:826,W:254,H:1399,tek:20},
-  "Ravager":{F:1908,H:4352,FW:1679,tek:20},
+  "Parasaur":{F:646,W:194,H:1035,tek:15},
+  "Pelagornis":{K:1050,H:3222,F:1751,tek:15},
+  "Plesiosaur":{A:850,H:5231,F:3269,B:523,tek:15},
+  "Pulmonoscorpius":{F:1395,W:440,H:2496,tek:15},
+  "Pteranodon":{K:1118,H:3429,F:1863,tek:15},
+
+  "Quetzal":{A:1261,H:9462,F:6308,B:1072,tek:15},
+
+  "Raptor":{F:826,W:254,H:1399,tek:15},
+  "Ravager":{F:1908,H:4352,FW:1679,tek:15},
   "Rex":{F:2967,M:741,H:5637,tek:30},
   "Rhynio":{C:380,H:1904,P:761,F:2539,M:1904,tek:55},
   "Rock Drake":{F:3334,M:1852,H:5186,R:1259,tek:55},
   "Rock Golem":{F:2015,M:470,H:3628,tek:25},
   "Roll Rat":{A:1168,G:618,M:5842,F:2062,H:3711,tek:135},
+
   "Sabertooth":{F:2066,M:266,H:3866,tek:25},
-  "Sarco":{A:284,H:3272,F:1066,tek:20},
-  "Snow Owl":{K:2047,H:4777,F:2525,tek:20},
-  "Solwyn":{C:1515,M:631,F:2842,O:1010,tek:30},
-  "Spino":{K:587,H:4961,F:2611,B:326,tek:20},
-  "Stegosaurus":{F:1498,W:476,H:2723,tek:20},
+  "Sarco":{A:284,H:3272,F:1066,tek:15},
+  "Snow Owl":{K:2047,H:4777,F:2525,tek:15},
+  "Solwyn":{C:1902,M:792,F:3567,O:1268,tek:30},
+  "Spino":{K:587,H:4961,F:2611,B:326,tek:15},
+  "Stegosaurus":{F:1498,W:476,H:2723,tek:15},
+
   "Tapejara":{F:2438,M:609,H:3521,W:1625,tek:30},
-  "Terror Bird":{F:1013,W:311,H:1714,tek:20},
+  "Terror Bird":{F:1013,W:311,H:1714,tek:15},
   "Therizinosaurus":{F:1970,M:677,H:3510,W:1478,tek:30},
   "Thorny Dragon":{Y:1199,H:3810,W:1764,F:2116,M:493,tek:25},
   "Thylacoleo":{F:2045,M:263,H:3826,tek:25},
-  "Trike":{F:1052,W:329,H:1842,tek:20},
+  "Trike":{F:1052,W:329,H:1842,tek:15},
   "Tusoteuthis":{A:701,H:4991,F:12401,M:467,tek:25},
-  "Velonasaur":{K:1986,H:4634,F:2449,tek:20},
+
+  "Velonasaur":{K:2290,H:5344,F:2825,tek:15},
+
   "Woolly Rhino":{A:1417,H:3543,F:1842,M:850,tek:35},
   "Xiphactinus":{A:753,H:4371,F:2336,M:226,tek:20},
-  "Yi Ling":{F:508,W:156,H:860,tek:20}
+  "Yi Ling":{F:508,W:156,H:860,tek:15},
+  "Yutyrannus":{F:5548,M:2140,H:6737,B:1981,tek:60}
 };
-
 
 /* ================= PLATFORM SADDLES ================= */
 
@@ -169,12 +182,20 @@ const platformSaddles = {
   "Shastasaurus Platform":{A:2605,E:1954,B:3256,C:4559,M:19541,tek:410}
 };
 
-
 function buildTable(data,id){
   const t=document.getElementById(id);
-  Object.keys(data).forEach(n=>{
+  Object.keys(data).forEach(name=>{
     const r=document.createElement("tr");
-    r.innerHTML=`<td>${n}</td><td><input class="form-control form-control-sm" type="number" min="0" value="0" data-name="${n}" data-table="${id}"></td>`;
+    let opts="";
+    for(let i=0;i<=30;i++) opts+=`<option value="${i}">${i}</option>`;
+    r.innerHTML=
+      `<td>${name}</td>
+       <td>
+         <select class="form-select form-select-sm"
+           data-name="${name}" data-table="${id}">
+           ${opts}
+         </select>
+       </td>`;
     t.appendChild(r);
   });
 }
@@ -182,19 +203,26 @@ function buildTable(data,id){
 buildTable(regularSaddles,"regularTable");
 buildTable(platformSaddles,"platformTable");
 
-document.addEventListener("input",calc);
+document.addEventListener("change",calc);
 
 function calc(){
   const totals={};
   let clientTek=0;
-  let summary="";
+  let orderLines=[];
 
-  document.querySelectorAll("input").forEach(i=>{
-    const q=+i.value; if(!q) return;
-    const src=i.dataset.table==="regularTable"?regularSaddles:platformSaddles;
-    const s=src[i.dataset.name];
+  document.querySelectorAll("select").forEach(sel=>{
+    const q=+sel.value;
+    if(!q) return;
+
+    const src=sel.dataset.table==="regularTable"
+      ? regularSaddles
+      : platformSaddles;
+
+    const s=src[sel.dataset.name];
     clientTek+=s.tek*q;
-    summary+=`${i.dataset.name} x${q} (@ ${s.tek} TEK)\n`;
+
+    orderLines.push(`${q} ${sel.dataset.name} Saddle${q>1?"s":""}`);
+
     for(const m in s){
       if(m==="tek") continue;
       totals[m]=(totals[m]||0)+s[m]*q;
@@ -204,25 +232,52 @@ function calc(){
   const matOut=document.getElementById("materialsOutput");
   matOut.innerHTML="";
   Object.keys(totals).sort().forEach(m=>{
-    const d=document.createElement("div");
-    d.textContent=`${MATERIAL_NAMES[m]||m}: ${totals[m]}`;
-    matOut.appendChild(d);
+    matOut.innerHTML+=`${MATERIAL_NAMES[m]||m}: ${totals[m]}<br>`;
   });
 
   document.getElementById("clientTekOutput").innerHTML =
     `<strong>${clientTek} TEK</strong>`;
 
   document.getElementById("orderSummary").textContent =
-    summary + `\nTotal Client Cost: ${clientTek} TEK`;
+`Your saddle order is complete:
+
+${orderLines.join("\n")}
+
+Bring Flyer, unless you can use TP
+Server: 5986
+Spawn: Lemonkis East
+Shop Coords: 18.9 - 89.8
+Tribe: Department of War
+Room: A
+Vault:
+Pin: (fridge, safe, dedi)
+Payment: ${clientTek} Tek
+
+If you’re able to use a teleporter:
+Spawn: Korinthos East
+World TP: Korinthos East > E
+Coords: 41.1 - 33.4
+TP: DoW Trade
+Look for the Red, White, Blue building
+
+Please leave a review, it’s much appreciated, and I’ll leave one for you as well.
+
+https://discord.com/channels/928159194929045584/1091201655128723486`;
+}
+
+function resetAll(){
+  document.querySelectorAll("select").forEach(s=>s.value=0);
+  document.getElementById("materialsOutput").innerHTML="";
+  document.getElementById("clientTekOutput").innerHTML="";
+  document.getElementById("orderSummary").textContent="";
 }
 
 function copySummary(){
-  navigator.clipboard.writeText(document.getElementById("orderSummary").textContent);
+  navigator.clipboard.writeText(
+    document.getElementById("orderSummary").textContent
+  );
 }
 </script>
-
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.min.js" integrity="sha384-G/EV+4j2dNv+tEPo3++6LCgdCROaejBqfUeNjuKAiuXbjrxilcCdDz6ZAVfHWe1Y" crossorigin="anonymous"></script>
 
 </body>
 </html>
