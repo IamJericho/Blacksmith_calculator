@@ -49,6 +49,8 @@ button { margin-right:10px; }
 <strong>Order Summary</strong>
 <pre id="orderSummary"></pre>
 <button onclick="copySummary()">Copy Summary</button>
+<div id="copyNotice" style="display:none; margin-top:8px; color:#4caf50;">
+  ✔ Order summary copied to clipboard
 <button onclick="resetAll()">Reset</button>
 </div>
 
@@ -273,9 +275,14 @@ function resetAll(){
 }
 
 function copySummary(){
-  navigator.clipboard.writeText(
-    document.getElementById("orderSummary").textContent
-  );
+  const summary = document.getElementById("orderSummary").textContent;
+  navigator.clipboard.writeText(summary).then(() => {
+    const notice = document.getElementById("copyNotice");
+    notice.style.display = "block";
+    setTimeout(() => {
+      notice.style.display = "none";
+    }, 2000);
+  });
 }
 </script>
 
