@@ -1,243 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <meta charset="utf-8">
+<title>Client Saddle Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ARK Saddle Calculator – Client Order</title>
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <style>
-body { font-family: Arial, sans-serif; background:#0e1117; color:#eaeaea; }
-h1,h2 { color:#ff4d4d; }
-table { width:100%; margin-bottom:20px; }
-th,td { border:1px solid #2a2f3a; padding:6px; }
-.output { background:#161b22; padding:12px; border:1px solid #2a2f3a; margin-bottom:15px; }
-pre { white-space: pre-wrap; }
-button { padding:6px 10px; margin-right:8px; }
-#copyNotice { color:#4cff4c; margin-top:8px; display:none; }
+body{background:#0e1117;color:#eaeaea}
+h1,h2{color:#ff4d4d}
+.table-zebra tbody tr:nth-child(odd){background:#0f141b}
+.table-zebra tbody tr:nth-child(even){background:#161b22}
+.output{background:#161b22;padding:12px;border:1px solid #2a2f3a;margin-top:15px}
+pre{white-space:pre-wrap}
 </style>
 </head>
+<body class="container-fluid">
 
-<body>
-
-<h1>Red, White, & Blueprint – Saddle Calculator</h1>
+<h1>Client Saddle Calculator</h1>
 
 <h2>Regular Saddles</h2>
-<div class="table-responsive">
-<table class="table table-dark table-sm">
+<table class="table table-dark table-sm table-zebra">
 <thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
-<tbody id="regularTable"></tbody>
+<tbody id="regular"></tbody>
 </table>
-</div>
 
 <h2>Platform Saddles</h2>
-<div class="table-responsive">
-<table class="table table-dark table-sm">
+<table class="table table-dark table-sm table-zebra">
 <thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
-<tbody id="platformTable"></tbody>
+<tbody id="platform"></tbody>
 </table>
-</div>
 
-<h2>Order Summary</h2>
 <div class="output">
 <pre id="orderSummary"></pre>
-<button onclick="copySummary()">Copy Summary</button>
-<div id="copyNotice">Order summary copied to clipboard.</div>
+<button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
+<span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
 </div>
 
+<script src="blacksmith.js"></script>
 <script>
-/* ================= SADDLE DATA ================= */
-
-const regularSaddles = {
-  "Allosaurus": { tek: 25 },
-  "Ankylosaurus": { tek: 20 },
-  "Araneo": { tek: 15 },
-  "Archelon": { tek: 75 },
-  "Argentavis": { tek: 15 },
-  "Armadoggo": { tek: 25 },
-  "Arthropluera": { tek: 25 },
-  "Aurellax": { tek: 115 },
-
-  "Baryonyx": { tek: 25 },
-  "Basilisk": { tek: 135 },
-  "Basilosaurus": { tek: 35 },
-  "Beelzebufo": { tek: 15 },
-  "Bison": { tek: 30 },
-  "Brontosaurus": { tek: 25 },
-
-  "Carbonemys": { tek: 15 },
-  "Carcharodontosaurus": { tek: 65 },
-  "Carnotaurus": { tek: 25 },
-  "Castoroides": { tek: 50 },
-  "Ceratosaurus": { tek: 25 },
-  "Chalicotherium": { tek: 30 },
-  "Companion Ammo Box": { tek: 20 },
-  "Companion Rucksack": { tek: 20 },
-
-  "Daeodon": { tek: 20 },
-  "Deinosuchus": { tek: 30 },
-  "Deinonychus": { tek: 15 },
-  "Deinotherium": { tek: 25 },
-  "Diplodocus": { tek: 80 },
-  "Dire Bear": { tek: 15 },
-  "Doedicurus": { tek: 20 },
-  "Dunkleosteus": { tek: 40 },
-
-  "Equus": { tek: 15 },
-
-  "Fasolasuchus": { tek: 25 },
-
-  "Gacha": { tek: 15 },
-  "Gallimimus": { tek: 25 },
-  "Gasbags": { tek: 15 },
-  "Giganotosaurus": { tek: 50 },
-  "Gigantoraptor": { tek: 35 },
-
-  "Helicoprion": { tek: 35 },
-  "Hyaenodon": { tek: 25 },
-
-  "Ichthyosaurus": { tek: 20 },
-  "Iguanodon": { tek: 15 },
-
-  "Kaprosuchus": { tek: 15 },
-  "Karkinos": { tek: 20 },
-
-  "Lymantria": { tek: 15 },
-
-  "Maeguana": { tek: 25 },
-  "Malwyn": { tek: 65 },
-  "Mammoth": { tek: 20 },
-  "Managarmr": { tek: 15 },
-  "Mantis": { tek: 30 },
-  "Megalania": { tek: 30 },
-  "Megaloceros": { tek: 20 },
-  "Megalodon": { tek: 15 },
-  "Megalosaurus": { tek: 25 },
-  "Megatherium": { tek: 35 },
-  "Megataptor": { tek: 70 },
-  "Morellatops": { tek: 15 },
-  "Mosasaurus": { tek: 130 },
-
-  "Ossidon": { tek: 60 },
-
-  "Pachy": { tek: 15 },
-  "Pachyrhinosaurus": { tek: 15 },
-  "Pararacer": { tek: 20 },
-  "Parasaur": { tek: 15 },
-  "Pelagornis": { tek: 15 },
-  "Plesiosaur": { tek: 15 },
-  "Pulmonoscorpius": { tek: 15 },
-  "Pteranodon": { tek: 15 },
-
-  "Quetzal": { tek: 15 },
-
-  "Raptor": { tek: 15 },
-  "Ravager": { tek: 15 },
-  "Rex": { tek: 30 },
-  "Rhynio": { tek: 55 },
-  "Rock Drake": { tek: 55 },
-  "Rock Golem": { tek: 25 },
-  "Roll Rat": { tek: 135 },
-
-  "Sabertooth": { tek: 25 },
-  "Sarco": { tek: 15 },
-  "Snow Owl": { tek: 15 },
-  "Solwyn": { tek: 35 },
-  "Spino": { tek: 15 },
-  "Stegosaurus": { tek: 15 },
-
-  "Tapejara": { tek: 30 },
-  "Terror Bird": { tek: 15 },
-  "Therizinosaurus": { tek: 30 },
-  "Thorny Dragon": { tek: 25 },
-  "Thylacoleo": { tek: 25 },
-  "Trike": { tek: 15 },
-  "Tusoteuthis": { tek: 25 },
-
-  "Velonasaur": { tek: 15 },
-
-  "Woolly Rhino": { tek: 35 },
-
-  "Xiphactinus": { tek: 20 },
-
-  "Yi Ling": { tek: 15 },
-  "Yutyrannus": { tek: 60 }
-};
-
-const platformSaddles = {
-  "Brontosaurus Platform": { tek: 45 },
-  "Dreadnoughtus Platform": { tek: 215 },
-  "Mosasaurus Platform": { tek: 380 },
-  "Paraceratherium Platform": { tek: 40 },
-  "Plesiosaur Platform": { tek: 35 },
-  "Quetzal Platform": { tek: 65 },
-  "Shastasaurus Platform": { tek: 410 }
-};
-
-/* ================= BUILD TABLES ================= */
-
-function buildTable(data,id){
+function build(id,data){
   const t=document.getElementById(id);
-  Object.keys(data).forEach(name=>{
-    const row=document.createElement("tr");
-    const selectOptions = Array.from({length:31},(_,i)=>`<option value="${i}">${i}</option>`).join("");
-    row.innerHTML = `
-      <td>${name}</td>
-      <td>
-        <select class="form-select form-select-sm"
-          data-name="${name}"
-          data-table="${id}">
-          ${selectOptions}
-        </select>
-      </td>`;
-    t.appendChild(row);
+  Object.keys(data).forEach(n=>{
+    const r=document.createElement("tr");
+    r.innerHTML=`<td>${n}</td><td><select class="form-select form-select-sm" data-name="${n}" data-type="${id}">
+      ${Array.from({length:31},(_,i)=>`<option>${i}</option>`).join("")}
+    </select></td>`;
+    t.appendChild(r);
   });
 }
 
-buildTable(regularSaddles,"regularTable");
-buildTable(platformSaddles,"platformTable");
+build("regular",BLACKSMITH.saddles.regular);
+build("platform",BLACKSMITH.saddles.platform);
 
 document.addEventListener("change",calc);
 
-/* ================= CALCULATION ================= */
-
 function calc(){
-  let totalTek = 0;
-  let orderLines = [];
-
+  let totalTek=0, orderLines=[];
   document.querySelectorAll("select").forEach(sel=>{
-    const qty = +sel.value;
+    const qty=+sel.value;
     if(!qty) return;
-
-    const src = sel.dataset.table==="regularTable" ? regularSaddles : platformSaddles;
-    const item = src[sel.dataset.name];
-
-    totalTek += item.tek * qty;
+    const item=BLACKSMITH.saddles[sel.dataset.type][sel.dataset.name];
+    totalTek+=item.tek*qty;
     orderLines.push(`${qty} ${sel.dataset.name}`);
   });
 
-  let summary =
+  document.getElementById("orderSummary").textContent =
 `Name: @your name
 Order:
 ${orderLines.join("\n")}
 Payment: ${totalTek} Tek Ceilings
 Trader: <@1303790610620350587>`;
-
-  document.getElementById("orderSummary").textContent = summary;
 }
 
-/* ================= COPY ================= */
-
-function copySummary(){
-  navigator.clipboard.writeText(
-    document.getElementById("orderSummary").textContent
-  ).then(()=>{
-    const note=document.getElementById("copyNotice");
-    note.style.display="block";
-    setTimeout(()=>note.style.display="none",2000);
+function copyOrder(){
+  const text=document.getElementById("orderSummary").textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    const m=document.getElementById("copyMsg");
+    m.style.display="inline";
+    setTimeout(()=>m.style.display="none",1500);
   });
 }
 </script>
-
 </body>
 </html>
