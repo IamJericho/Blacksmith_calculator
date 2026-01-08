@@ -2,100 +2,220 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Client Saddle Calculator</title>
+<title>Client Calculator</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
 <style>
 body{background:#0e1117;color:#eaeaea}
-h1,h2{color:#ff4d4d}
-/* Zebra striping – override Bootstrap table-dark */
+h1,h2,h3{color:#ff4d4d}
+
 .table-zebra tbody tr:nth-child(odd) td {
-  background-color: #0f141b !important;
+  background-color:#0f141b !important;
 }
-
 .table-zebra tbody tr:nth-child(even) td {
-  background-color: #161b22 !important;
+  background-color:#161b22 !important;
+}
+.table-zebra tbody tr:hover td {
+  background-color:#1f2633 !important;
 }
 
-/* Row hover for readability */
-.table-zebra tbody tr:hover td {
-  background-color: #1f2633 !important;
+.output{
+  background:#161b22;
+  padding:12px;
+  border:1px solid #2a2f3a;
+  margin-top:15px
 }
-.output{background:#161b22;padding:12px;border:1px solid #2a2f3a;margin-top:15px}
 pre{white-space:pre-wrap}
+
+.category-row td{
+  background:#0b0f14 !important;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:#ff4d4d;
+}
+
+.stat{
+  color:#8fb3ff;
+  font-size:.85em;
+}
 </style>
 </head>
+
 <body class="container-fluid">
 
-<h1>Client Saddle Calculator</h1>
+<h1>Client Calculator</h1>
+
+<!-- ================= SADDLES ================= -->
 
 <h2>Regular Saddles</h2>
 <table class="table table-dark table-sm table-zebra">
-<thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
 <tbody id="regular"></tbody>
 </table>
 
 <h2>Platform Saddles</h2>
 <table class="table table-dark table-sm table-zebra">
-<thead><tr><th>Saddle</th><th>Qty</th></tr></thead>
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
 <tbody id="platform"></tbody>
 </table>
+
+<!-- ================= EQUIPMENT ================= -->
+
+<h2>Equipment – Tier 1</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="tier1"></tbody>
+</table>
+
+<h2>Equipment – Tier 2</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="tier2"></tbody>
+</table>
+
+<!-- ================= OUTPUT ================= -->
 
 <div class="output">
 <pre id="orderSummary"></pre>
 <button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
 <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-<button onclick="resetAll()">Reset</button>
+<button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
 </div>
 
 <script src="blacksmith.js"></script>
 <script>
-function build(id,data){
+function qtySelect(group,name){
+  return `
+  <select class="form-select form-select-sm"
+          data-group="${group}"
+          data-name="${name}">
+    ${Array.from({length:31},(_,i)=>`<option>${i}</option>`).join("")}
+  </select>`;
+}
+
+/* ---------- STAT FORMATTER ---------- */
+function formatStats(materials){
+  const stats=[];
+  if(materials.D) stats.push(`Durability: ${materials.D}`);
+  if(materials.J) stats.push(`Armor: ${materials.J}`);
+  if(materials.Q) stats.push(`Damage: ${materials.Q}`);
+  return stats.length
+    ? ` <span class="stat">(${stats.join(", ")})</span>`
+    : "";
+}
+
+/* ---------- SADDLES ---------- */
+function buildSimple(id,data){
   const t=document.getElementById(id);
-  Object.keys(data).forEach(n=>{
-    const r=document.createElement("tr");
-    r.innerHTML=`<td>${n}</td><td><select class="form-select form-select-sm" data-name="${n}" data-type="${id}">
-      ${Array.from({length:31},(_,i)=>`<option>${i}</option>`).join("")}
-    </select></td>`;
-    t.appendChild(r);
+  Object.keys(data).forEach(name=>{
+    t.insertAdjacentHTML("beforeend",`
+      <tr>
+        <td>${name}</td>
+        <td>${qtySelect(id,name)}</td>
+      </tr>
+    `);
   });
 }
 
-build("regular",BLACKSMITH.saddles.regular);
-build("platform",BLACKSMITH.saddles.platform);
+/* ---------- EQUIPMENT (NESTED, WITH CATEGORIES) ---------- */
+function buildNested(id,data){
+  const t=document.getElementById(id);
+
+  Object.keys(data).forEach(category=>{
+    t.insertAdjacentHTML("beforeend",`
+      <tr class="category-row">
+        <td colspan="2">${category}</td>
+      </tr>
+    `);
+
+    Object.entries(data[category]).forEach(([item,itemData])=>{
+      t.insertAdjacentHTML("beforeend",`
+        <tr>
+          <td>${item}${formatStats(itemData.materials)}</td>
+          <td>${qtySelect(id,`${category}|${item}`)}</td>
+        </tr>
+      `);
+    });
+  });
+}
+
+/* ---------- BUILD TABLES ---------- */
+buildSimple("regular",BLACKSMITH.saddles.regular);
+buildSimple("platform",BLACKSMITH.saddles.platform);
+buildNested("tier1",BLACKSMITH.equipment.tier1);
+buildNested("tier2",BLACKSMITH.equipment.tier2);
 
 document.addEventListener("change",calc);
 
 function calc(){
-  let totalTek=0, orderLines=[];
+  let totalTek = 0;
+
+  const output = {
+    saddle: [],
+    tier1: [],
+    tier2: []
+  };
+
   document.querySelectorAll("select").forEach(sel=>{
-    const qty=+sel.value;
+    const qty = +sel.value;
     if(!qty) return;
-    const item=BLACKSMITH.saddles[sel.dataset.type][sel.dataset.name];
-    totalTek+=item.tek*qty;
-    orderLines.push(`${qty} ${sel.dataset.name}`);
+
+    const group = sel.dataset.group;
+    const name  = sel.dataset.name;
+    let item;
+
+    if(group === "regular" || group === "platform"){
+      item = BLACKSMITH.saddles[group][name];
+      output.saddle.push(`${qty} ${name}`);
+    } else {
+      const [category, itemName] = name.split("|");
+      item = BLACKSMITH.equipment[group][category][itemName];
+      output[group].push(`${qty} ${category.toLowerCase()} – ${itemName}`);
+    }
+
+    totalTek += item.tek * qty;
   });
 
-  document.getElementById("orderSummary").textContent =
+  let summary =
 `Name: @your name
 Order:
-${orderLines.join("\n")}
-Payment: ${totalTek} Tek Ceilings
+`;
+
+  if(output.saddle.length){
+    summary += `Saddle:\n${output.saddle.join("\n")}\n\n`;
+  }
+  if(output.tier1.length){
+    summary += `Tier 1\n${output.tier1.join("\n")}\n\n`;
+  }
+  if(output.tier2.length){
+    summary += `Tier 2\n${output.tier2.join("\n")}\n\n`;
+  }
+
+  summary +=
+`Payment: ${totalTek} Tek Ceilings
 Trader: <@1303790610620350587>`;
+
+  document.getElementById("orderSummary").textContent = summary;
 }
 
 function copyOrder(){
-  const text=document.getElementById("orderSummary").textContent;
-  navigator.clipboard.writeText(text).then(()=>{
+  navigator.clipboard.writeText(
+    document.getElementById("orderSummary").textContent
+  ).then(()=>{
     const m=document.getElementById("copyMsg");
     m.style.display="inline";
     setTimeout(()=>m.style.display="none",1500);
   });
 }
+
 function resetAll(){
   document.querySelectorAll("select").forEach(s=>s.value=0);
   document.getElementById("orderSummary").textContent="";
 }
 </script>
+
 </body>
 </html>
