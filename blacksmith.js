@@ -108,7 +108,7 @@ window.BLACKSMITH = {
       "Megaloceros":{materials:{F:1536,M:69,H:2793},tek:20},
       "Megalosaurus":{materials:{F:2507,M:442,H:4720},tek:25},
       "Megatherium":{materials:{A:1568,H:5099,F:2039,M:862},tek:35},
-      "Megataptor":{materials:{F:10264,M:2566,H:17963},tek:70},
+      "Megataptor":{materials:{F:1729,M:432,H:3027},tek:25},
       "Mosasaurus":{materials:{A:1943,H:11105,B:1388,F:8328,M:5552},tek:130},
 
       "Ossidon":{materials:{F:2687,M:2015,H:5106},tek:60},
