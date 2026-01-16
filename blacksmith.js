@@ -233,7 +233,7 @@ window.BLACKSMITH = {
         "Harpoon Launcher":{materials:{A:4401,H:1833,O:3667,W:2934,F:4401,M:8802,P:2200,D:1276},tek:195},
         "Longneck Rifle":{materials:{H:1124,W:899,M:4273,D:932},tek:105},
         "Pump Shotgun":{materials:{A:2897,P:3540,M:1931,D:3360},tek:55},
-        "Riot Shield":{materials:{C:9695,P:5817,M:1939,BP:5817,D:25958},tek:70},        
+        "Riot Shield":{materials:{C:9695,P:5817,M:1939,B:5817,D:25958},tek:70},        
         "Shotgun":{materials:{H:1766,W:1412,M:5651,D:4060},tek:130},
         "Pistol":{materials:{H:667,W:222,M:2668,D:439},tek:70},
         "Sling Shot":{materials:{F:1344,W:336,H:67,D:436},tek:15},
