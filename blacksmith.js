@@ -185,7 +185,7 @@ window.BLACKSMITH = {
         "Longneck Rifle":{materials:{H:361,W:289,M:1373,D:398},tek:45},
         "Pump Shotgun":{materials:{A:548,P:670,M:365,D:1328},tek:15},
         "Pistol":{materials:{H:234,W:78,M:939,D:276},tek:35},
-        "Riot Shield":{materials:{C:1760,P:1056,M:352,BP:1056,D:12939},tek:45},          
+        "Riot Shield":{materials:{C:1760,P:1056,M:352,B:1056,D:12939},tek:45},          
         "Sword":{materials:{H:224,W:14,M:746,D:285},tek:30}
       },
       tools:{
