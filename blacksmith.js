@@ -55,7 +55,7 @@ window.BLACKSMITH = {
       "Argentavis":{materials:{K:2207,H:5151,F:2722},tek:15},
       "Armadoggo":{materials:{F:3557,M:474,H:2845,P:79},tek:25},
       "Arthropluera":{materials:{A:211,N:112,M:423,W:282,F:705,H:1128,O:493},tek:25},
-      "Aurellax":{materials:{F:11357,M:4867,H:9734,P:1622},tek:115},
+      "Aurellax":{materials:{F:3213,M:1377,H:2754,P:459},tek:45},
 
       "Baryonyx":{materials:{F:5190,M:370,H:3336},tek:25},
       "Basilisk":{materials:{A:1170,G:619,M:5852,F:2065,H:3717},tek:135},
@@ -185,6 +185,7 @@ window.BLACKSMITH = {
         "Longneck Rifle":{materials:{H:361,W:289,M:1373,D:398},tek:45},
         "Pump Shotgun":{materials:{A:548,P:670,M:365,D:1328},tek:15},
         "Pistol":{materials:{H:234,W:78,M:939,D:276},tek:35},
+        "Riot Shield":{materials:{C:1760,P:1056,M:352,BP:1056,D:12939},tek:45},          
         "Sword":{materials:{H:224,W:14,M:746,D:285},tek:30}
       },
       tools:{
@@ -228,7 +229,11 @@ window.BLACKSMITH = {
         "Fabricated Pistol":{materials:{A:1841,P:2147,M:1227,D:2765},tek:35},
         "Fabricated Sniper":{materials:{A:9910,P:10360,M:7207,D:1208},tek:160},
         "Flame Thrower":{materials:{A:4050,M:2835,L:810,E:1215,P:6075,D:514},tek:70},
+        "Goo Gun":{materials:{A:1927,E:1927,P:5139,C:2569,M:9637,D:765},tek:210},
+        "Harpoon Launcher":{materials:{A:4401,H:1833,O:3667,W:2934,F:4401,M:8802,P:2200,D:1276},tek:195},
+        "Longneck Rifle":{materials:{H:1124,W:899,M:4273,D:932},tek:105},
         "Pump Shotgun":{materials:{A:2897,P:3540,M:1931,D:3360},tek:55},
+        "Riot Shield":{materials:{C:9695,P:5817,M:1939,BP:5817,D:25958},tek:70},        
         "Shotgun":{materials:{H:1766,W:1412,M:5651,D:4060},tek:130},
         "Pistol":{materials:{H:667,W:222,M:2668,D:439},tek:70},
         "Sling Shot":{materials:{F:1344,W:336,H:67,D:436},tek:15},
