@@ -48,8 +48,6 @@ pre{white-space:pre-wrap}
 
 <h1>Client Calculator</h1>
 
-<!-- ================= SADDLES ================= -->
-
 <h2>Regular Saddles</h2>
 <table class="table table-dark table-sm table-zebra">
 <thead><tr><th>Item</th><th>Qty</th></tr></thead>
@@ -62,8 +60,6 @@ pre{white-space:pre-wrap}
 <tbody id="platform"></tbody>
 </table>
 
-<!-- ================= EQUIPMENT ================= -->
-
 <h2>Equipment – Tier 1</h2>
 <table class="table table-dark table-sm table-zebra">
 <thead><tr><th>Item</th><th>Qty</th></tr></thead>
@@ -75,8 +71,6 @@ pre{white-space:pre-wrap}
 <thead><tr><th>Item</th><th>Qty</th></tr></thead>
 <tbody id="tier2"></tbody>
 </table>
-
-<!-- ================= OUTPUT ================= -->
 
 <div class="output">
 <pre id="orderSummary"></pre>
@@ -96,7 +90,6 @@ function qtySelect(group,name){
   </select>`;
 }
 
-/* ---------- STAT FORMATTER ---------- */
 function formatStats(materials){
   const stats=[];
   if(materials.D) stats.push(`Durability: ${materials.D}`);
@@ -107,7 +100,6 @@ function formatStats(materials){
     : "";
 }
 
-/* ---------- SADDLES ---------- */
 function buildSimple(id,data){
   const t=document.getElementById(id);
   Object.keys(data).forEach(name=>{
@@ -120,7 +112,6 @@ function buildSimple(id,data){
   });
 }
 
-/* ---------- EQUIPMENT (NESTED, WITH CATEGORIES) ---------- */
 function buildNested(id,data){
   const t=document.getElementById(id);
 
@@ -142,7 +133,6 @@ function buildNested(id,data){
   });
 }
 
-/* ---------- BUILD TABLES ---------- */
 buildSimple("regular",BLACKSMITH.saddles.regular);
 buildSimple("platform",BLACKSMITH.saddles.platform);
 buildNested("tier1",BLACKSMITH.equipment.tier1);
@@ -152,6 +142,7 @@ document.addEventListener("change",calc);
 
 function calc(){
   let totalTek = 0;
+  let totalItems = 0;
 
   const output = {
     saddle: [],
@@ -162,6 +153,8 @@ function calc(){
   document.querySelectorAll("select").forEach(sel=>{
     const qty = +sel.value;
     if(!qty) return;
+
+    totalItems += qty;
 
     const group = sel.dataset.group;
     const name  = sel.dataset.name;
@@ -196,6 +189,7 @@ Order:
 
   summary +=
 `Payment: ${totalTek} Tek Ceilings
+Total Items: ${totalItems}
 Trader: <@1303790610620350587>`;
 
   document.getElementById("orderSummary").textContent = summary;
