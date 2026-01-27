@@ -101,14 +101,17 @@ window.BLACKSMITH = {
       "Karkinos":{materials:{V:1202,FW:3005,F:3381,H:2555},tek:20},
       "Lymantria":{materials:{K:1399,H:1915,F:1841},tek:15},
 
+      "Maeguana":{materials:{F:2126,M:375,H:4002},tek:25},
       "Malwyn":{materials:{K:830,H:1038,F:3462,M:2492},tek:65},
       "Mammoth":{materials:{F:1926,M:137,H:3577},tek:20},
+      "Managarmr":{materials:{K:2326,H:5429,F:2869},tek:15},
       "Mantis":{materials:{F:1076,M:502,H:1722},tek:30},
       "Megalania":{materials:{F:3407,M:713,H:4992},tek:30},
       "Megaloceros":{materials:{F:1536,M:69,H:2793},tek:20},
       "Megalosaurus":{materials:{F:2507,M:442,H:4720},tek:25},
       "Megatherium":{materials:{A:1568,H:5099,F:2039,M:862},tek:35},
       "Megataptor":{materials:{F:1729,M:432,H:3027},tek:25},
+      "Morellaptops":{materials:{F:1074,W:402,H:188},tek:15},
       "Mosasaurus":{materials:{A:1943,H:11105,B:1388,F:8328,M:5552},tek:130},
 
       "Ossidon":{materials:{F:2687,M:2015,H:5106},tek:60},
@@ -119,6 +122,7 @@ window.BLACKSMITH = {
       "Parasaur":{materials:{F:646,W:194,H:1035},tek:15},
       "Pelagornis":{materials:{K:1050,H:3222,F:1751},tek:15},
       "Plesiosaur":{materials:{A:850,H:5231,F:3269,B:523},tek:15},
+      "Procoptodon":{materials:{F:3151,M:1103,H:7879,Z:2363},tek:40},
       "Pulmonoscorpius":{materials:{F:1395,W:440,H:2496},tek:15},
       "Pteranodon":{materials:{K:1118,H:3429,F:1863},tek:15},
 
