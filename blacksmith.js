@@ -123,12 +123,12 @@ window.BLACKSMITH = {
       "Pararacer":{materials:{F:1566,M:142,H:2848},tek:20},
       "Parasaur":{materials:{F:646,W:194,H:1035},tek:15},
       "Pelagornis":{materials:{K:1050,H:3222,F:1751},tek:15},
-      "Plesiosaur":{materials:{A:850,H:5231,F:3269,B:523},tek:15},
+      "Plesiosaur":{materials:{A:850,H:5231,F:3269,B:523},tek:20},
       "Procoptodon":{materials:{F:3151,M:1103,H:7879,Z:2363},tek:40},
       "Pulmonoscorpius":{materials:{F:1395,W:440,H:2496},tek:15},
       "Pteranodon":{materials:{K:1118,H:3429,F:1863},tek:15},
 
-      "Quetzal":{materials:{A:1261,H:9462,F:6308,B:1072},tek:15},
+      "Quetzal":{materials:{A:1261,H:9462,F:6308,B:1072},tek:30},
 
       "Raptor":{materials:{F:826,W:254,H:1399},tek:15},
       "Ravager":{materials:{F:1908,H:4352,FW:1679},tek:15},
@@ -183,12 +183,12 @@ window.BLACKSMITH = {
       weapons:{
         "AR":{materials:{A:769,P:923,M:538,D:209},tek:25},
         "Compound Bow":{materials:{A:1190,P:1507,M:1348,D:299},tek:45},
-        "Cross Bow":{materials:{F:551,W:157,M:110,D:400},tek:10},
+        "Cross Bow":{materials:{F:551,W:157,M:110,D:400},tek:15},
         "Fabricated Crossbow":{materials:{A:511,M:877,F:1169,P:2338,D:544},tek:30},
         "Fabricated Pistol":{materials:{A:415,P:485,M:277,D:990},tek:15},
         "Fabricated Sniper":{materials:{A:1322,P:1382,M:961,D:426},tek:35},
         "Flame Thrower":{materials:{A:742,M:519,L:148,E:222,P:1113,D:205},tek:25},
-        "Harpoon Launcher":{materials:{A:862,H:359,O:718,W:574,F:862,M:172,P:431,D:297},tek:10},
+        "Harpoon Launcher":{materials:{A:862,H:359,O:718,W:574,F:862,M:172,P:431,D:297},tek:20},
         "Longneck Rifle":{materials:{H:361,W:289,M:1373,D:398},tek:45},
         "Pump Shotgun":{materials:{A:548,P:670,M:365,D:1328},tek:15},
         "Pistol":{materials:{H:234,W:78,M:939,D:276},tek:35},
@@ -206,12 +206,12 @@ window.BLACKSMITH = {
         "Whip":{materials:{F:387,U:155,H:155,W:77,D:138},tek:10}
       },
       armor:{
-        "Glider Suit":{materials:{V:25,H:60,F:100,M:60,D:1000},tek:10},
+        "Glider Suit":{materials:{V:25,H:60,F:100,M:60,D:1000},tek:15},
       
-        "Flak Boots":{materials:{F:57,M:115,H:86,D:429},tek:10},
+        "Flak Boots":{materials:{F:57,M:115,H:86,D:429},tek:15},
         "Flak Chest":{materials:{F:63,M:206,H:159,D:433},tek:15},
-        "Flak Gloves":{materials:{F:30,M:92,H:77,D:629},tek:10},
-        "Flak Helm":{materials:{F:42,M:142,H:99,D:505},tek:10},
+        "Flak Gloves":{materials:{F:30,M:92,H:77,D:629},tek:15},
+        "Flak Helm":{materials:{F:42,M:142,H:99,D:505},tek:15},
         "Flak Legs":{materials:{F:75,M:242,H:181,D:588},tek:15},
       
         "Scuba Flippers":{materials:{A:70,F:58,B:47,K:141,H:141,D:341},tek:10},
@@ -253,7 +253,7 @@ window.BLACKSMITH = {
         "Chainsaw":{materials:{A:3823,M:3823,E:1911,P:5734,D:1025},tek:90},
         "Climbing Pick":{materials:{F:812,G:325,FW:162,M:650,D:813},tek:30},
         "Hatchet":{materials:{H:787,W:78,M:630,D:525},tek:30},
-        "Pick":{materials:{H:699,W:69,M:69,D:472},tek:10},
+        "Pick":{materials:{H:699,W:69,M:69,D:472},tek:15},
         "Shield":{materials:{A:1286,M:5147,H:965,D:19576},tek:120},
         "Sickle":{materials:{H:948,W:237,M:1066,D:480},tek:35},
         "Pike":{materials:{H:1914,W:957,M:957,D:521},tek:35},
