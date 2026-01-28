@@ -78,6 +78,7 @@ window.BLACKSMITH = {
       "Deinonychus":{materials:{F:2425,W:746,H:4104},tek:15},
       "Deinosuchus":{materials:{F:2662,M:665,H:5059},tek:30},
       "Deinotherium":{materials:{A:1968,H:1968,W:4594,F:7482,M:262},tek:25},
+      "Desmodus":{materials:{F:12939,M:3234,H:18689,W:8626},tek:80},      
       "Diplodocus":{materials:{F:9545,M:3181,H:13522,W:3977},tek:80},
       "Dire Bear":{materials:{A:1291,H:3873,F:1678},tek:15},
       "Doedicurus":{materials:{F:1695,M:77,H:3082,S:231},tek:20},
@@ -89,6 +90,7 @@ window.BLACKSMITH = {
       "Gacha":{materials:{K:2241,H:5229,F:2764},tek:15},
       "Gallimimus":{materials:{F:2408,M:376,H:3613,W:1806},tek:25},
       "Gasbags":{materials:{K:1885,H:4399,F:2325},tek:15},
+      "Gigadesmodus (Primitive)":{materials:{A:160,H:550,B:220,F:600,M:225},tek:25},
       "Giganotosaurus":{materials:{F:4838,M:1659,H:9401},tek:50},
       "Gigantoraptor":{materials:{F:2548,M:875,H:4538,W:1911},tek:35},
 
@@ -162,6 +164,7 @@ window.BLACKSMITH = {
     platform: {
       "Brontosaurus Platform":{materials:{A:675,H:8254,B:1876,F:4877,M:1350},tek:45},
       "Dreadnoughtus Platform":{materials:{A:4533,H:18133,B:3777,F:12088,M:9822},tek:215},
+      "Gigadesmodus Platform (Primitive)":{materials:{A:225,H:600,B:150,F:525,M:450},tek:30},      
       "Mosasaurus Platform":{materials:{A:2707,H:14438,B:4812,F:10829,M:18048},tek:380},
       "Paraceratherium Platform":{materials:{A:359,H:4597,B:646,F:2873,M:1005},tek:40},
       "Plesiosaur Platform":{materials:{A:431,H:5335,B:1216,F:3177,M:878},tek:35},
