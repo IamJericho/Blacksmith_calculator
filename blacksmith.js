@@ -203,7 +203,7 @@ window.BLACKSMITH = {
         "Shield":{materials:{A:142,M:570,H:107,D:7735},tek:25},
         "Sickle":{materials:{H:242,W:60,M:272,D:216},tek:15},
         "Pike":{materials:{H:285,W:142,M:142,D:168},tek:20},
-        "Whip":{materials:{F:387,U:155,H:155,W:77,D:138},tek:10}
+        "Whip":{materials:{F:387,U:155,H:155,W:77,D:138},tek:20}
       },
       armor:{
         "Glider Suit":{materials:{V:25,H:60,F:100,M:60,D:1000},tek:15},
