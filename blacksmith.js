@@ -311,18 +311,18 @@
   cursed: {
         /* ---------- TIER 1 ---------- */
     tier1: {
-      weapons: {},
+      /* weapons: {},
       tools: {},
-      armor: {}
+      armor: {} */
     },
     /* ---------- TIER 2 ---------- */
     tier2: {
       weapons: {
-        "Compound Bow":{materials:{A:4218,P:5343,M:4781,D:716},tek:110},
-        "Sword":{materials:{H:1268,W:84,M:4229,D:751},tek:100}
-      },
+        "Compound Bow":{materials:{F:1213,RE:34,M:242,W:346,D:652},tek:60},
+        "Sword":{materials:{H:571,RE:38,M:1903,W:38,D:363,tek:60}
+      },/* 
       tools: {},
-      armor: {}
+      armor: {} */
     }
   } 
 };
