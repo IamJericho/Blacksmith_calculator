@@ -4,7 +4,7 @@
    Plain JS (no modules)
    ============================================================ */
 
-window.BLACKSMITH = {
+   window.BLACKSMITH = {
 
     /* =========================
      MATERIAL KEY (LEGEND)
@@ -40,7 +40,8 @@ window.BLACKSMITH = {
       Y:  "Clay",
       Z:  "Pelt",
       BP: "Black Pearls",
-      GB: "Congealed Gas Ball"
+      GB: "Congealed Gas Ball",
+      RE: "Red Element"
     },
 
   /* =========================
@@ -228,7 +229,6 @@ window.BLACKSMITH = {
 
     /* ---------- TIER 2 ---------- */
     tier2: {
-
       weapons:{
         "AR":{materials:{A:2531,P:3037,M:1771,D:483},tek:50},
         "Compound Bow":{materials:{A:4218,P:5343,M:4781,D:716},tek:110},
@@ -302,8 +302,27 @@ window.BLACKSMITH = {
         "Scuba Legs":{materials:{F:266,M:133,H:2661,P:2661,D:665},tek:25},
         "Scuba Mask":{materials:{C:488,H:732,F:293,B:146,D:526},tek:25},
         "Scuba Tank":{materials:{F:329,M:576,H:822,P:123,D:474},tek:30}
-        }
-        
+        },
+   
     }
-  }
+  },
+      /* =========================
+       CURSED ==================== */
+  cursed: {
+        /* ---------- TIER 1 ---------- */
+    tier1: {
+      weapons: {},
+      tools: {},
+      armor: {}
+    },
+    /* ---------- TIER 2 ---------- */
+    tier2: {
+      weapons: {
+        "Compound Bow":{materials:{A:4218,P:5343,M:4781,D:716},tek:110},
+        "Sword":{materials:{H:1268,W:84,M:4229,D:751},tek:100}
+      },
+      tools: {},
+      armor: {}
+    }
+  } 
 };
