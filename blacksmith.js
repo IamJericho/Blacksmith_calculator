@@ -319,7 +319,7 @@
     tier2: {
       weapons: {
         "Compound Bow":{materials:{F:1213,RE:34,M:242,W:346,D:652},tek:60},
-        "Sword":{materials:{H:571,RE:38,M:1903,W:38,D:363,tek:60}
+        "Sword":{materials:{H:571,RE:38,M:1903,W:38,D:363,},tek:60}
       },/* 
       tools: {},
       armor: {} */
