@@ -101,6 +101,7 @@
       "Ichthyosaurus":{materials:{F:795,H:874,W:318,N:127,RM:159},tek:20},
       "Iguanodon":{materials:{F:669,W:200,H:1071},tek:15},
 
+      "Kaprosuchus":{materials:{K:1031,H:2617,F:1903},tek:15},
       "Karkinos":{materials:{V:1202,FW:3005,F:3381,H:2555},tek:20},
       "Lymantria":{materials:{K:1399,H:1915,F:1841},tek:15},
 
