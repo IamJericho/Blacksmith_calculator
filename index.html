@@ -166,6 +166,7 @@
     <h3>Order Summary</h3>
     <pre id="orderSummary"></pre>
     <button class="btn btn-sm btn-primary" onclick="copyAll()">Copy All</button>
+    <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
     <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
   </div>
 
@@ -353,8 +354,14 @@ https://discord.com/channels/928159194929045584/1091201655128723486`;
     function copyAll() {
       navigator.clipboard.writeText(
         document.getElementById("orderSummary").textContent
-      );
+      ).then(() => {
+        const m = document.getElementById("copyMsg");
+        if (!m) return;
+        m.style.display = "inline";
+        setTimeout(() => m.style.display = "none", 1500);
+      });
     }
+
 
     function resetAll() {
       document.querySelectorAll("select").forEach(s => s.value = 0);
