@@ -131,6 +131,7 @@
         <option>4</option>
         <option>5</option>
         <option>6</option>
+        <option>7</option>
       </select>
     </div>
 
@@ -158,7 +159,7 @@
   </div>
 
   <div class="output">
-    <h3>Tek Split (75 / 25)</h3>
+    <h3>Tek Split (70 / 30)</h3>
     <pre id="tekSplit"></pre>
   </div>
 
@@ -264,13 +265,13 @@ ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
       const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
       const paymentTotal = finalTek + deliveryFee;
 
-      const farmerTek = Math.round(finalTek * 0.75);
+      const farmerTek = Math.round(finalTek * 0.70);
       const crafterTek = finalTek - farmerTek;
 
       let tekSplitText =
         `Total Tek: ${finalTek}
-DTJ (75%): ${farmerTek}
-NBP (25%): ${crafterTek}`;
+DTJ (70%): ${farmerTek}
+NBP (30%): ${crafterTek}`;
 
       if (reinforce) tekSplitText += `\nReinforcement: ${reinforceTek}`;
       if (delivery) tekSplitText += `\nDelivery Fee: ${deliveryFee}`;
