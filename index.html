@@ -254,11 +254,9 @@ ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
         totalTek += item.tek * qty;
 
         Object.entries(item.materials).forEach(([k, v]) => {
-          const base = v * qty;
-
-          // EXCLUDE durability from material tracking entirely
           if (k === "D") return;
 
+          const base = v * qty;
           baseMaterialTotals[k] = (baseMaterialTotals[k] || 0) + base;
 
           if (cat === "weapons" || cat === "tools" || cat === "armor") {
@@ -281,20 +279,28 @@ ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
         });
       }
 
-      const finalTek = totalTek + (reinforce ? reinforceTek : 0);
-
       const delivery = document.getElementById("deliverySelect").value === "yes";
-      const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
-      const paymentTotal = finalTek + deliveryFee;
+      const deliveryFee = delivery ? Math.max(100, Math.ceil(totalTek * 0.25)) : 0;
 
-      const farmerTek = Math.round(finalTek * 0.70);
-      const crafterTek = finalTek - farmerTek;
+      const finalTek = totalTek + (reinforce ? reinforceTek : 0) + deliveryFee;
 
-      document.getElementById("tekSplit").textContent =
+      const farmerTek = Math.round(totalTek * 0.70);
+      const crafterTek = totalTek - farmerTek;
+
+      let tekSplitText =
         `Total Tek: ${finalTek}
 DTJ (70%): ${farmerTek}
-NBP (30%): ${crafterTek}
-${reinforce ? `Reinforcement: ${reinforceTek}` : ""}`;
+NBP (30%): ${crafterTek}`;
+
+      if (delivery) {
+        tekSplitText += `\nDelivery Charge: ${deliveryFee}`;
+      }
+
+      if (reinforce) {
+        tekSplitText += `\nReinforcement: ${reinforceTek}`;
+      }
+
+      document.getElementById("tekSplit").textContent = tekSplitText;
 
       const room = document.getElementById("roomSelect").value;
       const vault = room + document.getElementById("vaultSelect").value;
@@ -313,17 +319,8 @@ ${reinforce ? `Reinforcement: ${reinforceTek}` : ""}`;
         orderText +=
           `Delivery: Yes
 
-Please provide the following:
-Server:
-Spawn:
-Coords:
-Tribe Name:
-Pin (Vault, Dedi, Fridge):
-
-Payment: ${paymentTotal} Tek
+Payment: ${finalTek} Tek Ceilings
 Total Items: ${totalItems}
-
-Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
 `;
       } else {
         orderText +=
@@ -331,29 +328,10 @@ Note: Delivery will need to be in an outside location. No TP will be taken, No e
 Bring Flyer, unless you can use TP
 Server: 5986
 Spawn: Lemonkis East
-Shop Coords: 18.9 - 89.8
-Tribe: Department of War
-Room: ${room}
-Vault: ${vault}
-Pin: ${pin}
-Payment: ${paymentTotal} Tek
+Payment: ${finalTek} Tek Ceilings
 Total Items: ${totalItems}
-
-If you’re able to use a teleporter:
-Spawn: Korinthos East
-World TP: Korinthos East > E
-Coords: 41.1 - 33.4
-Coords: 44.4 - 36.8
-TP: DoW Trade
-Look for the Red, White, Blue buildings
 `;
       }
-
-      orderText +=
-        `
-Please leave a review, it’s much appreciated, and I’ll leave one for you as well.
-
-https://discord.com/channels/928159194929045584/1091201655128723486`;
 
       document.getElementById("orderSummary").textContent = orderText;
 
