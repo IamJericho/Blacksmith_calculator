@@ -324,6 +324,7 @@ window.BLACKSMITH = {
         "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140 }, tek: 60 },       
         "Longneck Rifle": { materials: { H: 697, RE: 139, M: 2649, W: 557, D:220 }, tek: 175 },
         "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D:167 }, tek: 60 },
+        "Pike": { materials: { H: 645, RE: 32, M: 322, W: 322, D:180 }, tek: 60 },
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, }, tek: 60 }
       },/* 
       tools: {},
