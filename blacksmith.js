@@ -108,7 +108,7 @@ window.BLACKSMITH = {
       "Maeguana": { materials: { F: 2126, M: 375, H: 4002 }, tek: 25 },
       "Malwyn": { materials: { K: 830, H: 1038, F: 3462, M: 2492 }, tek: 65 },
       "Mammoth": { materials: { F: 1926, M: 137, H: 3577 }, tek: 20 },
-      "Managarmr": { materials: { K: 2326, H: 5429, F: 2869 }, tek: 25 },
+      "Managarmr": { materials: { K: 2333, H: 5444, F: 2878 }, tek: 30 },
       "Mantis": { materials: { F: 1076, M: 502, H: 1722 }, tek: 30 },
       "Megalania": { materials: { F: 3407, M: 713, H: 4992 }, tek: 30 },
       "Megaloceros": { materials: { F: 1536, M: 69, H: 2793 }, tek: 20 },
@@ -160,7 +160,7 @@ window.BLACKSMITH = {
       "Woolly Rhino": { materials: { A: 1417, H: 3543, F: 1842, M: 850 }, tek: 35 },
       "Xiphactinus": { materials: { A: 753, H: 4371, F: 2336, M: 226 }, tek: 20 },
       "Yi Ling": { materials: { F: 508, W: 156, H: 860 }, tek: 15 },
-      "Yutyrannus": { materials: { F: 5548, M: 2140, H: 6737, B: 1981 }, tek: 60 }
+      "Yutyrannus": { materials: { F: 4500, M: 1736, H: 5465, B: 1607 }, tek: 60 }
     },
 
     platform: {
@@ -187,12 +187,12 @@ window.BLACKSMITH = {
         "Compound Bow": { materials: { A: 1190, P: 1507, M: 1348, D: 299 }, tek: 45 },
         "Cross Bow": { materials: { F: 551, W: 157, M: 110, D: 400 }, tek: 15 },
         "Fabricated Crossbow": { materials: { A: 511, M: 877, F: 1169, P: 2338, D: 544 }, tek: 30 },
-        "Fabricated Pistol": { materials: { A: 415, P: 485, M: 277, D: 990 }, tek: 25 },
+        "Fabricated Pistol": { materials: { A: 477, P: 556, M: 318, D: 1359 }, tek: 30 },
         "Fabricated Sniper": { materials: { A: 1322, P: 1382, M: 961, D: 426 }, tek: 35 },
         "Flame Thrower": { materials: { A: 742, M: 519, L: 148, E: 222, P: 1113, D: 205 }, tek: 25 },
         "Harpoon Launcher": { materials: { A: 862, H: 359, O: 718, W: 574, F: 862, M: 172, P: 431, D: 297 }, tek: 20 },
         "Longneck Rifle": { materials: { H: 361, W: 289, M: 1373, D: 398 }, tek: 45 },
-        "Pump Shotgun": { materials: { A: 548, P: 670, M: 365, D: 1328 }, tek: 25 },
+        "Pump Shotgun": { materials: { A: 326, P: 398, M: 217, D: 1665 }, tek: 25 },
         "Pistol": { materials: { H: 234, W: 78, M: 939, D: 276 }, tek: 35 },
         "Riot Shield": { materials: { C: 1760, P: 1056, M: 352, B: 1056, D: 12939 }, tek: 45 },
         "Sword": { materials: { H: 224, W: 14, M: 746, D: 285 }, tek: 30 }
@@ -210,7 +210,7 @@ window.BLACKSMITH = {
       armor: {
         "Glider Suit": { materials: { V: 25, H: 60, F: 100, M: 60, D: 1000 }, tek: 15 },
 
-        "Flak Boots": { materials: { F: 57, M: 115, H: 86, D: 429 }, tek: 15 },
+        "Flak Boots": { materials: { F: 57, M: 115, H: 86, D: 1013 }, tek: 15 },
         "Flak Chest": { materials: { F: 63, M: 206, H: 159, D: 433 }, tek: 15 },
         "Flak Gloves": { materials: { F: 30, M: 92, H: 77, D: 629 }, tek: 15 },
         "Flak Helm": { materials: { F: 42, M: 142, H: 99, D: 505 }, tek: 15 },
@@ -321,7 +321,8 @@ window.BLACKSMITH = {
       weapons: {
         "Cross Bow": { materials: { F: 1213, RE: 34, M: 242, W: 346, D: 652 }, tek: 60 },
         "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140 }, tek: 60 },       
-        "Longneck Rifle": { materials: { H: 697, RE: 139, M: 2649, W: 557 }, tek: 175 },
+        "Longneck Rifle": { materials: { H: 697, RE: 139, M: 2649, W: 557, D:220 }, tek: 175 },
+        "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D:167 }, tek: 60 },
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, }, tek: 60 }
       },/* 
       tools: {},
