@@ -319,6 +319,7 @@ window.BLACKSMITH = {
     /* ---------- TIER 2 ---------- */
     tier2: {
       weapons: {
+        "Chainsaw": { materials: { A: 1719, M: 1719, RE: 171, E: 859, P: 2579, D: 299 }, tek: 230 },
         "Cross Bow": { materials: { F: 1213, RE: 34, M: 242, W: 346, D: 652 }, tek: 60 },
         "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140 }, tek: 60 },       
         "Longneck Rifle": { materials: { H: 697, RE: 139, M: 2649, W: 557, D:220 }, tek: 175 },
