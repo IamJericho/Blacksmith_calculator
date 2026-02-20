@@ -125,13 +125,14 @@
     <div class="col-auto">
       <label class="form-label mb-0">Vault</label>
       <select id="vaultSelect" class="form-select form-select-sm">
-        <option>1</option>
-        <option>2</option>
-        <option>3</option>
-        <option>4</option>
-        <option>5</option>
-        <option>6</option>
-        <option>7</option>
+        <option>11</option>
+        <option>12</option>
+        <option>13</option>
+        <option>14</option>
+        <option>21</option>
+        <option>22</option>
+        <option>23</option>
+        <option>24</option>
       </select>
     </div>
 
@@ -312,8 +313,8 @@ ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
       // FIX: Tek Split shows total including delivery, plus delivery charge line
       let tekSplitText =
         `Total Tek: ${splitBase}
-DTJ (70%): ${farmerTek}
-NBP (30%): ${crafterTek}`;
+          DTJ (70%): ${farmerTek}
+          NBP (30%): ${crafterTek}`;
 
       if (delivery) tekSplitText += `\nDelivery Charge: ${deliveryFee}`;
       if (reinforce) tekSplitText += `\nReinforcement: ${reinforceTek}`;
