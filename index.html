@@ -150,8 +150,23 @@
         <option value="yes">Yes</option>
       </select>
     </div>
-
   </div>
+
+  <div class="output">
+    <h3>Manual TC / CC Calculator</h3>
+
+    <div class="mb-2">
+      <label class="form-label">Enter Materials (example: F: 63, M: 206, H: 159)</label>
+      <input type="text" id="manualMaterials" class="form-control form-control-sm" placeholder="F: 63, M: 206, H: 159">
+    </div>
+
+    <button class="btn btn-sm btn-warning" onclick="calculateManual()">
+      Calculate TC / CC
+    </button>
+
+    <pre id="manualResult" style="margin-top:10px;"></pre>
+  </div>
+
 
   <div class="output">
     <h3>Material Totals</h3>
@@ -171,6 +186,7 @@
     <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
   </div>
 
+  <script src="pricingEngine.js"></script>
   <script src="blacksmith.js"></script>
   <script>
 
@@ -398,6 +414,53 @@ https://discord.com/channels/928159194929045584/1091201655128723486`;
       document.getElementById("orderSummary").textContent = "";
       document.getElementById("materialSummary").textContent = "";
       document.getElementById("tekSplit").textContent = "";
+    }
+    function calculateManual() {
+
+      const input = document.getElementById("manualMaterials").value.trim();
+      const output = document.getElementById("manualResult");
+
+      if (!input) {
+        output.textContent = "Enter materials first.";
+        return;
+      }
+
+      try {
+        const materials = parseMaterialInput(input);
+        const result = DTJ_PRICING.priceItem(materials);
+
+        output.textContent =
+          `TC: ${result.TC}
+
+CC Range: ${result.CC.low} - ${result.CC.high}
+Ideal CC: ${result.CC.ideal}`;
+      }
+      catch (err) {
+        output.textContent = "Invalid format. Example: F: 63, M: 206, H: 159";
+      }
+    }
+
+    // Parses: F: 63, M: 206, H: 159
+    function parseMaterialInput(str) {
+
+      const obj = {};
+
+      const pairs = str.split(",");
+
+      pairs.forEach(pair => {
+        const [key, value] = pair.split(":");
+
+        if (!key || !value) throw new Error("Invalid format");
+
+        const cleanKey = key.trim().toUpperCase();
+        const cleanValue = Number(value.trim());
+
+        if (isNaN(cleanValue)) throw new Error("Invalid number");
+
+        obj[cleanKey] = cleanValue;
+      });
+
+      return obj;
     }
 
   </script>
