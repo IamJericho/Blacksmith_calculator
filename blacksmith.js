@@ -254,7 +254,7 @@ window.BLACKSMITH = {
         "Chainsaw": { materials: { A: 3823, M: 3823, E: 1911, P: 5734, D: 1025 }, tek: 90 },
         "Climbing Pick": { materials: { F: 812, G: 325, FW: 162, M: 650, D: 813 }, tek: 30 },
         "Hatchet": { materials: { H: 787, W: 78, M: 630, D: 525 }, tek: 30 },
-        "Pick": { materials: { H: 699, W: 69, M: 69, D: 472 }, tek: 25 },
+        "Pick": { materials: { H: 1275, W: 127, M: 127, D: 627 }, tek: 25 },
         "Shield": { materials: { A: 1286, M: 5147, H: 965, D: 19576 }, tek: 120 },
         "Sickle": { materials: { H: 948, W: 237, M: 1066, D: 480 }, tek: 35 },
         "Pike": { materials: { H: 1914, W: 957, M: 957, D: 521 }, tek: 35 },
