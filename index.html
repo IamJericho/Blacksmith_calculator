@@ -294,7 +294,7 @@ ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
           const base = v * qty;
 
           // EXCLUDE durability from material tracking entirely
-          if (k === "D") return;
+          if (k === "D" || k === "J" || k === "Q") return;
 
           baseMaterialTotals[k] = (baseMaterialTotals[k] || 0) + base;
 
