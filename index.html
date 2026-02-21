@@ -516,25 +516,6 @@ Ideal CC: ${result.CC.ideal}`;
 
       return obj;
     }
-
-    function qtySelect(group, name) {
-
-      // Limit Cursed Pump Shotgun to 1 per order
-      const isLimitedItem =
-        group === "cursed2" &&
-        name.toLowerCase().includes("pump shotgun");
-
-      const maxQty = isLimitedItem ? 1 : 50;
-
-      return `<select class="form-select form-select-sm"
-                  data-group="${group}"
-                  data-name="${name}">
-    ${Array.from({ length: maxQty + 1 }, (_, i) =>
-        `<option>${i}</option>`
-      ).join("")}
-  </select>`;
-    }
-
   </script>
 </body>
 
