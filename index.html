@@ -8,480 +8,268 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
-    body {
-      background: #0e1117;
-      color: #eaeaea
-    }
-
-    h1,
-    h2,
-    h3 {
-      color: #ff4d4d
-    }
-
-    .table-zebra tbody tr:nth-child(odd) td {
-      background: #0f141b !important
-    }
-
-    .table-zebra tbody tr:nth-child(even) td {
-      background: #161b22 !important
-    }
-
-    .table-zebra tbody tr:hover td {
-      background: #1f2633 !important
-    }
-
+    body { background: #0e1117; color: #eaeaea }
+    h1,h2,h3 { color: #ff4d4d }
+    .table-zebra tbody tr:nth-child(odd) td { background:#0f141b!important }
+    .table-zebra tbody tr:nth-child(even) td { background:#161b22!important }
+    .table-zebra tbody tr:hover td { background:#1f2633!important }
     .category-row td {
-      background: #0b0f14 !important;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: #ff4d4d
+      background:#0b0f14!important;
+      font-weight:bold;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#ff4d4d
     }
-
     .output {
-      background: #161b22;
-      padding: 12px;
-      border: 1px solid #2a2f3a;
-      margin-top: 15px
+      background:#161b22;
+      padding:12px;
+      border:1px solid #2a2f3a;
+      margin-top:15px
     }
-
-    pre {
-      white-space: pre-wrap
-    }
+    pre { white-space: pre-wrap }
   </style>
 </head>
 
 <body class="container-fluid">
 
-  <h1>Internal Calculator</h1>
+<h1>Internal Calculator</h1>
 
-  <h2>Regular Saddles</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="regular"></tbody>
-  </table>
+<h2>Regular Saddles</h2>
+<table class="table table-dark table-sm table-zebra">
+  <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+  <tbody id="regular"></tbody>
+</table>
 
-  <h2>Platform Saddles</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="platform"></tbody>
-  </table>
+<h2>Platform Saddles</h2>
+<table class="table table-dark table-sm table-zebra">
+  <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+  <tbody id="platform"></tbody>
+</table>
 
-  <h2>Tier 1</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="tier1"></tbody>
-  </table>
+<h2>Tier 1</h2>
+<table class="table table-dark table-sm table-zebra">
+  <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+  <tbody id="tier1"></tbody>
+</table>
 
-  <h2>Tier 2</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="tier2"></tbody>
-  </table>
+<h2>Tier 2</h2>
+<table class="table table-dark table-sm table-zebra">
+  <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+  <tbody id="tier2"></tbody>
+</table>
 
-  <h2>Cursed Tier 2</h2>
-  <p>(requires: LC Expansion)</p>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="cursed2"></tbody>
-  </table>
+<h2>Cursed Tier 2</h2>
+<p>(requires: LC Expansion)</p>
+<table class="table table-dark table-sm table-zebra">
+  <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+  <tbody id="cursed2"></tbody>
+</table>
 
-  <div class="row g-2 mb-3">
+<div class="row g-2 mb-3">
 
-    <div class="col-auto">
-      <label class="form-label mb-0">Room</label>
-      <select id="roomSelect" class="form-select form-select-sm">
-        <option value="A">A</option>
-        <option value="B">B</option>
-      </select>
-    </div>
-
-    <div class="col-auto">
-      <label class="form-label mb-0">Vault</label>
-      <select id="vaultSelect" class="form-select form-select-sm">
-        <option>11</option>
-        <option>12</option>
-        <option>13</option>
-        <option>14</option>
-        <option>21</option>
-        <option>22</option>
-        <option>23</option>
-        <option>24</option>
-      </select>
-    </div>
-
-    <div class="col-auto">
-      <label class="form-label mb-0">Delivery</label>
-      <select id="deliverySelect" class="form-select form-select-sm">
-        <option value="no">No</option>
-        <option value="yes">Yes</option>
-      </select>
-    </div>
-
-    <div class="col-auto" id="reinforceBox">
-      <label class="form-label mb-0">Reinforce</label>
-      <select id="reinforceSelect" class="form-select form-select-sm">
-        <option value="no">No</option>
-        <option value="yes">Yes</option>
-      </select>
-    </div>
+  <div class="col-auto">
+    <label class="form-label mb-0">Room</label>
+    <select id="roomSelect" class="form-select form-select-sm">
+      <option value="A">A</option>
+      <option value="B">B</option>
+    </select>
   </div>
 
-  <div class="output">
-    <h3>Manual TC / CC Calculator</h3>
-
-    <div class="mb-2">
-      <label class="form-label">Enter Materials (example: F: 63, M: 206, H: 159)</label>
-      <input type="text" id="manualMaterials" class="form-control form-control-sm" placeholder="F: 63, M: 206, H: 159">
-    </div>
-
-    <button class="btn btn-sm btn-warning" onclick="calculateManual()">
-      Calculate TC / CC
-    </button>
-
-    <pre id="manualResult" style="margin-top:10px;"></pre>
+  <div class="col-auto">
+    <label class="form-label mb-0">Vault</label>
+    <select id="vaultSelect" class="form-select form-select-sm">
+      <option>11</option><option>12</option><option>13</option><option>14</option>
+      <option>21</option><option>22</option><option>23</option><option>24</option>
+    </select>
   </div>
 
-
-  <div class="output">
-    <h3>Material Totals</h3>
-    <pre id="materialSummary"></pre>
+  <div class="col-auto">
+    <label class="form-label mb-0">Delivery</label>
+    <select id="deliverySelect" class="form-select form-select-sm">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
   </div>
 
-  <div class="output">
-    <h3>Tek Split (70 / 30)</h3>
-    <pre id="tekSplit"></pre>
+  <div class="col-auto">
+    <label class="form-label mb-0">Reinforce</label>
+    <select id="reinforceSelect" class="form-select form-select-sm">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
   </div>
 
-  <div class="output">
-    <h3>Order Summary</h3>
-    <pre id="orderSummary"></pre>
-    <button class="btn btn-sm btn-primary" onclick="copyAll()">Copy All</button>
-    <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-    <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
-  </div>
-
-  <script src="pricingEngine.js"></script>
-  <script src="blacksmith.js"></script>
-  <script>
-
-    function qtySelect(group, name) {
-      return `<select class="form-select form-select-sm" data-group="${group}" data-name="${name}">
-${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
-</select>`;
-    }
-
-    function buildSimple(id, data) {
-      const t = document.getElementById(id);
-      Object.keys(data).forEach(name => {
-        t.insertAdjacentHTML("beforeend",
-          `<tr><td>${name}</td><td>${qtySelect(id, name)}</td></tr>`);
-      });
-    }
-
-    function buildNested(id, data) {
-      const t = document.getElementById(id);
-      Object.keys(data).forEach(cat => {
-        t.insertAdjacentHTML("beforeend",
-          `<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
-        Object.keys(data[cat]).forEach(item => {
-          t.insertAdjacentHTML("beforeend",
-            `<tr><td>${item}</td><td>${qtySelect(id, `${cat}|${item}`)}</td></tr>`);
-        });
-      });
-    }
-
-    buildSimple("regular", BLACKSMITH.saddles.regular);
-    buildSimple("platform", BLACKSMITH.saddles.platform);
-    buildNested("tier1", BLACKSMITH.equipment.tier1);
-    buildNested("tier2", BLACKSMITH.equipment.tier2);
-    buildNested("cursed2", BLACKSMITH.cursed.tier2);
-
-    document.addEventListener("change", calc);
-
-    function calc() {
-
-      let totalTek = 0;
-      let reinforceTek = 0;
-      let hasReinforce = false;
-      let totalItems = 0;
-
-      const baseMaterialTotals = {};
-      const reinforceEligibleBaseTotals = {};
-      const materialTotals = {};
-
-      const output = { saddle: [], tier1: [], tier2: [], cursed2: [] };
-
-      document.querySelectorAll("select[data-group]").forEach(sel => {
-        const qty = +sel.value;
-        if (!qty) return;
-
-        totalItems += qty;
-
-        const g = sel.dataset.group;
-        const n = sel.dataset.name;
-        let item, cat, itemName;
-
-        if (g === "regular" || g === "platform") {
-          item = BLACKSMITH.saddles[g][n];
-          output.saddle.push(`${qty} ${n}`);
-        } else {
-          [cat, itemName] = n.split("|");
-
-          if (g === "tier1" || g === "tier2") {
-            item = BLACKSMITH.equipment[g][cat][itemName];
-          } else {
-            item = BLACKSMITH.cursed.tier2[cat][itemName];
-          }
-
-          if (cat === "weapons" || cat === "tools" || cat === "armor") {
-            hasReinforce = true;
-            reinforceTek += Math.ceil(item.tek * qty * 0.30);
-          }
-
-          output[g].push(`${qty} ${cat.toLowerCase()} – ${itemName}`);
-        }
-
-        totalTek += item.tek * qty;
-
-        Object.entries(item.materials).forEach(([k, v]) => {
-          const base = v * qty;
-
-          // EXCLUDE durability from material tracking entirely
-          if (k === "D") return;
-
-          baseMaterialTotals[k] = (baseMaterialTotals[k] || 0) + base;
-
-          if (cat === "weapons" || cat === "tools" || cat === "armor") {
-            reinforceEligibleBaseTotals[k] =
-              (reinforceEligibleBaseTotals[k] || 0) + base;
-          }
-        });
-      });
-
-      const reinforce = hasReinforce &&
-        document.getElementById("reinforceSelect").value === "yes";
-
-      Object.entries(baseMaterialTotals).forEach(([k, v]) => {
-        materialTotals[k] = v;
-      });
-
-      if (reinforce) {
-        Object.entries(reinforceEligibleBaseTotals).forEach(([k, v]) => {
-          materialTotals[k] += Math.ceil(v * 0.285);
-        });
-      }
-
-      const finalTek = totalTek + (reinforce ? reinforceTek : 0);
-
-      const delivery = document.getElementById("deliverySelect").value === "yes";
-      const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
-      const paymentTotal = finalTek + deliveryFee;
-
-      // FIX: split uses the total the client pays (includes delivery when applicable)
-      const splitBase = paymentTotal;
-
-      const farmerTek = Math.round(splitBase * 0.70);
-      const crafterTek = splitBase - farmerTek;
-
-      // FIX: Tek Split shows total including delivery, plus delivery charge line
-      let tekSplitText =
-        `Total Tek: ${splitBase}
-          DTJ (70%): ${farmerTek}
-          NBP (30%): ${crafterTek}`;
-
-      if (delivery) tekSplitText += `\nDelivery Charge: ${deliveryFee}`;
-      if (reinforce) tekSplitText += `\nReinforcement: ${reinforceTek}`;
-
-      document.getElementById("tekSplit").textContent = tekSplitText;
-
-      const room = document.getElementById("roomSelect").value;
-      const vault = room + document.getElementById("vaultSelect").value;
-      const pin = Math.floor(1000 + Math.random() * 9000);
-
-      let orderText = `Your order is complete:\n\n`;
-
-      if (output.saddle.length) orderText += `Saddle:\n${output.saddle.join("\n")}\n\n`;
-      if (output.tier1.length) orderText += `Tier 1\n${output.tier1.join("\n")}\n\n`;
-      if (output.tier2.length) orderText += `Tier 2\n${output.tier2.join("\n")}\n\n`;
-      if (output.cursed2.length) orderText += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
-
-      if (reinforce) {
-        orderText += `Reinforce Gear: Yes\n`;
-      }
-
-      if (delivery) {
-
-        orderText +=
-          `Delivery: Yes
-
-Please provide the following:
-Server:
-Spawn:
-Coords:
-Tribe Name:
-Pin (Vault, Dedi, Fridge):
-
-Payment: ${paymentTotal} Tek Ceilings
-Total Items: ${totalItems}
-
-Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
-
-`;
-
-      } else {
-
-        orderText +=
-          `
-Bring Flyer, unless you can use TP
-Server: 5986
-Spawn: Lemonkis East
-Shop Coords: 18.9 - 89.8
-Tribe: Department of War
-Room: ${room}
-Vault: ${vault}
-Pin: ${pin}
-Payment: ${paymentTotal} Tek Ceilings
-Total Items: ${totalItems}
-
-If you’re able to use a teleporter:
-Spawn: Korinthos East
-World TP: Korinthos East > E
-Coords: 41.1 - 33.4
-Coords: 44.4 - 36.8
-TP: DoW Trade
-Look for the Red, White, Blue buildings
-
-`;
-      }
-
-      orderText +=
-        `
-Please leave a review, it’s much appreciated, and I’ll leave one for you as well.
-
-https://discord.com/channels/928159194929045584/1091201655128723486`;
-
-      document.getElementById("orderSummary").textContent = orderText;
-
-      let matText = "";
-      Object.entries(materialTotals)
-        .sort(([a], [b]) => a.localeCompare(b))
-        .forEach(([k, v]) => {
-          matText += `${BLACKSMITH.materialsKey[k] || k}: ${v}\n`;
-        });
-
-      document.getElementById("materialSummary").textContent = matText;
-    }
-
-    function copyAll() {
-      navigator.clipboard.writeText(
-        document.getElementById("orderSummary").textContent
-      ).then(() => {
-        const m = document.getElementById("copyMsg");
-        if (!m) return;
-        m.style.display = "inline";
-        setTimeout(() => m.style.display = "none", 1500);
-      });
-    }
-
-    function resetAll() {
-      document.querySelectorAll("select").forEach(s => s.value = 0);
-      document.getElementById("orderSummary").textContent = "";
-      document.getElementById("materialSummary").textContent = "";
-      document.getElementById("tekSplit").textContent = "";
-    }
-    function calculateManual() {
-
-      const input = document.getElementById("manualMaterials").value.trim();
-      const output = document.getElementById("manualResult");
-
-      if (!input) {
-        output.textContent = "Enter materials first.";
-        return;
-      }
-
-      try {
-        const materials = parseMaterialInput(input);
-        const result = DTJ_PRICING.priceItem(materials);
-
-        output.textContent =
-          `TC: ${result.TC}
-
-CC Range: ${result.CC.low} - ${result.CC.high}
-Ideal CC: ${result.CC.ideal}`;
-      }
-      catch (err) {
-        output.textContent = "Invalid format. Example: F: 63, M: 206, H: 159";
-      }
-    }
-
-    // Parses: F: 63, M: 206, H: 159
-    function parseMaterialInput(str) {
-
-      const obj = {};
-
-      const pairs = str.split(",");
-
-      pairs.forEach(pair => {
-        const [key, value] = pair.split(":");
-
-        if (!key || !value) throw new Error("Invalid format");
-
-        const cleanKey = key.trim().toUpperCase();
-        const cleanValue = Number(value.trim());
-
-        if (isNaN(cleanValue)) throw new Error("Invalid number");
-
-        obj[cleanKey] = cleanValue;
-      });
-
-      return obj;
-    }
-    function qtySelect(group, name) {
-
-  // Limit Cursed Pump Shotgun to 1 per order
-  const isLimitedItem =
-    group === "cursed2" &&
-    name.toLowerCase().includes("pump shotgun");
-
-  const maxQty = isLimitedItem ? 1 : 50;
-
-  return `<select class="form-select form-select-sm"
-                  data-group="${group}"
-                  data-name="${name}">
-    ${Array.from({ length: maxQty + 1 }, (_, i) =>
-      `<option>${i}</option>`
-    ).join("")}
+</div>
+
+<div class="output">
+  <h3>Material Totals</h3>
+  <pre id="materialSummary"></pre>
+</div>
+
+<div class="output">
+  <h3>Internal Order Summary</h3>
+  <pre id="orderSummaryInternal"></pre>
+  <button class="btn btn-sm btn-primary" onclick="copyAllInternal()">Copy All</button>
+  <span id="copyMsgInternal" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+</div>
+
+<div class="output">
+  <h3>Tek Split (70 / 30)</h3>
+  <pre id="tekSplit"></pre>
+</div>
+
+<div class="output">
+  <h3>Order Summary</h3>
+  <pre id="orderSummary"></pre>
+  <button class="btn btn-sm btn-primary" onclick="copyAll()">Copy All</button>
+  <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+  <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+</div>
+
+<script src="blacksmith.js"></script>
+
+<script>
+
+function qtySelect(group,name){
+  return `<select class="form-select form-select-sm" data-group="${group}" data-name="${name}">
+  ${Array.from({length:51},(_,i)=>`<option>${i}</option>`).join("")}
   </select>`;
 }
 
-  </script>
-</body>
+function buildSimple(id,data){
+  const t=document.getElementById(id);
+  Object.keys(data).forEach(name=>{
+    t.insertAdjacentHTML("beforeend",
+      `<tr><td>${name}</td><td>${qtySelect(id,name)}</td></tr>`);
+  });
+}
 
+function buildNested(id,data){
+  const t=document.getElementById(id);
+  Object.keys(data).forEach(cat=>{
+    t.insertAdjacentHTML("beforeend",
+      `<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
+    Object.keys(data[cat]).forEach(item=>{
+      t.insertAdjacentHTML("beforeend",
+        `<tr><td>${item}</td><td>${qtySelect(id,`${cat}|${item}`)}</td></tr>`);
+    });
+  });
+}
+
+buildSimple("regular",BLACKSMITH.saddles.regular);
+buildSimple("platform",BLACKSMITH.saddles.platform);
+buildNested("tier1",BLACKSMITH.equipment.tier1);
+buildNested("tier2",BLACKSMITH.equipment.tier2);
+buildNested("cursed2",BLACKSMITH.cursed.tier2);
+
+document.addEventListener("change",calc);
+
+function calc(){
+
+  let totalTek=0,totalItems=0;
+  const materialTotals={};
+  const output={saddle:[],tier1:[],tier2:[],cursed2:[]};
+
+  document.querySelectorAll("select[data-group]").forEach(sel=>{
+    const qty=+sel.value;
+    if(!qty) return;
+
+    totalItems+=qty;
+
+    const g=sel.dataset.group;
+    const n=sel.dataset.name;
+    let item,cat,itemName;
+
+    if(g==="regular"||g==="platform"){
+      item=BLACKSMITH.saddles[g][n];
+      output.saddle.push(`${qty} ${n}`);
+    }else{
+      [cat,itemName]=n.split("|");
+      if(g==="tier1"||g==="tier2"){
+        item=BLACKSMITH.equipment[g][cat][itemName];
+      }else{
+        item=BLACKSMITH.cursed.tier2[cat][itemName];
+      }
+      output[g].push(`${qty} ${cat.toLowerCase()} – ${itemName}`);
+    }
+
+    totalTek+=item.tek*qty;
+
+    Object.entries(item.materials).forEach(([k,v])=>{
+      if(k==="D") return;
+      materialTotals[k]=(materialTotals[k]||0)+(v*qty);
+    });
+  });
+
+  // Material Display
+  let matText="";
+  Object.entries(materialTotals)
+    .sort(([a],[b])=>a.localeCompare(b))
+    .forEach(([k,v])=>{
+      matText+=`${BLACKSMITH.materialsKey[k]||k}: ${v}\n`;
+    });
+  document.getElementById("materialSummary").textContent=matText;
+
+  // INTERNAL ORDER SUMMARY (NO DELIVERY)
+  let internalText="";
+  if(output.saddle.length) internalText+=`Saddle:\n${output.saddle.join("\n")}\n\n`;
+  if(output.tier1.length) internalText+=`Tier 1\n${output.tier1.join("\n")}\n\n`;
+  if(output.tier2.length) internalText+=`Tier 2\n${output.tier2.join("\n")}\n\n`;
+  if(output.cursed2.length) internalText+=`Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
+
+  internalText+=`Total Items: ${totalItems}`;
+  document.getElementById("orderSummaryInternal").textContent=internalText;
+
+  // TEK SPLIT
+  const delivery=document.getElementById("deliverySelect").value==="yes";
+  const deliveryFee=delivery?Math.max(100,Math.ceil(totalTek*0.25)):0;
+  const splitBase=totalTek+deliveryFee;
+  const farmer=Math.round(splitBase*0.70);
+  const crafter=splitBase-farmer;
+
+  let splitText=`Total Tek: ${splitBase}
+DTJ (70%): ${farmer}
+NBP (30%): ${crafter}`;
+  if(delivery) splitText+=`\nDelivery Charge: ${deliveryFee}`;
+
+  document.getElementById("tekSplit").textContent=splitText;
+
+  document.getElementById("orderSummary").textContent=
+    `Payment: ${splitBase} Tek Ceilings\nTotal Items: ${totalItems}`;
+}
+
+function copyAllInternal(){
+  const materials=document.getElementById("materialSummary").textContent;
+  const internal=document.getElementById("orderSummaryInternal").textContent;
+
+  navigator.clipboard.writeText(
+    `Material Totals:\n${materials}\n\nInternal Order Summary:\n${internal}`
+  ).then(()=>{
+    const m=document.getElementById("copyMsgInternal");
+    m.style.display="inline";
+    setTimeout(()=>m.style.display="none",1500);
+  });
+}
+
+function copyAll(){
+  navigator.clipboard.writeText(
+    document.getElementById("orderSummary").textContent
+  ).then(()=>{
+    const m=document.getElementById("copyMsg");
+    m.style.display="inline";
+    setTimeout(()=>m.style.display="none",1500);
+  });
+}
+
+function resetAll(){
+  document.querySelectorAll("select").forEach(s=>s.value=0);
+  document.getElementById("orderSummary").textContent="";
+  document.getElementById("materialSummary").textContent="";
+  document.getElementById("orderSummaryInternal").textContent="";
+  document.getElementById("tekSplit").textContent="";
+}
+
+</script>
+
+</body>
 </html>
