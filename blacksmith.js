@@ -245,6 +245,7 @@ window.BLACKSMITH = {
         "Riot Shield": { materials: { C: 9695, P: 5817, M: 1939, B: 5817, D: 25958 }, tek: 70 },
         "Shotgun": { materials: { H: 1766, W: 1412, M: 5651, D: 4060 }, tek: 130 },
         "Pistol": { materials: { H: 667, W: 222, M: 2668, D: 439 }, tek: 70 },
+        "Pike": { materials: { H: 1914, W: 957, M: 957, D: 521 }, tek: 35 },
         "Sling Shot": { materials: { F: 1344, W: 336, H: 67, D: 436 }, tek: 15 },
         "Sword": { materials: { H: 1268, W: 84, M: 4229, D: 751 }, tek: 100 },
         "Torch": { materials: { N: 62, W: 62, S: 62, D: 694 }, tek: 20 },
@@ -257,7 +258,6 @@ window.BLACKSMITH = {
         "Pick": { materials: { H: 1275, W: 127, M: 127, D: 627 }, tek: 30 },
         "Shield": { materials: { A: 1286, M: 5147, H: 965, D: 19576 }, tek: 120 },
         "Sickle": { materials: { H: 948, W: 237, M: 1066, D: 480 }, tek: 35 },
-        "Pike": { materials: { H: 1914, W: 957, M: 957, D: 521 }, tek: 35 },
         "Whip": { materials: { F: 2215, U: 886, H: 886, W: 443, D: 551 }, tek: 25 }
       },
       armor: {
@@ -304,7 +304,10 @@ window.BLACKSMITH = {
         "Scuba Mask": { materials: { C: 488, H: 732, F: 293, B: 146, D: 526 }, tek: 25 },
         "Scuba Tank": { materials: { F: 329, M: 576, H: 822, P: 123, D: 474 }, tek: 30 }
       },
-
+      mek: {
+        "MDSM": { materials: { BP: 736, I: 736, P: 4416, C: 6870, M: 9815, D: 5000, J: 42 }, tek: 280 },
+        "MRLM": { materials: { BP: 677, I: 677, P: 2824, C: 4519, M: 10169, D: 5000, Q: 211.0 }, tek: 250 },
+      },
     }
   },
   /* =========================
@@ -319,16 +322,17 @@ window.BLACKSMITH = {
     /* ---------- TIER 2 ---------- */
     tier2: {
       weapons: {
-        "Chainsaw": { materials: { A: 1719, M: 1719, RE: 171, E: 859, P: 2579, D: 299 }, tek: 230 },
         "Cross Bow": { materials: { F: 1213, RE: 34, M: 242, W: 346, D: 652 }, tek: 60 },
-        "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140 }, tek: 60 },
         "Longneck Rifle": { materials: { H: 697, RE: 139, M: 2649, W: 557, D: 220 }, tek: 175 },
-        "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D: 167 }, tek: 60 },
         "Pike": { materials: { H: 645, RE: 32, M: 322, W: 322, D: 180 }, tek: 60 },
         "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873 }, tek: 750 },
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, }, tek: 60 }
-      },/* 
-      tools: {},*/
+      },
+      tools: {
+        "Chainsaw": { materials: { A: 1719, M: 1719, RE: 171, E: 859, P: 2579, D: 299 }, tek: 230 },
+        "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140 }, tek: 60 },
+        "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D: 167 }, tek: 60 },
+      },
       armor: {
         "Flak Chest": { materials: { F: 162, M: 529, H: 407, RE: 203, D: 720 }, tek: 240 },
       }
