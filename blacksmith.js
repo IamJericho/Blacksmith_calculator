@@ -244,8 +244,8 @@ window.BLACKSMITH = {
         "Pump Shotgun": { materials: { A: 2244, P: 2743, M: 1496, D: 3697 }, tek: 55 },
         "Riot Shield": { materials: { C: 9695, P: 5817, M: 1939, B: 5817, D: 25958 }, tek: 70 },
         "Shotgun": { materials: { H: 1766, W: 1412, M: 5651, D: 4060 }, tek: 130 },
-        "Pistol": { materials: { H: 667, W: 222, M: 2668, D: 439 }, tek: 70 },
         "Pike": { materials: { H: 1914, W: 957, M: 957, D: 521 }, tek: 35 },
+        "Pistol": { materials: { H: 667, W: 222, M: 2668, D: 439 }, tek: 70 },
         "Sling Shot": { materials: { F: 1344, W: 336, H: 67, D: 436 }, tek: 15 },
         "Sword": { materials: { H: 1268, W: 84, M: 4229, D: 751 }, tek: 100 },
         "Torch": { materials: { N: 62, W: 62, S: 62, D: 694 }, tek: 20 },
@@ -261,6 +261,7 @@ window.BLACKSMITH = {
         "Whip": { materials: { F: 2215, U: 886, H: 886, W: 443, D: 551 }, tek: 25 }
       },
       armor: {
+        "Glider Suit - (Not Max)": { materials: { V: 306, H: 735, F: 1225, M: 735, D: 4323 }, tek: 50 },
         "Gas Mask": { materials: { X: 134, P: 1347, C: 673, D: 473 }, tek: 30 },
 
         "Flak Boots": { materials: { F: 246, M: 492, H: 369, D: 1461 }, tek: 30 },
@@ -305,8 +306,8 @@ window.BLACKSMITH = {
         "Scuba Tank": { materials: { F: 329, M: 576, H: 822, P: 123, D: 474 }, tek: 30 }
       },
       mek: {
-        "MDSM": { materials: { BP: 736, I: 736, P: 4416, C: 6870, M: 9815, D: 5000, J: 42 }, tek: 280 },
-        "MRLM": { materials: { BP: 677, I: 677, P: 2824, C: 4519, M: 10169, D: 5000, Q: 211.0 }, tek: 250 },
+        "MDSM - (Not Max)": { materials: { BP: 736, I: 736, P: 4416, C: 6870, M: 9815, D: 5000, J: 42 }, tek: 280 },
+        "MRLM - (Not Max)": { materials: { BP: 677, I: 677, P: 2824, C: 4519, M: 10169, D: 5000, Q: 211.0 }, tek: 250 },
       },
     }
   },
