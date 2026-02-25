@@ -176,14 +176,24 @@
       return stats.length ? ` <span class="stat">(${stats.join(", ")})</span>` : "";
     }
 
-    function buildSimple(id, data) {
-      const t = document.getElementById(id);
-      Object.keys(data).forEach(name => {
-        t.insertAdjacentHTML("beforeend", `
-      <tr><td>${name}</td><td>${qtySelect(id, name)}</td></tr>
+function buildSimple(id, data) {
+  const t = document.getElementById(id);
+
+  Object.entries(data).forEach(([name, itemData]) => {
+
+    // Show durability if it exists (Roll Rat has D)
+    const statText = itemData.materials?.D
+      ? ` <span class="stat">(Durability: ${itemData.materials.D})</span>`
+      : "";
+
+    t.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${name}${statText}</td>
+        <td>${qtySelect(id, name)}</td>
+      </tr>
     `);
-      });
-    }
+  });
+}
 
     function buildNested(id, data) {
       const t = document.getElementById(id);
