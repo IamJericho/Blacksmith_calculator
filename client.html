@@ -343,28 +343,27 @@ Trader: <@1303790610620350587>`;
       document.getElementById("orderSummary").textContent = "";
     }
 
-function qtySelect(group, name) {
+    function qtySelect(group, name) {
 
   const lower = name.toLowerCase();
 
-  // Limit Cursed Pump Shotgun to 1
+  // Cursed Pump Shotgun = max 1
   const isPumpShotgun =
     group === "cursed2" &&
-    lower.includes("pump shotgun");
+    lower === "weapons|pump shotgun";
 
-  // Limit Shovel (298 Asc) to 5
+  // Shovel (298 Asc) = max 5
   const isShovel298 =
-    lower.includes("shovel") &&
-    lower.includes("298");
+    lower.includes("shovel (298 asc)");
 
-  // Limit Cursed Flak pieces to 5
+  // Any Cursed Flak armor = max 5
   const isCursedFlak =
     group === "cursed2" &&
     (
-      lower.includes("cursed flak chest") ||
-      lower.includes("cursed flak pants") ||
-      lower.includes("cursed flak helm") ||
-      lower.includes("cursed flak boots")
+      lower.includes("armor|flak chest") ||
+      lower.includes("armor|flak gloves") ||
+      lower.includes("armor|flak helmet") ||
+      lower.includes("armor|flak leggings")
     );
 
   let maxQty = 50;
