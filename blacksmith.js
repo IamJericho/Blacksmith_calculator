@@ -71,6 +71,7 @@
       "Castoroides": { materials: { A: 2109, H: 4369, T: 2711, F: 3013, M: 1506 }, tek: 50 },
       "Ceratosaurus": { materials: { F: 3787, M: 280, H: 1823 }, tek: 25 },
       "Chalicotherium": { materials: { F: 2461, M: 615, H: 3623 }, tek: 30 },
+      "Cryolophosaurus": { materials: { H: 6686, BP: 1966, M: 2123, F: 5505 }, tek: 40 },
 
       "Companion Ammo Box": { materials: { F: 227, M: 60, H: 37 }, tek: 20 },
       "Companion Rucksack": { materials: { F: 278, M: 9, H: 185 }, tek: 20 },
@@ -109,6 +110,7 @@
       "Malwyn": { materials: { K: 830, H: 1038, F: 3462, M: 2492 }, tek: 65 },
       "Mammoth": { materials: { F: 1926, M: 137, H: 3577 }, tek: 20 },
       "Managarmr": { materials: { K: 2333, H: 5444, F: 2878 }, tek: 30 },
+      "Manta": { materials: { N: 188, M: 549, F: 1099, H: 1571, W: 392}, tek: 50 },
       "Mantis": { materials: { F: 1076, M: 502, H: 1722 }, tek: 30 },
       "Megalania": { materials: { F: 3407, M: 713, H: 4992 }, tek: 30 },
       "Megaloceros": { materials: { F: 1536, M: 69, H: 2793 }, tek: 20 },
@@ -167,6 +169,7 @@
       "Brontosaurus Platform": { materials: { A: 675, H: 8254, B: 1876, F: 4877, M: 1350 }, tek: 45 },
       "Dreadnoughtus Platform": { materials: { A: 4533, H: 18133, B: 3777, F: 12088, M: 9822 }, tek: 215 },
       "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 30 },
+      "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 }, tek: 45 },
       "Mosasaurus Platform": { materials: { A: 2707, H: 14438, B: 4812, F: 10829, M: 18048 }, tek: 380 },
       "Paraceratherium Platform": { materials: { A: 359, H: 4597, B: 646, F: 2873, M: 1005 }, tek: 40 },
       "Plesiosaur Platform": { materials: { A: 431, H: 5335, B: 1216, F: 3177, M: 878 }, tek: 35 },
