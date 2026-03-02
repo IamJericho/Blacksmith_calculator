@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -9,354 +8,105 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
   <style>
-    body {
-      background: #0e1117;
-      color: #eaeaea
-    }
-
-    h1,
-    h2,
-    h3 {
-      color: #ff4d4d
-    }
-
-    .table-zebra tbody tr:nth-child(odd) td {
-      background: #0f141b !important
-    }
-
-    .table-zebra tbody tr:nth-child(even) td {
-      background: #161b22 !important
-    }
-
-    .table-zebra tbody tr:hover td {
-      background: #1f2633 !important
-    }
-
-    .output {
-      background: #161b22;
-      padding: 12px;
-      border: 1px solid #2a2f3a;
-      margin-top: 15px
-    }
-
-    pre {
-      white-space: pre-wrap
-    }
-
+    body { background:#0e1117; color:#eaeaea }
+    h1,h2,h3 { color:#ff4d4d }
+    .table-zebra tbody tr:nth-child(odd) td { background:#0f141b !important }
+    .table-zebra tbody tr:nth-child(even) td { background:#161b22 !important }
+    .table-zebra tbody tr:hover td { background:#1f2633 !important }
+    .output { background:#161b22; padding:12px; border:1px solid #2a2f3a; margin-top:15px }
+    pre { white-space:pre-wrap }
     .category-row td {
-      background: #0b0f14 !important;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: .05em;
-      color: #ff4d4d;
+      background:#0b0f14 !important;
+      font-weight:bold;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      color:#ff4d4d;
     }
-
-    .stat {
-      color: #8fb3ff;
-      font-size: .85em
-    }
-
-    .note {
-      font-size: .85em;
-      color: #aaa
-    }
+    .stat { color:#8fb3ff; font-size:.85em }
+    .note { font-size:.85em; color:#aaa }
+    .important { font-size:.85em; color:#ff4d4d }
   </style>
 </head>
 
 <body class="container-fluid">
 
-  <h1>Client Calculator</h1>
+<h1>Client Calculator</h1>
 
-  <h2>Regular Saddles</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="regular"></tbody>
-  </table>
+<h2>Regular Saddles</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="regular"></tbody>
+</table>
 
-  <h2>Platform Saddles</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="platform"></tbody>
-  </table>
+<h2>Platform Saddles</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="platform"></tbody>
+</table>
 
-  <h2>Equipment – Tier 1</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="tier1"></tbody>
-  </table>
+<h2>Equipment – Tier 1</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="tier1"></tbody>
+</table>
 
-  <h2>Equipment – Tier 2</h2>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="tier2"></tbody>
-  </table>
+<h2>Equipment – Tier 2</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="tier2"></tbody>
+</table>
 
-  <h2>Cursed Tier 2</h2>
-  <p>(requires: LC Expansion)</p>
-  <table class="table table-dark table-sm table-zebra">
-    <thead>
-      <tr>
-        <th>Item</th>
-        <th>Qty</th>
-      </tr>
-    </thead>
-    <tbody id="cursed2"></tbody>
-  </table>
+<h2>Cursed Tier 2</h2>
+<p>(requires: LC Expansion)</p>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="cursed2"></tbody>
+</table>
+<p class="important">Flak Armor is not guaranteed to be max armor</p>
 
-  <!-- Reinforce -->
-  <div class="mb-3" id="reinforceBox" style="display:none;">
-    <h2>Reinforce</h2>
-    <select id="reinforceSelect" class="form-select form-select-sm" style="max-width:200px">
-      <option value="no">No</option>
-      <option value="yes">Yes</option>
-    </select>
-    <div class="note">
-      Applies to weapons, tools, and armor only. Adds 30% Durability.
-    </div>
-  </div>
+<div class="mb-3" id="reinforceBox" style="display:none;">
+  <h2>Reinforce</h2>
+  <select id="reinforceSelect" class="form-select form-select-sm" style="max-width:200px">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+  <div class="note">Applies to weapons, tools, and armor only. Adds 30% Durability.</div>
+</div>
 
-  <div class="mb-3">
-    <h2>Delivery</h2>
-    <select id="deliverySelect" class="form-select form-select-sm" style="max-width:200px">
-      <option value="no">No</option>
-      <option value="yes">Yes</option>
-    </select>
-    <div class="note">
-      Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).
-    </div>
-  </div>
+<div class="mb-3">
+  <h2>Delivery</h2>
+  <select id="deliverySelect" class="form-select form-select-sm" style="max-width:200px">
+    <option value="no">No</option>
+    <option value="yes">Yes</option>
+  </select>
+  <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).</div>
+</div>
 
-  <div class="output">
-    <pre id="orderSummary"></pre>
-    <button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
-    <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-    <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
-  </div>
+<div class="output">
+  <pre id="orderSummary"></pre>
+  <button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
+  <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+  <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+</div>
 
-  <script src="blacksmith.js"></script>
-  <script>
+<script src="blacksmith.js"></script>
+<script>
 
-    /* =============================
-       BUILDERS
-       ============================= */
+/* =============================
+   QTY SELECT (WITH LIMITS)
+============================= */
 
-    function qtySelect(group, name) {
-      return `<select class="form-select form-select-sm"
-    data-group="${group}"
-    data-name="${name}">
-    ${Array.from({ length: 51 }, (_, i) => `<option>${i}</option>`).join("")}
-  </select>`;
-    }
-
-    function formatStats(materials) {
-      const stats = [];
-      if (materials.D) stats.push(`Durability: ${materials.D}`);
-      if (materials.J) stats.push(`Armor: ${materials.J}`);
-      if (materials.Q) stats.push(`Damage: ${materials.Q}`);
-      return stats.length ? ` <span class="stat">(${stats.join(", ")})</span>` : "";
-    }
-
-function buildSimple(id, data) {
-  const t = document.getElementById(id);
-
-  Object.entries(data).forEach(([name, itemData]) => {
-
-    // Show durability if it exists (Roll Rat has D)
-    const statText = itemData.materials?.D
-      ? ` <span class="stat">(Durability: ${itemData.materials.D})</span>`
-      : "";
-
-    t.insertAdjacentHTML("beforeend", `
-      <tr>
-        <td>${name}${statText}</td>
-        <td>${qtySelect(id, name)}</td>
-      </tr>
-    `);
-  });
-}
-
-    function buildNested(id, data) {
-      const t = document.getElementById(id);
-
-      Object.keys(data).forEach(category => {
-        const items = Object.entries(data[category]);
-        if (!items.length) return;   // ✅ skip empty categories
-
-        t.insertAdjacentHTML("beforeend", `
-      <tr class="category-row"><td colspan="2">${category}</td></tr>
-    `);
-
-        items.forEach(([item, itemData]) => {
-          t.insertAdjacentHTML("beforeend", `
-        <tr>
-          <td>${item}${formatStats(itemData.materials)}</td>
-          <td>${qtySelect(id, `${category}|${item}`)}</td>
-        </tr>
-      `);
-        });
-      });
-    }
-
-    /* =============================
-       BUILD UI
-       ============================= */
-
-    buildSimple("regular", BLACKSMITH.saddles.regular);
-    buildSimple("platform", BLACKSMITH.saddles.platform);
-    buildNested("tier1", BLACKSMITH.equipment.tier1);
-    buildNested("tier2", BLACKSMITH.equipment.tier2);
-    buildNested("cursed2", BLACKSMITH.cursed.tier2);
-
-    document.addEventListener("change", calc);
-
-    /* =============================
-       CALC
-       ============================= */
-
-    function calc() {
-
-      let totalTek = 0;
-      let totalItems = 0;
-
-      let reinforceEligibleTek = 0;
-      let hasNonSaddle = false;
-
-      const output = {
-        saddle: [],
-        tier1: [],
-        tier2: [],
-        cursed2: []
-      };
-
-      document.querySelectorAll("select[data-group]").forEach(sel => {
-        const qty = +sel.value;
-        if (!qty) return;
-
-        totalItems += qty;
-
-        const group = sel.dataset.group;
-        const name = sel.dataset.name;
-        let item;
-
-        if (group === "regular" || group === "platform") {
-          item = BLACKSMITH.saddles[group][name];
-          output.saddle.push(`${qty} ${name}`);
-
-        } else if (group === "tier1" || group === "tier2") {
-          const [category, itemName] = name.split("|");
-          item = BLACKSMITH.equipment[group][category][itemName];
-          output[group].push(`${qty} ${category.toLowerCase()} – ${itemName}`);
-
-        } else if (group === "cursed2") {
-          const [category, itemName] = name.split("|");
-          item = BLACKSMITH.cursed.tier2[category][itemName];
-          output.cursed2.push(`${qty} ${category.toLowerCase()} – ${itemName}`);
-        }
-
-        totalTek += item.tek * qty;
-
-        if (group !== "regular" && group !== "platform") {
-          hasNonSaddle = true;
-          reinforceEligibleTek += item.tek * qty;
-        }
-      });
-
-      /* Reinforce */
-      const reinforceBox = document.getElementById("reinforceBox");
-      reinforceBox.style.display = hasNonSaddle ? "block" : "none";
-      if (!hasNonSaddle) document.getElementById("reinforceSelect").value = "no";
-
-      const reinforceYes = hasNonSaddle && document.getElementById("reinforceSelect").value === "yes";
-      const reinforceMarkup = reinforceYes ? Math.ceil(reinforceEligibleTek * 0.30) : 0;
-
-      /* Delivery */
-      const orderTotal = totalTek + reinforceMarkup;
-      const delivery = document.getElementById("deliverySelect").value === "yes";
-      const deliveryFee = delivery ? Math.max(100, Math.ceil(orderTotal * 0.25)) : 0;
-      const paymentTotal = orderTotal + deliveryFee;
-
-
-      let summary = `Name: @your name
-Order:
-`;
-
-      if (output.saddle.length) summary += `Saddle:\n${output.saddle.join("\n")}\n\n`;
-      if (output.tier1.length) summary += `Tier 1\n${output.tier1.join("\n")}\n\n`;
-      if (output.tier2.length) summary += `Tier 2\n${output.tier2.join("\n")}\n\n`;
-      if (output.cursed2.length) summary += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
-
-      if (reinforceYes) {
-        summary += `Reinforced: Yes\n`;
-      }
-
-      if (delivery) {
-        summary += `Delivery: Yes\n`;
-      }
-
-      summary += `Payment: ${paymentTotal} Tek Ceilings
-Total Items: ${totalItems}
-Trader: <@1303790610620350587>`;
-
-      document.getElementById("orderSummary").textContent = summary;
-    }
-
-    /* =============================
-       HELPERS
-       ============================= */
-
-    function copyOrder() {
-      navigator.clipboard.writeText(
-        document.getElementById("orderSummary").textContent
-      ).then(() => {
-        const m = document.getElementById("copyMsg");
-        m.style.display = "inline";
-        setTimeout(() => m.style.display = "none", 1500);
-      });
-    }
-
-    function resetAll() {
-      document.querySelectorAll("select").forEach(s => s.value = 0);
-      document.getElementById("deliverySelect").value = "no";
-      document.getElementById("reinforceSelect").value = "no";
-      document.getElementById("reinforceBox").style.display = "none";
-      document.getElementById("deliveryBox").style.display = "none";
-      document.getElementById("orderSummary").textContent = "";
-    }
-
-    function qtySelect(group, name) {
+function qtySelect(group, name) {
 
   const lower = name.toLowerCase();
 
-  // Cursed Pump Shotgun = max 1
   const isPumpShotgun =
     group === "cursed2" &&
     lower === "weapons|pump shotgun";
 
-  // Shovel (298 Asc) = max 5
   const isShovel298 =
     lower.includes("shovel (298 asc)");
 
-  // Any Cursed Flak armor = max 5
   const isCursedFlak =
     group === "cursed2" &&
     (
@@ -373,16 +123,199 @@ Trader: <@1303790610620350587>`;
   else if (isCursedFlak) maxQty = 5;
 
   return `<select class="form-select form-select-sm"
-                  data-group="${group}"
-                  data-name="${name}">
-    ${Array.from({ length: maxQty + 1 }, (_, i) =>
-      `<option>${i}</option>`
-    ).join("")}
-  </select>`;
+            data-group="${group}"
+            data-name="${name}">
+            ${Array.from({ length:maxQty+1 }, (_,i)=>`<option>${i}</option>`).join("")}
+          </select>`;
 }
 
-  </script>
+/* =============================
+   STAT FORMATTER
+============================= */
 
+function formatStats(materials = {}) {
+
+  const stats = [];
+
+  if ("D" in materials)
+    stats.push(`Durability: ${materials.D}`);
+
+  if ("J" in materials)
+    stats.push(`Armor: ${materials.J}`);
+
+  if ("Q" in materials)
+    stats.push(`Damage: ${materials.Q}`);
+
+  return stats.length
+    ? ` <span class="stat">(${stats.join(", ")})</span>`
+    : "";
+}
+
+/* =============================
+   BUILDERS
+============================= */
+
+function buildSimple(id, data) {
+
+  const t = document.getElementById(id);
+
+  Object.entries(data).forEach(([name, itemData]) => {
+
+    t.insertAdjacentHTML("beforeend", `
+      <tr>
+        <td>${name}${formatStats(itemData.materials)}</td>
+        <td>${qtySelect(id, name)}</td>
+      </tr>
+    `);
+  });
+}
+
+function buildNested(id, data) {
+
+  const t = document.getElementById(id);
+
+  Object.keys(data).forEach(category => {
+
+    const items = Object.entries(data[category]);
+    if (!items.length) return;
+
+    t.insertAdjacentHTML("beforeend",
+      `<tr class="category-row"><td colspan="2">${category}</td></tr>`
+    );
+
+    items.forEach(([item, itemData]) => {
+
+      t.insertAdjacentHTML("beforeend", `
+        <tr>
+          <td>${item}${formatStats(itemData.materials)}</td>
+          <td>${qtySelect(id, `${category}|${item}`)}</td>
+        </tr>
+      `);
+    });
+  });
+}
+
+/* =============================
+   BUILD UI
+============================= */
+
+buildSimple("regular", BLACKSMITH.saddles.regular);
+buildSimple("platform", BLACKSMITH.saddles.platform);
+buildNested("tier1", BLACKSMITH.equipment.tier1);
+buildNested("tier2", BLACKSMITH.equipment.tier2);
+buildNested("cursed2", BLACKSMITH.cursed.tier2);
+
+document.addEventListener("change", calc);
+
+/* =============================
+   CALC
+============================= */
+
+function calc() {
+
+  let totalTek = 0;
+  let totalItems = 0;
+  let reinforceEligibleTek = 0;
+  let hasNonSaddle = false;
+
+  const output = { saddle:[], tier1:[], tier2:[], cursed2:[] };
+
+  document.querySelectorAll("select[data-group]").forEach(sel => {
+
+    const qty = +sel.value;
+    if (!qty) return;
+
+    totalItems += qty;
+
+    const group = sel.dataset.group;
+    const name = sel.dataset.name;
+    let item;
+
+    if (group === "regular" || group === "platform") {
+      item = BLACKSMITH.saddles[group][name];
+      output.saddle.push(`${qty} ${name}`);
+    }
+
+    else if (group === "tier1" || group === "tier2") {
+      const [category,itemName] = name.split("|");
+      item = BLACKSMITH.equipment[group][category][itemName];
+      output[group].push(`${qty} ${category.toLowerCase()} – ${itemName}`);
+    }
+
+    else if (group === "cursed2") {
+      const [category,itemName] = name.split("|");
+      item = BLACKSMITH.cursed.tier2[category][itemName];
+      output.cursed2.push(`${qty} ${category.toLowerCase()} – ${itemName}`);
+    }
+
+    totalTek += item.tek * qty;
+
+    if (group !== "regular" && group !== "platform") {
+      hasNonSaddle = true;
+      reinforceEligibleTek += item.tek * qty;
+    }
+  });
+
+  const reinforceBox = document.getElementById("reinforceBox");
+  reinforceBox.style.display = hasNonSaddle ? "block" : "none";
+  if (!hasNonSaddle) document.getElementById("reinforceSelect").value = "no";
+
+  const reinforceYes = hasNonSaddle &&
+    document.getElementById("reinforceSelect").value === "yes";
+
+  const reinforceMarkup = reinforceYes
+    ? Math.ceil(reinforceEligibleTek * 0.30)
+    : 0;
+
+  const orderTotal = totalTek + reinforceMarkup;
+  const delivery = document.getElementById("deliverySelect").value === "yes";
+  const deliveryFee = delivery
+    ? Math.max(100, Math.ceil(orderTotal * 0.25))
+    : 0;
+
+  const paymentTotal = orderTotal + deliveryFee;
+
+  let summary = `Name: @your name
+Order:
+`;
+
+  if (output.saddle.length) summary += `Saddle:\n${output.saddle.join("\n")}\n\n`;
+  if (output.tier1.length) summary += `Tier 1\n${output.tier1.join("\n")}\n\n`;
+  if (output.tier2.length) summary += `Tier 2\n${output.tier2.join("\n")}\n\n`;
+  if (output.cursed2.length) summary += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
+
+  if (reinforceYes) summary += `Reinforced: Yes\n`;
+  if (delivery) summary += `Delivery: Yes\n`;
+
+  summary += `Payment: ${paymentTotal} Tek Ceilings
+Total Items: ${totalItems}
+Trader: <@1303790610620350587>`;
+
+  document.getElementById("orderSummary").textContent = summary;
+}
+
+/* =============================
+   HELPERS
+============================= */
+
+function copyOrder() {
+  navigator.clipboard.writeText(
+    document.getElementById("orderSummary").textContent
+  ).then(()=>{
+    const m=document.getElementById("copyMsg");
+    m.style.display="inline";
+    setTimeout(()=>m.style.display="none",1500);
+  });
+}
+
+function resetAll() {
+  document.querySelectorAll("select").forEach(s=>s.value=0);
+  document.getElementById("deliverySelect").value="no";
+  document.getElementById("reinforceSelect").value="no";
+  document.getElementById("reinforceBox").style.display="none";
+  document.getElementById("orderSummary").textContent="";
+}
+
+</script>
 </body>
-
 </html>
