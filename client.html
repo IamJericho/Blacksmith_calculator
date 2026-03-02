@@ -343,14 +343,35 @@ Trader: <@1303790610620350587>`;
       document.getElementById("orderSummary").textContent = "";
     }
 
-    function qtySelect(group, name) {
+function qtySelect(group, name) {
 
-  // Limit Cursed Pump Shotgun to 1 per order
-  const isLimitedItem =
+  const lower = name.toLowerCase();
+
+  // Limit Cursed Pump Shotgun to 1
+  const isPumpShotgun =
     group === "cursed2" &&
-    name.toLowerCase().includes("pump shotgun");
+    lower.includes("pump shotgun");
 
-  const maxQty = isLimitedItem ? 1 : 50;
+  // Limit Shovel (298 Asc) to 5
+  const isShovel298 =
+    lower.includes("shovel") &&
+    lower.includes("298");
+
+  // Limit Cursed Flak pieces to 5
+  const isCursedFlak =
+    group === "cursed2" &&
+    (
+      lower.includes("cursed flak chest") ||
+      lower.includes("cursed flak pants") ||
+      lower.includes("cursed flak helm") ||
+      lower.includes("cursed flak boots")
+    );
+
+  let maxQty = 50;
+
+  if (isPumpShotgun) maxQty = 1;
+  else if (isShovel298) maxQty = 5;
+  else if (isCursedFlak) maxQty = 5;
 
   return `<select class="form-select form-select-sm"
                   data-group="${group}"
