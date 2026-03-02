@@ -4,7 +4,7 @@
  Plain JS (no modules)
  ============================================================ */
 
-window.BLACKSMITH = {
+ window.BLACKSMITH = {
 
   /* =========================
    MATERIAL KEY (LEGEND)
@@ -336,10 +336,10 @@ window.BLACKSMITH = {
         "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D: 167 }, tek: 60 },
       },
       armor: {
-        "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720 }, tek: 350 },
-        "Flak Gloves": { materials: { H: 191, RE: 191, M: 229, F: 76, D: 698 }, tek: 350 },
-        "Flak Helmet": { materials: { H: 188, RE: 134, M: 269, F: 80, D: 622 }, tek: 350 },
-        "Flak Leggings": { materials: { H: 354, RE: 147, M: 472, F: 147, D: 667 }, tek: 350 },       
+        "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720, J:496 }, tek: 350 },
+        "Flak Gloves": { materials: { H: 191, RE: 191, M: 229, F: 76, D: 698, J:488 }, tek: 350 },
+        "Flak Helmet": { materials: { H: 188, RE: 134, M: 269, F: 80, D: 622, J:431 }, tek: 350 },
+        "Flak Leggings": { materials: { H: 354, RE: 147, M: 472, F: 147, D: 667, J:434 }, tek: 350 },       
       }
     }
   }
