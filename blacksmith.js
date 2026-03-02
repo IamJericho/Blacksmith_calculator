@@ -257,6 +257,7 @@ window.BLACKSMITH = {
         "Hatchet": { materials: { H: 787, W: 78, M: 630, D: 525 }, tek: 30 },
         "Pick": { materials: { H: 1275, W: 127, M: 127, D: 627 }, tek: 30 },
         "Shield": { materials: { A: 1286, M: 5147, H: 965, D: 19576 }, tek: 120 },
+        "Shovel (298 Asc)": { materials: { D: 325 }, tek: 100 },       
         "Sickle": { materials: { H: 948, W: 237, M: 1066, D: 480 }, tek: 35 },
         "Whip": { materials: { F: 2215, U: 886, H: 886, W: 443, D: 551 }, tek: 25 }
       },
