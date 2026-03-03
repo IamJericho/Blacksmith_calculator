@@ -1,31 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Client Calculator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="utf-8">
+<title>Client Calculator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <style>
-    body { background:#0e1117; color:#eaeaea }
-    h1,h2,h3 { color:#ff4d4d }
-    .table-zebra tbody tr:nth-child(odd) td { background:#0f141b !important }
-    .table-zebra tbody tr:nth-child(even) td { background:#161b22 !important }
-    .table-zebra tbody tr:hover td { background:#1f2633 !important }
-    .output { background:#161b22; padding:12px; border:1px solid #2a2f3a; margin-top:15px }
-    pre { white-space:pre-wrap }
-    .category-row td {
-      background:#0b0f14 !important;
-      font-weight:bold;
-      text-transform:uppercase;
-      letter-spacing:.05em;
-      color:#ff4d4d;
-    }
-    .stat { color:#8fb3ff; font-size:.85em }
-    .note { font-size:.85em; color:#aaa }
-    .important { font-size:.85em; color:#ff4d4d }
-  </style>
+<style>
+body { background:#0e1117; color:#eaeaea }
+h1,h2,h3 { color:#ff4d4d }
+.table-zebra tbody tr:nth-child(odd) td { background:#0f141b !important }
+.table-zebra tbody tr:nth-child(even) td { background:#161b22 !important }
+.table-zebra tbody tr:hover td { background:#1f2633 !important }
+.output { background:#161b22; padding:12px; border:1px solid #2a2f3a; margin-top:15px }
+pre { white-space:pre-wrap }
+.category-row td {
+  background:#0b0f14 !important;
+  font-weight:bold;
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  color:#ff4d4d;
+}
+.stat { color:#8fb3ff; font-size:.85em }
+.note { font-size:.85em; color:#aaa }
+.important { font-size:.85em; color:#ff4d4d }
+</style>
 </head>
 
 <body class="container-fluid">
@@ -56,6 +56,12 @@
 <tbody id="tier2"></tbody>
 </table>
 
+<h2>Cursed Tier 1</h2>
+<table class="table table-dark table-sm table-zebra">
+<thead><tr><th>Item</th><th>Qty</th></tr></thead>
+<tbody id="cursed1"></tbody>
+</table>
+
 <h2>Cursed Tier 2</h2>
 <p>(requires: LC Expansion)</p>
 <table class="table table-dark table-sm table-zebra">
@@ -65,70 +71,99 @@
 <p class="important">Cursed Gear/Items are not guaranteed to be max armor/damage</p>
 
 <div class="mb-3" id="reinforceBox" style="display:none;">
-  <h2>Reinforce</h2>
-  <select id="reinforceSelect" class="form-select form-select-sm" style="max-width:200px">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-  </select>
-  <div class="note">Applies to weapons, tools, and armor only. Adds 30% Durability.</div>
+<h2>Reinforce</h2>
+<select id="reinforceSelect" class="form-select form-select-sm" style="max-width:200px">
+<option value="no">No</option>
+<option value="yes">Yes</option>
+</select>
+<div class="note">Applies to weapons, tools, and armor only. Adds 30% Durability.</div>
 </div>
 
 <div class="mb-3">
-  <h2>Delivery</h2>
-  <select id="deliverySelect" class="form-select form-select-sm" style="max-width:200px">
-    <option value="no">No</option>
-    <option value="yes">Yes</option>
-  </select>
-  <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).</div>
+<h2>Delivery</h2>
+<select id="deliverySelect" class="form-select form-select-sm" style="max-width:200px">
+<option value="no">No</option>
+<option value="yes">Yes</option>
+</select>
+<div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).</div>
 </div>
 
 <div class="output">
-  <pre id="orderSummary"></pre>
-  <button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
-  <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-  <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+<pre id="orderSummary"></pre>
+<button class="btn btn-sm btn-primary" onclick="copyOrder()">Copy to Clipboard</button>
+<span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+<button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
 </div>
 
 <script src="blacksmith.js"></script>
 <script>
 
 /* =============================
-   QTY SELECT (WITH LIMITS)
+   UNIVERSAL CURSED STOCK
+============================= */
+
+const CURSED_STOCK = {
+
+  tier1: {
+    weapons: {},
+    tools: {},
+    armor: {
+      "Flak Boots": 5,
+      "Flak Leggings": 5
+    }
+  },
+
+  tier2: {
+    weapons: {
+      "Compound Bow": 5,
+      "Cross Bow": 5,
+      "Harpoon": 5,
+      "Longneck Rifle": 5,
+      "Pike": 5,
+      "Pump Shotgun": 1,
+      "Sword": 5
+    },
+    tools: {
+      "Chainsaw": 5,
+      "Hatchet": 5,
+      "Pick": 5
+    },
+    armor: {
+      "Flak Chest": 5,
+      "Flak Gloves": 5,
+      "Flak Helmet": 5,
+      "Flak Leggings": 5
+    }
+  }
+};
+
+/* =============================
+   QTY SELECT
 ============================= */
 
 function qtySelect(group, name) {
 
-  const lower = name.toLowerCase();
-
-  const isPumpShotgun =
-    group === "cursed2" &&
-    lower === "weapons|pump shotgun";
-
-  const isShovel298 =
-    lower.includes("shovel (298 asc)");
-
-  const isCursedFlak =
-    group === "cursed2" &&
-    (
-      lower.includes("armor|flak chest") ||
-      lower.includes("armor|flak gloves") ||
-      lower.includes("armor|flak helmet") ||
-      lower.includes("armor|flak leggings")
-    );
-
   let maxQty = 50;
 
-  if (isPumpShotgun) maxQty = 1;
-  else if (isShovel298) maxQty = 5;   // <-- SET TO 0 WHEN SOLD OUT
-  else if (isCursedFlak) maxQty = 5;
+  if (group === "cursed1" || group === "cursed2") {
 
-  // If sold out
-  if (isShovel298 && maxQty === 0) {
-    return `
-      <select class="form-select form-select-sm" disabled>
-        <option>Sold Out</option>
-      </select>
-    `;
+    const tier = group === "cursed1" ? "tier1" : "tier2";
+    const [category, itemName] = name.split("|");
+
+    const stock =
+      CURSED_STOCK?.[tier]?.[category]?.[itemName];
+
+    if (typeof stock === "number") {
+      maxQty = stock;
+
+      if (stock === 0) {
+        return `
+          <select class="form-select form-select-sm" disabled>
+            <option>Sold Out</option>
+          </select>
+        `;
+      }
+    }
   }
 
   return `
@@ -150,14 +185,9 @@ function formatStats(materials = {}) {
 
   const stats = [];
 
-  if ("D" in materials)
-    stats.push(`Durability: ${materials.D}`);
-
-  if ("J" in materials)
-    stats.push(`Armor: ${materials.J}`);
-
-  if ("Q" in materials)
-    stats.push(`Damage: ${materials.Q}`);
+  if ("D" in materials) stats.push(`Durability: ${materials.D}`);
+  if ("J" in materials) stats.push(`Armor: ${materials.J}`);
+  if ("Q" in materials) stats.push(`Damage: ${materials.Q}`);
 
   return stats.length
     ? ` <span class="stat">(${stats.join(", ")})</span>`
@@ -169,11 +199,8 @@ function formatStats(materials = {}) {
 ============================= */
 
 function buildSimple(id, data) {
-
   const t = document.getElementById(id);
-
   Object.entries(data).forEach(([name, itemData]) => {
-
     t.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${name}${formatStats(itemData.materials)}</td>
@@ -184,20 +211,18 @@ function buildSimple(id, data) {
 }
 
 function buildNested(id, data) {
-
   const t = document.getElementById(id);
 
   Object.keys(data).forEach(category => {
-
     const items = Object.entries(data[category]);
     if (!items.length) return;
 
-    t.insertAdjacentHTML("beforeend",
+    t.insertAdjacentHTML(
+      "beforeend",
       `<tr class="category-row"><td colspan="2">${category}</td></tr>`
     );
 
     items.forEach(([item, itemData]) => {
-
       t.insertAdjacentHTML("beforeend", `
         <tr>
           <td>${item}${formatStats(itemData.materials)}</td>
@@ -216,6 +241,7 @@ buildSimple("regular", BLACKSMITH.saddles.regular);
 buildSimple("platform", BLACKSMITH.saddles.platform);
 buildNested("tier1", BLACKSMITH.equipment.tier1);
 buildNested("tier2", BLACKSMITH.equipment.tier2);
+buildNested("cursed1", BLACKSMITH.cursed.tier1);
 buildNested("cursed2", BLACKSMITH.cursed.tier2);
 
 document.addEventListener("change", calc);
@@ -231,7 +257,7 @@ function calc() {
   let reinforceEligibleTek = 0;
   let hasNonSaddle = false;
 
-  const output = { saddle:[], tier1:[], tier2:[], cursed2:[] };
+  const output = { saddle:[], tier1:[], tier2:[], cursed1:[], cursed2:[] };
 
   document.querySelectorAll("select[data-group]").forEach(sel => {
 
@@ -248,17 +274,16 @@ function calc() {
       item = BLACKSMITH.saddles[group][name];
       output.saddle.push(`${qty} ${name}`);
     }
-
     else if (group === "tier1" || group === "tier2") {
       const [category,itemName] = name.split("|");
       item = BLACKSMITH.equipment[group][category][itemName];
       output[group].push(`${qty} ${category.toLowerCase()} – ${itemName}`);
     }
-
-    else if (group === "cursed2") {
+    else if (group === "cursed1" || group === "cursed2") {
+      const tier = group === "cursed1" ? "tier1" : "tier2";
       const [category,itemName] = name.split("|");
-      item = BLACKSMITH.cursed.tier2[category][itemName];
-      output.cursed2.push(`${qty} ${category.toLowerCase()} – ${itemName}`);
+      item = BLACKSMITH.cursed[tier][category][itemName];
+      output[group].push(`${qty} ${category.toLowerCase()} – ${itemName}`);
     }
 
     totalTek += item.tek * qty;
@@ -295,6 +320,7 @@ Order:
   if (output.saddle.length) summary += `Saddle:\n${output.saddle.join("\n")}\n\n`;
   if (output.tier1.length) summary += `Tier 1\n${output.tier1.join("\n")}\n\n`;
   if (output.tier2.length) summary += `Tier 2\n${output.tier2.join("\n")}\n\n`;
+  if (output.cursed1.length) summary += `Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
   if (output.cursed2.length) summary += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
 
   if (reinforceYes) summary += `Reinforced: Yes\n`;
@@ -306,10 +332,6 @@ Trader: <@1303790610620350587>`;
 
   document.getElementById("orderSummary").textContent = summary;
 }
-
-/* =============================
-   HELPERS
-============================= */
 
 function copyOrder() {
   navigator.clipboard.writeText(
