@@ -329,6 +329,7 @@
       weapons: {
         "Compound Bow": { materials: { M: 3037, RE: 357, P: 3395, A: 2680, D: 270, Q: 269 }, tek: 500 },
         "Cross Bow": { materials: { M: 403, W: 576, RE: 57, F: 2016, D: 805, Q: 298 }, tek: 200 },
+        "Harpoon": { materials: { F:1442,M: 2884, P: 721, W: 961, H: 600, O: 1201, RE: 120, A: 1442, D: 422, Q: 223 }, tek: 400 },         
         "Longneck Rifle": { materials: { M: 4064, W: 855, RE: 213, H: 1069, D: 418, Q: 298 }, tek: 500 },
         "Pike": { materials: { M: 447, W: 447, RE: 44, H: 894, D: 252, Q: 298 }, tek: 300 },
         "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 750 },
