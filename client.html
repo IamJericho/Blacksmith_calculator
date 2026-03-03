@@ -119,14 +119,27 @@ function qtySelect(group, name) {
   let maxQty = 50;
 
   if (isPumpShotgun) maxQty = 1;
-  else if (isShovel298) maxQty = 5;
+  else if (isShovel298) maxQty = 0;   // <-- SET TO 0 WHEN SOLD OUT
   else if (isCursedFlak) maxQty = 5;
 
-  return `<select class="form-select form-select-sm"
+  // If sold out
+  if (isShovel298 && maxQty === 0) {
+    return `
+      <select class="form-select form-select-sm" disabled>
+        <option>Sold Out</option>
+      </select>
+    `;
+  }
+
+  return `
+    <select class="form-select form-select-sm"
             data-group="${group}"
             data-name="${name}">
-            ${Array.from({ length:maxQty+1 }, (_,i)=>`<option>${i}</option>`).join("")}
-          </select>`;
+      ${Array.from({ length:maxQty + 1 }, (_, i) =>
+        `<option>${i}</option>`
+      ).join("")}
+    </select>
+  `;
 }
 
 /* =============================
