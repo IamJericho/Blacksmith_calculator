@@ -92,9 +92,11 @@ pre{white-space:pre-wrap}
 </div>
 
 <div class="output">
-<h3>Internal Order Summary</h3>
-<pre id="orderSummaryInternal"></pre>
-</div>
+  <h3>Internal Order Summary</h3>
+  <pre id="orderSummaryInternal"></pre>
+  <button class="btn btn-sm btn-primary" onclick="copyAllInternal()">Copy All</button>
+  <span id="copyMsgInternal" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+  </div>
 
 <div class="output">
 <h3>Tek Split</h3>
@@ -119,10 +121,63 @@ Split Tek
 </div>
 </div>
 
-<div class="output">
-<h3>Order Summary</h3>
-<pre id="orderSummary"></pre>
+<div class="row g-2 mb-3">
+
+  <div class="col-auto">
+    <label class="form-label mb-0">Room</label>
+    <select id="roomSelect" class="form-select form-select-sm">
+      <option value="A">A</option>
+      <option value="B">B</option>
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <label class="form-label mb-0">Vault</label>
+    <select id="vaultSelect" class="form-select form-select-sm">
+      <option>11</option>
+      <option>12</option>
+      <option>13</option>
+      <option>14</option>
+      <option>21</option>
+      <option>22</option>
+      <option>23</option>
+      <option>24</option>
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <label class="form-label mb-0">F2F</label>
+    <select id="f2fSelect" class="form-select form-select-sm">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <label class="form-label mb-0">Delivery</label>
+    <select id="deliverySelect" class="form-select form-select-sm">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
+  <div class="col-auto">
+    <label class="form-label mb-0">Reinforce</label>
+    <select id="reinforceSelect" class="form-select form-select-sm">
+      <option value="no">No</option>
+      <option value="yes">Yes</option>
+    </select>
+  </div>
+
 </div>
+
+<div class="output">
+  <h3>Order Summary</h3>
+  <pre id="orderSummary"></pre>
+  <button class="btn btn-sm btn-primary" onclick="copyAll()">Copy All</button>
+  <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+  <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+  </div>
 
 <script src="pricingEngine.js"></script>
 <script src="blacksmith.js"></script>
@@ -172,6 +227,14 @@ let totalTek=0;
 let totalItems=0;
 const materialTotals={};
 const output={saddle:[],tier1:[],tier2:[],cursed1:[],cursed2:[]};
+
+const room = document.getElementById("roomSelect").value;
+const vault = room + document.getElementById("vaultSelect").value;
+const pin = Math.floor(1000 + Math.random() * 9000);
+
+const delivery = document.getElementById("deliverySelect").value === "yes";
+const reinforce = document.getElementById("reinforceSelect").value === "yes";
+const f2f = document.getElementById("f2fSelect").value === "yes";
 
 document.querySelectorAll("select[data-group]").forEach(sel=>{
 
@@ -257,11 +320,136 @@ orderText+=`Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
 if(output.cursed2.length)
 orderText+=`Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
 
-orderText+=`Total Items: ${totalItems}
-Payment: ${totalTek} Tek`;
+if (delivery) {
+
+orderText +=
+`Delivery: Yes
+
+Please provide the following:
+Server:
+Spawn:
+Coords:
+Tribe Name:
+Pin (Vault, Dedi, Fridge):
+
+Payment: ${totalTek} Tek Ceilings
+Total Items: ${totalItems}
+
+Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
+
+`;
+
+} else {
+
+orderText +=
+`
+Bring Flyer, unless you can use TP
+Server: 5986
+Spawn: Lemonkis East
+Shop Coords: 18.9 - 89.8
+Tribe: Department of War
+Room: ${room}
+Vault: ${vault}
+Pin: ${f2f ? "Face-to-Face Trade" : pin}
+Payment: ${totalTek} Tek Ceilings
+Total Items: ${totalItems}
+
+If you’re able to use a teleporter:
+Spawn: Korinthos East
+World TP: Korinthos East > E
+Coords: 41.1 - 33.4
+Coords: 44.4 - 36.8
+TP: DoW Trade
+Look for the Red, White, Blue buildings
+
+`;
+}
 
 document.getElementById("orderSummary").textContent=orderText;
-document.getElementById("orderSummaryInternal").textContent=orderText;
+let internalText = "";
+
+if (output.saddle.length)
+internalText += `Saddles\n${output.saddle.join("\n")}\n\n`;
+
+if (output.tier1.length)
+internalText += `Tier 1\n${output.tier1.join("\n")}\n\n`;
+
+if (output.tier2.length)
+internalText += `Tier 2\n${output.tier2.join("\n")}\n\n`;
+
+if (output.cursed1.length)
+internalText += `Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
+
+if (output.cursed2.length)
+internalText += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
+
+internalText += `Total Items: ${totalItems}`;
+
+document.getElementById("orderSummaryInternal").textContent = internalText;
+
+}
+
+function copyAllInternal(){
+
+const materials=document.getElementById("materialSummary").textContent;
+const internal=document.getElementById("orderSummaryInternal").textContent;
+
+navigator.clipboard.writeText(
+`Material Totals:
+${materials}
+
+Internal Order Summary:
+${internal}`
+).then(()=>{
+
+const m=document.getElementById("copyMsgInternal");
+m.style.display="inline";
+setTimeout(()=>m.style.display="none",1500);
+
+});
+
+}
+
+
+function copyAll(){
+
+navigator.clipboard.writeText(
+document.getElementById("orderSummary").textContent
+).then(()=>{
+
+const m=document.getElementById("copyMsg");
+if(!m)return;
+
+m.style.display="inline";
+setTimeout(()=>m.style.display="none",1500);
+
+});
+
+}
+
+
+function resetAll(){
+
+// reset quantity selectors
+document.querySelectorAll("select[data-group]").forEach(s => s.value = 0);
+
+// reset control panel defaults
+document.getElementById("roomSelect").value = "A";
+document.getElementById("vaultSelect").value = "11";
+document.getElementById("f2fSelect").value = "no";
+document.getElementById("deliverySelect").value = "no";
+document.getElementById("reinforceSelect").value = "no";
+
+// clear outputs
+document.getElementById("orderSummary").textContent = "";
+document.getElementById("orderSummaryInternal").textContent = "";
+document.getElementById("materialSummary").textContent = "";
+document.getElementById("tekSplit").textContent = "";
+document.getElementById("manualResult").textContent = "";
+
+// clear inputs
+document.getElementById("manualMaterials").value = "";
+document.getElementById("manualTekSplitInput").value = "";
 
 }
 
