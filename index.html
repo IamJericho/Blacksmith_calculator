@@ -168,7 +168,6 @@ Split Tek
       <option value="yes">Yes</option>
     </select>
   </div>
-
 </div>
 
 <div class="output">
@@ -184,300 +183,378 @@ Split Tek
 
 <script>
 
-function qtySelect(group,name){
-return `<select class="form-select form-select-sm"
-data-group="${group}"
-data-name="${name}">
-${Array.from({length:51},(_,i)=>`<option>${i}</option>`).join("")}
-</select>`;
-}
-
-function buildSimple(id,data){
-const t=document.getElementById(id);
-Object.keys(data).forEach(name=>{
-t.insertAdjacentHTML("beforeend",
-`<tr><td>${name}</td><td>${qtySelect(id,name)}</td></tr>`);
+  function qtySelect(group,name){
+  return `<select class="form-select form-select-sm"
+  data-group="${group}"
+  data-name="${name}">
+  ${Array.from({length:51},(_,i)=>`<option>${i}</option>`).join("")}
+  </select>`;
+  }
+  
+  function buildSimple(id,data){
+  const t=document.getElementById(id);
+  Object.keys(data).forEach(name=>{
+  t.insertAdjacentHTML("beforeend",
+  `<tr><td>${name}</td><td>${qtySelect(id,name)}</td></tr>`);
+  });
+  }
+  
+  function buildNested(id,data){
+  const t=document.getElementById(id);
+  Object.keys(data).forEach(cat=>{
+  t.insertAdjacentHTML("beforeend",
+  `<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
+  Object.keys(data[cat]).forEach(item=>{
+  t.insertAdjacentHTML("beforeend",
+  `<tr><td>${item}</td><td>${qtySelect(id,`${cat}|${item}`)}</td></tr>`);
+  });
+  });
+  }
+  
+  buildSimple("regular",BLACKSMITH.saddles.regular);
+  buildSimple("platform",BLACKSMITH.saddles.platform);
+  buildNested("tier1",BLACKSMITH.equipment.tier1);
+  buildNested("tier2",BLACKSMITH.equipment.tier2);
+  buildNested("cursed1",BLACKSMITH.cursed.tier1);
+  buildNested("cursed2",BLACKSMITH.cursed.tier2);
+  
+  document.querySelectorAll("select[data-group]").forEach(sel=>{
+sel.addEventListener("change", calc);
 });
-}
-
-function buildNested(id,data){
-const t=document.getElementById(id);
-Object.keys(data).forEach(cat=>{
-t.insertAdjacentHTML("beforeend",
-`<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
-Object.keys(data[cat]).forEach(item=>{
-t.insertAdjacentHTML("beforeend",
-`<tr><td>${item}</td><td>${qtySelect(id,`${cat}|${item}`)}</td></tr>`);
-});
-});
-}
-
-buildSimple("regular",BLACKSMITH.saddles.regular);
-buildSimple("platform",BLACKSMITH.saddles.platform);
-buildNested("tier1",BLACKSMITH.equipment.tier1);
-buildNested("tier2",BLACKSMITH.equipment.tier2);
-buildNested("cursed1",BLACKSMITH.cursed.tier1);
-buildNested("cursed2",BLACKSMITH.cursed.tier2);
-
-document.addEventListener("change",calc);
-
-function calc(){
-
-let totalTek=0;
-let totalItems=0;
-const materialTotals={};
-const output={saddle:[],tier1:[],tier2:[],cursed1:[],cursed2:[]};
-
-const room = document.getElementById("roomSelect").value;
-const vault = room + document.getElementById("vaultSelect").value;
-const pin = Math.floor(1000 + Math.random() * 9000);
-
-const delivery = document.getElementById("deliverySelect").value === "yes";
-const reinforce = document.getElementById("reinforceSelect").value === "yes";
-const f2f = document.getElementById("f2fSelect").value === "yes";
-
-document.querySelectorAll("select[data-group]").forEach(sel=>{
-
-const qty=+sel.value;
-if(!qty)return;
-
-totalItems+=qty;
-
-const g=sel.dataset.group;
-const n=sel.dataset.name;
-
-let item,cat,itemName;
-
-if(g==="regular"||g==="platform"){
-
-item=BLACKSMITH.saddles[g][n];
-output.saddle.push(`${qty} ${n}`);
-
-}else{
-
-[cat,itemName]=n.split("|");
-
-if(g==="tier1"||g==="tier2")
-item=BLACKSMITH.equipment[g][cat][itemName];
-
-if(g==="cursed1")
-item=BLACKSMITH.cursed.tier1[cat][itemName];
-
-if(g==="cursed2")
-item=BLACKSMITH.cursed.tier2[cat][itemName];
-
-output[g].push(`${qty} ${cat} – ${itemName}`);
-}
-
-totalTek+=item.tek*qty;
-
-Object.entries(item.materials).forEach(([k,v])=>{
-
-if(k==="D"||k==="J"||k==="Q")return;
-
-materialTotals[k]=(materialTotals[k]||0)+v*qty;
-
-});
-
-});
-
-let matText="";
-Object.entries(materialTotals)
-.sort(([a],[b])=>a.localeCompare(b))
-.forEach(([k,v])=>{
-matText+=`${BLACKSMITH.materialsKey[k]||k}: ${v}\n`;
-});
-
-document.getElementById("materialSummary").textContent=matText;
-
-const shopTek=Math.round(totalTek*0.10);
-const dtjTek=Math.round(totalTek*0.30);
-const nbpTek=Math.round(totalTek*0.30);
-const tabTek=totalTek-shopTek-dtjTek-nbpTek;
-
-document.getElementById("tekSplit").textContent=
-`Total Tek: ${totalTek}
-
-Shop (10%): ${shopTek}
-DTJ (30%): ${dtjTek}
-NBP (30%): ${nbpTek}
-TAB (30%): ${tabTek}`;
-
-let orderText=`Your order is complete:\n\n`;
-
-if(output.saddle.length)
-orderText+=`Saddles\n${output.saddle.join("\n")}\n\n`;
-
-if(output.tier1.length)
-orderText+=`Tier 1\n${output.tier1.join("\n")}\n\n`;
-
-if(output.tier2.length)
-orderText+=`Tier 2\n${output.tier2.join("\n")}\n\n`;
-
-if(output.cursed1.length)
-orderText+=`Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
-
-if(output.cursed2.length)
-orderText+=`Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
-
-if (delivery) {
-
-orderText +=
-`Delivery: Yes
-
-Please provide the following:
-Server:
-Spawn:
-Coords:
-Tribe Name:
-Pin (Vault, Dedi, Fridge):
-
-Payment: ${totalTek} Tek Ceilings
-Total Items: ${totalItems}
-
-Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
-
-`;
-
-} else {
-
-orderText +=
-`
-Bring Flyer, unless you can use TP
-Server: 5986
-Spawn: Lemonkis East
-Shop Coords: 18.9 - 89.8
-Tribe: Department of War
-Room: ${room}
-Vault: ${vault}
-Pin: ${f2f ? "Face-to-Face Trade" : pin}
-Payment: ${totalTek} Tek Ceilings
-Total Items: ${totalItems}
-
-If you’re able to use a teleporter:
-Spawn: Korinthos East
-World TP: Korinthos East > E
-Coords: 41.1 - 33.4
-Coords: 44.4 - 36.8
-TP: DoW Trade
-Look for the Red, White, Blue buildings
-
-`;
-}
-
-document.getElementById("orderSummary").textContent=orderText;
-let internalText = "";
-
-if (output.saddle.length)
-internalText += `Saddles\n${output.saddle.join("\n")}\n\n`;
-
-if (output.tier1.length)
-internalText += `Tier 1\n${output.tier1.join("\n")}\n\n`;
-
-if (output.tier2.length)
-internalText += `Tier 2\n${output.tier2.join("\n")}\n\n`;
-
-if (output.cursed1.length)
-internalText += `Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
-
-if (output.cursed2.length)
-internalText += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
-
-internalText += `Total Items: ${totalItems}`;
-
-document.getElementById("orderSummaryInternal").textContent = internalText;
-
-}
-
-function copyAllInternal(){
-
-const materials=document.getElementById("materialSummary").textContent;
-const internal=document.getElementById("orderSummaryInternal").textContent;
-
-navigator.clipboard.writeText(
-`Material Totals:
-${materials}
-
-Internal Order Summary:
-${internal}`
-).then(()=>{
-
-const m=document.getElementById("copyMsgInternal");
-m.style.display="inline";
-setTimeout(()=>m.style.display="none",1500);
-
-});
-
-}
-
-
-function copyAll(){
-
-navigator.clipboard.writeText(
-document.getElementById("orderSummary").textContent
-).then(()=>{
-
-const m=document.getElementById("copyMsg");
-if(!m)return;
-
-m.style.display="inline";
-setTimeout(()=>m.style.display="none",1500);
-
-});
-
-}
-
-
-function resetAll(){
-
-// reset quantity selectors
-document.querySelectorAll("select[data-group]").forEach(s => s.value = 0);
-
-// reset control panel defaults
-document.getElementById("roomSelect").value = "A";
-document.getElementById("vaultSelect").value = "11";
-document.getElementById("f2fSelect").value = "no";
-document.getElementById("deliverySelect").value = "no";
-document.getElementById("reinforceSelect").value = "no";
-
-// clear outputs
-document.getElementById("orderSummary").textContent = "";
-document.getElementById("orderSummaryInternal").textContent = "";
-document.getElementById("materialSummary").textContent = "";
-document.getElementById("tekSplit").textContent = "";
-document.getElementById("manualResult").textContent = "";
-
-// clear inputs
-document.getElementById("manualMaterials").value = "";
-document.getElementById("manualTekSplitInput").value = "";
-
-}
-
-function manualTekSplit(){
-
-const total=Number(document.getElementById("manualTekSplitInput").value);
-const out=document.getElementById("tekSplit");
-
-if(!total||total<=0){
-out.textContent="Enter a valid Tek amount.";
-return;
-}
-
-const shopTek=Math.round(total*0.10);
-const dtjTek=Math.round(total*0.30);
-const nbpTek=Math.round(total*0.30);
-const tabTek=total-shopTek-dtjTek-nbpTek;
-
-out.textContent=
-`Total Tek: ${total}
-
-Shop (10%): ${shopTek}
-DTJ (30%): ${dtjTek}
-NBP (30%): ${nbpTek}
-TAB (30%): ${tabTek}`;
-}
-
-</script>
+  
+  
+  /* =========================
+     SINGLE SOURCE SPLIT ENGINE
+     ========================= */
+  
+  function splitTek(total){
+  
+  const shopBase=Math.floor(total*0.10);
+  const remaining=total-shopBase;
+  
+  const share=Math.floor(remaining/3);
+  const remainder=remaining%3;
+  
+  return{
+  shop:shopBase+remainder,
+  dtj:share,
+  nbp:share,
+  tab:share
+  };
+  
+  }
+  
+  
+  /* =========================
+     MAIN CALCULATOR
+     ========================= */
+  
+  function calc(){
+  
+  let totalTek=0;
+  let reinforceTek=0;
+  let hasReinforce=false;
+  
+  let totalItems=0;
+  
+  const baseMaterialTotals={};
+  const reinforceEligibleBaseTotals={};
+  const materialTotals={};
+  
+  const output={saddle:[],tier1:[],tier2:[],cursed1:[],cursed2:[]};
+  
+  const room=document.getElementById("roomSelect").value;
+  const vault=room+document.getElementById("vaultSelect").value;
+  const pin=Math.floor(1000+Math.random()*9000);
+  
+  const delivery=document.getElementById("deliverySelect").value==="yes";
+  const reinforce=document.getElementById("reinforceSelect").value==="yes";
+  const f2f=document.getElementById("f2fSelect").value==="yes";
+  
+  
+  document.querySelectorAll("select[data-group]").forEach(sel=>{
+  
+  const qty=+sel.value;
+  if(!qty)return;
+  
+  totalItems+=qty;
+  
+  const g=sel.dataset.group;
+  const n=sel.dataset.name;
+  
+  let item,cat,itemName;
+  
+  if(g==="regular"||g==="platform"){
+  
+  item=BLACKSMITH.saddles[g][n];
+  output.saddle.push(`${qty} ${n}`);
+  
+  }else{
+  
+  [cat,itemName]=n.split("|");
+  
+  if(g==="tier1"||g==="tier2")
+  item=BLACKSMITH.equipment[g][cat][itemName];
+  
+  if(g==="cursed1")
+  item=BLACKSMITH.cursed.tier1[cat][itemName];
+  
+  if(g==="cursed2")
+  item=BLACKSMITH.cursed.tier2[cat][itemName];
+  
+  output[g].push(`${qty} ${cat} – ${itemName}`);
+  
+  if(cat==="weapons"||cat==="tools"||cat==="armor"){
+  hasReinforce=true;
+  reinforceTek+=Math.ceil(item.tek*qty*0.30);
+  }
+  
+  }
+  
+  totalTek+=item.tek*qty;
+  
+  Object.entries(item.materials).forEach(([k,v])=>{
+  
+  if(k==="D"||k==="J"||k==="Q")return;
+  
+  const base=v*qty;
+  
+  baseMaterialTotals[k]=(baseMaterialTotals[k]||0)+base;
+  
+  if(cat==="weapons"||cat==="tools"||cat==="armor"){
+  reinforceEligibleBaseTotals[k]=(reinforceEligibleBaseTotals[k]||0)+base;
+  }
+  
+  });
+  
+  });
+  
+  
+  Object.entries(baseMaterialTotals).forEach(([k,v])=>{
+  materialTotals[k]=v;
+  });
+  
+  
+  if(reinforce && hasReinforce){
+  
+  Object.entries(reinforceEligibleBaseTotals).forEach(([k,v])=>{
+  materialTotals[k]+=Math.ceil(v*0.285);
+  });
+  
+  }
+  
+  
+  const finalTek=totalTek+(reinforce?reinforceTek:0);
+  
+  
+  /* =========================
+     MATERIAL TOTALS
+     ========================= */
+  
+  let matText="";
+  
+  Object.entries(materialTotals)
+  .sort(([a],[b])=>a.localeCompare(b))
+  .forEach(([k,v])=>{
+  matText+=`${BLACKSMITH.materialsKey[k]||k}: ${v}\n`;
+  });
+  
+  document.getElementById("materialSummary").textContent=matText;
+  
+  
+  /* =========================
+     TEK SPLIT
+     ========================= */
+  
+  const split=splitTek(finalTek);
+  
+  document.getElementById("tekSplit").textContent=
+  `Total Tek: ${finalTek}
+  
+  Shop (10%): ${split.shop}
+  DTJ (30%): ${split.dtj}
+  NBP (30%): ${split.nbp}
+  TAB (30%): ${split.tab}`;
+  
+  
+  /* =========================
+     ORDER SUMMARY
+     ========================= */
+  
+  let orderText=`Your order is complete:\n\n`;
+  
+  if(output.saddle.length)
+  orderText+=`Saddles\n${output.saddle.join("\n")}\n\n`;
+  
+  if(output.tier1.length)
+  orderText+=`Tier 1\n${output.tier1.join("\n")}\n\n`;
+  
+  if(output.tier2.length)
+  orderText+=`Tier 2\n${output.tier2.join("\n")}\n\n`;
+  
+  if(output.cursed1.length)
+  orderText+=`Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
+  
+  if(output.cursed2.length)
+  orderText+=`Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
+  
+  if(reinforce) orderText+=`Reinforce Gear: Yes\n`;
+  
+  if(delivery){
+  
+  orderText+=
+  `Delivery: Yes
+  
+  Please provide the following:
+  Server:
+  Spawn:
+  Coords:
+  Tribe Name:
+  Pin (Vault, Dedi, Fridge):
+  
+  Payment: ${finalTek} Tek Ceilings
+  Total Items: ${totalItems}
+  
+  Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
+  
+  `;
+  
+  }else{
+  
+  orderText+=
+  `
+  Bring Flyer, unless you can use TP
+  Server: 5986
+  Spawn: Lemonkis East
+  Shop Coords: 18.9 - 89.8
+  Tribe: Department of War
+  Room: ${room}
+  Vault: ${vault}
+  Pin: ${f2f ? "Face-to-Face Trade" : pin}
+  Payment: ${finalTek} Tek Ceilings
+  Total Items: ${totalItems}
+  
+  If you’re able to use a teleporter:
+  Spawn: Korinthos East
+  World TP: Korinthos East > E
+  Coords: 41.1 - 33.4
+  Coords: 44.4 - 36.8
+  TP: DoW Trade
+  Look for the Red, White, Blue buildings
+  
+  `;
+  
+  }
+  
+  document.getElementById("orderSummary").textContent=orderText;
+  
+  
+  /* =========================
+     INTERNAL SUMMARY
+     ========================= */
+  
+  let internalText="";
+  
+  if(output.saddle.length)
+  internalText+=`Saddles\n${output.saddle.join("\n")}\n\n`;
+  
+  if(output.tier1.length)
+  internalText+=`Tier 1\n${output.tier1.join("\n")}\n\n`;
+  
+  if(output.tier2.length)
+  internalText+=`Tier 2\n${output.tier2.join("\n")}\n\n`;
+  
+  if(output.cursed1.length)
+  internalText+=`Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
+  
+  if(output.cursed2.length)
+  internalText+=`Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
+  
+  internalText+=`Total Items: ${totalItems}`;
+  
+  document.getElementById("orderSummaryInternal").textContent=internalText;
+  
+  }
+  
+  
+  /* =========================
+     MANUAL SPLIT TOOL
+     ========================= */
+  
+  function manualTekSplit(){
+  
+  const total=Number(document.getElementById("manualTekSplitInput").value);
+  
+  if(!total||total<=0){
+  document.getElementById("tekSplit").textContent="Enter a valid Tek amount.";
+  return;
+  }
+  
+  const split=splitTek(total);
+  
+  document.getElementById("tekSplit").textContent=
+  `Total Tek: ${total}
+  
+  Shop (10%): ${split.shop}
+  DTJ (30%): ${split.dtj}
+  NBP (30%): ${split.nbp}
+  TAB (30%): ${split.tab}`;
+  
+  }
+  
+  
+  /* =========================
+     COPY FUNCTIONS
+     ========================= */
+  
+  function copyAllInternal(){
+  
+  const materials=document.getElementById("materialSummary").textContent;
+  const internal=document.getElementById("orderSummaryInternal").textContent;
+  
+  navigator.clipboard.writeText(
+  `Material Totals:
+  ${materials}
+  
+  Internal Order Summary:
+  ${internal}`
+  );
+  
+  }
+  
+  function copyAll(){
+  
+  navigator.clipboard.writeText(
+  document.getElementById("orderSummary").textContent
+  );
+  
+  }
+  
+  
+  /* =========================
+     RESET
+     ========================= */
+  
+  function resetAll(){
+  
+  document.querySelectorAll("select[data-group]").forEach(s=>s.value=0);
+  
+  document.getElementById("roomSelect").value="A";
+  document.getElementById("vaultSelect").value="11";
+  document.getElementById("f2fSelect").value="no";
+  document.getElementById("deliverySelect").value="no";
+  document.getElementById("reinforceSelect").value="no";
+  
+  document.getElementById("manualMaterials").value="";
+  document.getElementById("manualTekSplitInput").value="";
+  
+  document.getElementById("manualResult").textContent="";
+  
+  calc();
+  
+  }
+  
+  </script>
 
 </body>
 </html>
