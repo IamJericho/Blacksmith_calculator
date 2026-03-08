@@ -94,7 +94,7 @@ pre{white-space:pre-wrap}
 <div class="output">
   <h3>Internal Order Summary</h3>
   <pre id="orderSummaryInternal"></pre>
-  <button class="btn btn-sm btn-primary" onclick="copyAllInternal()">Copy All</button>
+  <button class="btn btn-sm btn-primary" onclick="copySections(['materialSummary','orderSummaryInternal'],'copyMsgInternal')">Copy All</button>
   <span id="copyMsgInternal" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
   </div>
 
@@ -173,7 +173,7 @@ Split Tek
 <div class="output">
   <h3>Order Summary</h3>
   <pre id="orderSummary"></pre>
-  <button class="btn btn-sm btn-primary" onclick="copyAll()">Copy All</button>
+  <button class="btn btn-sm btn-primary" onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
   <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
   <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
   </div>
@@ -219,9 +219,14 @@ Split Tek
   buildNested("cursed2",BLACKSMITH.cursed.tier2);
   
   document.querySelectorAll("select[data-group]").forEach(sel=>{
-sel.addEventListener("change", calc);
-});
+    sel.addEventListener("change", calc);
+  });
   
+document.getElementById("roomSelect").addEventListener("change", calc);
+document.getElementById("vaultSelect").addEventListener("change", calc);
+document.getElementById("f2fSelect").addEventListener("change", calc);
+document.getElementById("deliverySelect").addEventListener("change", calc);
+document.getElementById("reinforceSelect").addEventListener("change", calc);
   
   /* =========================
      SINGLE SOURCE SPLIT ENGINE
@@ -507,30 +512,22 @@ sel.addEventListener("change", calc);
      COPY FUNCTIONS
      ========================= */
   
-  function copyAllInternal(){
-  
-  const materials=document.getElementById("materialSummary").textContent;
-  const internal=document.getElementById("orderSummaryInternal").textContent;
-  
-  navigator.clipboard.writeText(
-  `Material Totals:
-  ${materials}
-  
-  Internal Order Summary:
-  ${internal}`
-  );
-  
-  }
-  
-  function copyAll(){
-  
-  navigator.clipboard.writeText(
-  document.getElementById("orderSummary").textContent
-  );
-  
-  }
-  
-  
+function copySections(sectionIds, msgId){
+  let text = "";
+
+  sectionIds.forEach(id=>{
+    const el = document.getElementById(id);
+    if(!el) return;
+    text += el.textContent.trim() + "\n\n";
+  });
+
+  navigator.clipboard.writeText(text.trim()).then(()=>{
+    const msg = document.getElementById(msgId);
+    if(!msg) return;
+    msg.style.display="inline";
+    setTimeout(()=>msg.style.display="none",1500);
+  });
+}
   /* =========================
      RESET
      ========================= */
@@ -554,6 +551,58 @@ sel.addEventListener("change", calc);
   
   }
   
+  function calculateManual(){
+
+const input = document.getElementById("manualMaterials").value.trim();
+const output = document.getElementById("manualResult");
+
+if(!input){
+  output.textContent = "Enter materials first.";
+  return;
+}
+
+try{
+
+  const materials = parseMaterialInput(input);
+  const result = DTJ_PRICING.priceItem(materials);
+
+  output.textContent =
+`TC: ${result.TC}
+
+CC Range: ${result.CC.low} - ${result.CC.high}
+Ideal CC: ${result.CC.ideal}`;
+
+}
+catch(err){
+
+  output.textContent = "Invalid format. Example: F: 63, M: 206, H: 159";
+
+}
+
+}
+
+
+function parseMaterialInput(str){
+  const obj = {};
+  const pairs = str.split(",");
+
+  pairs.forEach(pair=>{
+
+    const [key,value] = pair.split(":");
+
+    if(!key || !value) throw new Error("Invalid format");
+
+    const cleanKey = key.trim().toUpperCase();
+    const cleanValue = Number(value.trim());
+
+    if(isNaN(cleanValue)) throw new Error("Invalid number");
+
+    obj[cleanKey] = cleanValue;
+
+  });
+
+  return obj;
+}  
   </script>
 
 </body>
