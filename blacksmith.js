@@ -54,9 +54,9 @@
       "Araneo": { materials: { K: 1345, H: 3497, F: 1883 }, tek: 25 },
       "Archelon": { materials: { F: 8617, H: 12208, M: 2872, W: 3590 }, tek: 75 },
       "Argentavis": { materials: { K: 2207, H: 5151, F: 2722 }, tek: 25 },
-      "Armadoggo": { materials: { F: 3557, M: 474, H: 2845, P: 79 }, tek: 25 },
+      "Armadoggo": { materials: { H: 2619, P: 72, M: 436, F: 3274 }, tek: 25 },
       "Arthropluera": { materials: { A: 211, N: 112, M: 423, W: 282, F: 705, H: 1128, O: 493 }, tek: 25 },
-      "Aurellax": { materials: { F: 3213, M: 1377, H: 2754, P: 459 }, tek: 45 },
+      "Aurellax": { materials: { H: 3767, P: 627, M: 1883, F: 4395 }, tek: 60 },
 
       "Baryonyx": { materials: { F: 5190, M: 370, H: 3336 }, tek: 25 },
       "Basilisk": { materials: { A: 1170, G: 619, M: 5852, F: 2065, H: 3717 }, tek: 135 },
@@ -93,10 +93,10 @@
       "Gallimimus": { materials: { F: 2408, M: 376, H: 3613, W: 1806 }, tek: 25 },
       "Gasbags": { materials: { K: 1885, H: 4399, F: 2325 }, tek: 25 },
       "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 }, tek: 25 },
-      "Giganotosaurus": { materials: { F: 4838, M: 1659, H: 9401 }, tek: 50 },
-      "Gigantoraptor": { materials: { F: 2548, M: 875, H: 4538, W: 1911 }, tek: 35 },
+      "Giganotosaurus": { materials: { F: 5138, M: 1761, H: 9982 }, tek: 65 },
+      "Gigantoraptor": { materials: { F: 2171, M: 746, H: 3868, W: 1628 }, tek: 35 },
 
-      "Helicoprion": { materials: { F: 3261, M: 978, H: 5217 }, tek: 35 },
+      "Helicoprion": { materials: { F: 3745, M: 1123, H: 5993 }, tek: 40 },
       "Hyaenodon": { materials: { F: 2160, M: 278, H: 4041 }, tek: 25 },
 
       "Ichthyosaurus": { materials: { F: 795, H: 874, W: 318, N: 127, RM: 159 }, tek: 20 },
@@ -109,7 +109,7 @@
       "Maeguana": { materials: { F: 2126, M: 375, H: 4002 }, tek: 25 },
       "Malwyn": { materials: { K: 830, H: 1038, F: 3462, M: 2492 }, tek: 65 },
       "Mammoth": { materials: { F: 1926, M: 137, H: 3577 }, tek: 20 },
-      "Managarmr": { materials: { K: 2333, H: 5444, F: 2878 }, tek: 30 },
+      "Managarmr": { materials: { K: 2334, H: 5446, F: 2879 }, tek: 30 },
       "Manta": { materials: { N: 188, M: 549, F: 1099, H: 1571, W: 392}, tek: 50 },
       "Mantis": { materials: { F: 1076, M: 502, H: 1722 }, tek: 30 },
       "Megalania": { materials: { F: 3407, M: 713, H: 4992 }, tek: 30 },
@@ -122,7 +122,7 @@
 
       "Ossidon": { materials: { F: 2687, M: 2015, H: 5106 }, tek: 60 },
 
-      "Pachy": { materials: { F: 955, W: 294, H: 1617 }, tek: 15 },
+      "Pachy": { materials: { F: 839, W: 258, H: 1421 }, tek: 20 },
       "Pachyrhinosaurus": { materials: { F: 1096, W: 342, H: 1918 }, tek: 15 },
       "Pararacer": { materials: { F: 1566, M: 142, H: 2848 }, tek: 20 },
       "Parasaur": { materials: { F: 646, W: 194, H: 1035 }, tek: 15 },
@@ -173,7 +173,7 @@
       "Mosasaurus Platform": { materials: { A: 2707, H: 14438, B: 4812, F: 10829, M: 18048 }, tek: 380 },
       "Paraceratherium Platform": { materials: { A: 359, H: 4597, B: 646, F: 2873, M: 1005 }, tek: 40 },
       "Plesiosaur Platform": { materials: { A: 431, H: 5335, B: 1216, F: 3177, M: 878 }, tek: 35 },
-      "Quetzal Platform": { materials: { A: 1641, H: 8483, B: 3010, F: 5473, M: 2462 }, tek: 65 },
+      "Quetzal Platform": { materials: { A: 1613, H: 8334, B: 2957, F: 5377, M: 2419 }, tek: 65 },
       "Shastasaurus Platform": { materials: { A: 2605, E: 1954, B: 3256, C: 4559, M: 19541 }, tek: 410 }
     }
   },
@@ -324,6 +324,7 @@
       tools: {}, */
       armor: {
         "Flak Boots": { materials: { H: 52, RE: 43, M: 70, F: 35, D: 295, J:272 }, tek: 200 },  
+        "Flak Gloves": { materials: { H: 71, RE: 71, M: 85, F: 28, D: 591, J:439 }, tek: 200 },        
         "Flak Leggings": { materials: { H: 188, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 200 },             
       }
     },
@@ -345,9 +346,10 @@
       },
       armor: {
         "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720, J:496 }, tek: 350 },
+        "Flak Boots": { materials: { H: 169, RE: 140, M: 224, F: 112, D: 537, J:384 }, tek: 350 },        
         "Flak Gloves": { materials: { H: 191, RE: 191, M: 229, F: 76, D: 698, J:488 }, tek: 350 },
         "Flak Helmet": { materials: { H: 188, RE: 134, M: 269, F: 80, D: 622, J:431 }, tek: 350 },
-        "Flak Leggings": { materials: { H: 354, RE: 147, M: 472, F: 147, D: 667, J:434 }, tek: 350 },       
+        "Flak Leggings": { materials: { H: 589, RE: 245, M: 785, F: 245, D: 829, J:496 }, tek: 400 },       
       }
     }
   }
