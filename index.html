@@ -78,7 +78,7 @@ pre{white-space:pre-wrap}
 
 <div class="mb-2">
 <label class="form-label">Enter Materials</label>
-<input type="text" id="manualMaterials" class="form-control form-control-sm">
+<input type="text" id="manualMaterials" class="form-control form-control-sm" placeholder="Example: F: 63, M: 206, H: 159">
 </div>
 
 <button class="btn btn-sm btn-warning" onclick="calculateManual()">Calculate</button>
@@ -116,6 +116,7 @@ placeholder="Enter Tek">
 <button class="btn btn-sm btn-warning" onclick="manualTekSplit()">
 Split Tek
 </button>
+<button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
 </div>
 
 </div>
@@ -348,39 +349,44 @@ document.getElementById("reinforceSelect").addEventListener("change", calc);
   
   }
   
-  
-  const finalTek=totalTek+(reinforce?reinforceTek:0);
-  
-  
-  /* =========================
-     MATERIAL TOTALS
-     ========================= */
-  
-  let matText="";
-  
-  Object.entries(materialTotals)
-  .sort(([a],[b])=>a.localeCompare(b))
-  .forEach(([k,v])=>{
-  matText+=`${BLACKSMITH.materialsKey[k]||k}: ${v}\n`;
-  });
-  
-  document.getElementById("materialSummary").textContent=matText;
-  
-  
-  /* =========================
-     TEK SPLIT
-     ========================= */
-  
-  const split=splitTek(finalTek);
-  
-  document.getElementById("tekSplit").textContent=
-  `Total Tek: ${finalTek}
-  
-  Shop (10%): ${split.shop}
-  DTJ (30%): ${split.dtj}
-  NBP (30%): ${split.nbp}
-  TAB (30%): ${split.tab}`;
-  
+const finalTek=totalTek+(reinforce?reinforceTek:0);
+const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
+const paymentTotal = finalTek + deliveryFee;
+
+/* =========================
+   MATERIAL TOTALS
+   ========================= */
+
+let matText="";
+
+Object.entries(materialTotals)
+.sort(([a],[b])=>a.localeCompare(b))
+.forEach(([k,v])=>{
+matText+=`${BLACKSMITH.materialsKey[k]||k}: ${v}\n`;
+});
+
+document.getElementById("materialSummary").textContent=matText;
+
+/* =========================
+   TEK SPLIT
+   ========================= */
+
+   const split = splitTek(finalTek);
+
+   document.getElementById("tekSplit").textContent =
+`Total Tek Owed: ${paymentTotal}
+Total Tek Split: ${finalTek}
+
+
+Shop (10%): ${split.shop}
+DTJ (30%): ${split.dtj}
+NBP (30%): ${split.nbp}
+TAB (30%): ${split.tab}
+${delivery ? `Delivery Fee (not split): ${deliveryFee}` : ""}`;
+
+/* =========================
+   ORDER SUMMARY
+   ========================= */
   
   /* =========================
      ORDER SUMMARY
@@ -409,44 +415,42 @@ document.getElementById("reinforceSelect").addEventListener("change", calc);
   
   orderText+=
   `Delivery: Yes
-  
-  Please provide the following:
-  Server:
-  Spawn:
-  Coords:
-  Tribe Name:
-  Pin (Vault, Dedi, Fridge):
-  
-  Payment: ${finalTek} Tek Ceilings
-  Total Items: ${totalItems}
-  
-  Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
-  
+
+Please provide the following:
+Server:
+Spawn:
+Coords:
+Tribe Name:
+Pin (Vault, Dedi, Fridge):
+
+Payment: ${paymentTotal} Tek Ceilings
+Total Items: ${totalItems}
+
+Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
   `;
   
   }else{
   
   orderText+=
   `
-  Bring Flyer, unless you can use TP
-  Server: 5986
-  Spawn: Lemonkis East
-  Shop Coords: 18.9 - 89.8
-  Tribe: Department of War
-  Room: ${room}
-  Vault: ${vault}
-  Pin: ${f2f ? "Face-to-Face Trade" : pin}
-  Payment: ${finalTek} Tek Ceilings
-  Total Items: ${totalItems}
-  
-  If you’re able to use a teleporter:
-  Spawn: Korinthos East
-  World TP: Korinthos East > E
-  Coords: 41.1 - 33.4
-  Coords: 44.4 - 36.8
-  TP: DoW Trade
-  Look for the Red, White, Blue buildings
-  
+Bring Flyer, unless you can use TP
+Server: 5986
+Spawn: Lemonkis East
+Shop Coords: 18.9 - 89.8
+Tribe: Department of War
+Room: ${room}
+Vault: ${vault}
+Pin: ${f2f ? "Face-to-Face Trade" : pin}
+Payment: ${paymentTotal} Tek Ceilings
+Total Items: ${totalItems}
+
+If you’re able to use a teleporter:
+Spawn: Korinthos East
+World TP: Korinthos East > E
+Coords: 41.1 - 33.4
+Coords: 44.4 - 36.8
+TP: DoW Trade
+Look for the Red, White, Blue buildings
   `;
   
   }
