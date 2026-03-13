@@ -41,7 +41,8 @@
     Z: "Pelt",
     BP: "Black Pearls",
     GB: "Congealed Gas Ball",
-    RE: "Red Element"
+    RE: "Red Element",
+    SP: "Spark Powder"    
   },
 
   /* =========================
@@ -73,8 +74,12 @@
       "Chalicotherium": { materials: { F: 2461, M: 615, H: 3623 }, tek: 30 },
       "Cryolophosaurus": { materials: { H: 6686, BP: 1966, M: 2123, F: 5505 }, tek: 40 },
 
-      "Companion Ammo Box": { materials: { F: 227, M: 60, H: 37 }, tek: 20 },
-      "Companion Rucksack": { materials: { F: 278, M: 9, H: 185 }, tek: 20 },
+      "Companion Ammo Box": { materials: { F: 227, M: 60, H: 37, J:91 }, tek: 20 },
+      "Companion Battle Spikes": { materials: { F: 270, M: 81, H: 18, J:94 }, tek: 20 },
+      "Companion Camping Gear": { materials: { F: 380, H: 133, J:107 }, tek: 20 },
+      "Companion Oxygen Tank": { materials: { H:3, P:9, M: 19, J:75 }, tek: 20 },      
+      "Companion Rucksack": { materials: { F: 278, M: 9, H: 185, J:99 }, tek: 20 },    
+      "Companion Speed Booster": { materials: { H:5, P:33, M: 22, F:55, M:22, SP:223, J:93 }, tek: 30 },              
 
       "Daeodon": { materials: { F: 1344, M: 173, H: 2515 }, tek: 20 },
       "Deinonychus": { materials: { F: 2425, W: 746, H: 4104 }, tek: 25 },
@@ -127,6 +132,7 @@
       "Pararacer": { materials: { F: 1566, M: 142, H: 2848 }, tek: 20 },
       "Parasaur": { materials: { F: 646, W: 194, H: 1035 }, tek: 15 },
       "Pelagornis": { materials: { K: 1050, H: 3222, F: 1751 }, tek: 25 },
+      "Phiomia": { materials: { H:286, F:214, W:71 }, tek: 25 },      
       "Plesiosaur": { materials: { A: 850, H: 5231, F: 3269, B: 523 }, tek: 20 },
       "Procoptodon": { materials: { F: 3151, M: 1103, H: 7879, Z: 2363 }, tek: 40 },
       "Pulmonoscorpius": { materials: { F: 1395, W: 440, H: 2496 }, tek: 15 },
@@ -211,7 +217,7 @@
         "Whip": { materials: { F: 387, U: 155, H: 155, W: 77, D: 138 }, tek: 20 }
       },
       armor: {
-        "Glider Suit": { materials: { V: 25, H: 60, F: 100, M: 60, D: 1000 }, tek: 15 },
+        "Glider Suit": { materials: { V: 64, H: 153, F: 256, M: 153, D: 2018 }, tek: 30 },
 
         "Flak Boots": { materials: { F: 57, M: 115, H: 86, D: 1013 }, tek: 15 },
         "Flak Chest": { materials: { F: 63, M: 206, H: 159, D: 433 }, tek: 15 },
@@ -265,8 +271,8 @@
         "Whip": { materials: { F: 2215, U: 886, H: 886, W: 443, D: 551 }, tek: 25 }
       },
       armor: {
-        "Glider Suit - (Not Max)": { materials: { V: 306, H: 735, F: 1225, M: 735, D: 4323 }, tek: 50 },
-        "Gas Mask": { materials: { X: 134, P: 1347, C: 673, D: 473 }, tek: 30 },
+        "Glider Suit - (Not Max)": { materials: { V: 306, H: 735, F: 1225, M: 735, D: 4323 }, tek: 75 },
+        "Gas Mask": { materials: { X: 134, P: 1347, C: 673, D: 473 }, tek: 50 },
 
         "Flak Boots": { materials: { F: 246, M: 492, H: 369, D: 1461 }, tek: 30 },
         "Flak Chest": { materials: { F: 368, M: 1192, H: 921, D: 1804 }, tek: 40 },
@@ -325,7 +331,8 @@
       armor: {
         "Flak Boots": { materials: { H: 52, RE: 43, M: 70, F: 35, D: 295, J:272 }, tek: 200 },  
         "Flak Gloves": { materials: { H: 71, RE: 71, M: 85, F: 28, D: 591, J:439 }, tek: 200 },        
-        "Flak Leggings": { materials: { H: 188, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 200 },             
+        "Flak Leggings": { materials: { H: 188, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 200 },
+        "Riot Helmet": { materials: { F: 37, P:625, B:312, H:87, RE: 125, C:437, D: 303, J:431 }, tek: 350 },             
       }
     },
     /* ---------- TIER 2 ---------- */
@@ -333,7 +340,7 @@
       weapons: {
         "Compound Bow": { materials: { M: 3037, RE: 357, P: 3395, A: 2680, D: 270, Q: 269 }, tek: 500 },
         "Cross Bow": { materials: { M: 403, W: 576, RE: 57, F: 2016, D: 805, Q: 298 }, tek: 200 },
-        "Harpoon": { materials: { F:1442,M: 2884, P: 721, W: 961, H: 600, O: 1201, RE: 120, A: 1442, D: 422, Q: 223 }, tek: 400 },        
+        "Harpoon": { materials: { F:2807,M: 5614, P: 1403, W: 1871, H: 1169, O: 2339, RE: 233, A: 2807, D: 681, Q: 298 }, tek: 750 },        
         "Longneck Rifle": { materials: { M: 4064, W: 855, RE: 213, H: 1069, D: 418, Q: 298 }, tek: 500 },
         "Pike": { materials: { M: 447, W: 447, RE: 44, H: 894, D: 252, Q: 298 }, tek: 300 },
         "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 750 },
@@ -342,13 +349,13 @@
       tools: {
         "Chainsaw": { materials: { E: 957, P: 2873, A: 1915, M: 1915, RE: 191, D: 389, Q: 298 }, tek: 350 },
         "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140, Q: 298 }, tek: 200 },
-        "Pick": { materials: { H: 294, RE: 29, M: 29, W: 29, D: 167, Q:248 }, tek: 200 },
+        "Pick": { materials: { H: 417, RE: 41, M: 41, W: 41, D: 234, Q:296 }, tek: 250 },
       },
       armor: {
         "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720, J:496 }, tek: 350 },
-        "Flak Boots": { materials: { H: 169, RE: 140, M: 224, F: 112, D: 537, J:384 }, tek: 350 },        
-        "Flak Gloves": { materials: { H: 191, RE: 191, M: 229, F: 76, D: 698, J:488 }, tek: 350 },
-        "Flak Helmet": { materials: { H: 188, RE: 134, M: 269, F: 80, D: 622, J:431 }, tek: 350 },
+        "Flak Boots": { materials: { H: 196, RE: 164, M: 262, F: 131, D: 675, J:496 }, tek: 350 },        
+        "Flak Gloves": { materials: { H: 182, RE: 182, M: 218, F: 72, D: 601, J:496 }, tek: 350 },
+        "Flak Helmet": { materials: { H: 421, RE: 301, M: 602, F: 180, D: 909, J:496 }, tek: 400 },
         "Flak Leggings": { materials: { H: 589, RE: 245, M: 785, F: 245, D: 829, J:496 }, tek: 400 },       
       }
     }
