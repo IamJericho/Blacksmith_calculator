@@ -82,8 +82,8 @@
       "Companion Speed Booster": { materials: { H:5, P:33, M: 22, F:55, M:22, SP:223, J:93 }, tek: 30 },              
 
       "Daeodon": { materials: { F: 1344, M: 173, H: 2515 }, tek: 20 },
-      "Deinonychus": { materials: { F: 2425, W: 746, H: 4104 }, tek: 25 },
-      "Deinosuchus": { materials: { F: 2662, M: 665, H: 5059 }, tek: 30 },
+      "Deinonychus (fluffy raptor)": { materials: { F: 2425, W: 746, H: 4104 }, tek: 25 },
+      "Deinosuchus (big crock)": { materials: { F: 2662, M: 665, H: 5059 }, tek: 30 },
       "Deinotherium": { materials: { A: 1968, H: 1968, W: 4594, F: 7482, M: 262 }, tek: 25 },
       "Desmodus": { materials: { F: 12939, M: 3234, H: 18689, W: 8626 }, tek: 80 },
       "Diplodocus": { materials: { F: 9545, M: 3181, H: 13522, W: 3977 }, tek: 80 },
