@@ -243,7 +243,7 @@
         "AR": { materials: { A: 2531, P: 3037, M: 1771, D: 483 }, tek: 50 },
         "Compound Bow": { materials: { A: 4218, P: 5343, M: 4781, D: 716 }, tek: 110 },
         "Cross Bow": { materials: { F: 2730, W: 780, M: 546, D: 1690 }, tek: 30 },
-        "Fabricated Crossbow": { materials: { A: 1882, M: 3227, F: 4302, P: 8605, D: 2765 }, tek: 185 },
+        "Fabricated Crossbow": { materials: { A: 1882, M: 3227, F: 4302, P: 8605, D: 1575 }, tek: 185 },
         "Fabricated Pistol": { materials: { A: 1841, P: 2147, M: 1227, D: 2765 }, tek: 180 },
         "Fabricated Sniper": { materials: { A: 9910, P: 10360, M: 7207, D: 1208 }, tek: 160 },
         "Flame Thrower": { materials: { A: 4050, M: 2835, L: 810, E: 1215, P: 6075, D: 514 }, tek: 70 },
