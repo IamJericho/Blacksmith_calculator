@@ -329,7 +329,6 @@
       /* weapons: {},
       tools: {}, */
       armor: {
-        "Flak Boots": { materials: { H: 52, RE: 43, M: 70, F: 35, D: 295, J:272 }, tek: 200 },  
         "Flak Gloves": { materials: { H: 71, RE: 71, M: 85, F: 28, D: 591, J:439 }, tek: 200 },        
         "Flak Leggings": { materials: { H: 188, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 200 },
         "Riot Helmet": { materials: { F: 37, P:625, B:312, H:87, RE: 125, C:437, D: 303, J:431 }, tek: 350 },             
