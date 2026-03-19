@@ -326,18 +326,21 @@
   cursed: {
     /* ---------- TIER 1 ---------- */
     tier1: {
-      /* weapons: {},
-      tools: {}, */
+      /* weapons: {},*/
+      tools: {
+        "Chainsaw": { materials: { E: 394, P: 1183, A: 788, M: 788, RE: 78, D: 302, Q: 272 }, tek: 250 },
+      }, 
       armor: {
-        "Flak Gloves": { materials: { H: 71, RE: 71, M: 85, F: 28, D: 591, J:439 }, tek: 200 },        
-        "Flak Leggings": { materials: { H: 188, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 200 },
+        "Flak Gloves": { materials: { H: 79, RE: 79, M: 94, F: 31, D: 657, J:468 }, tek: 250 },        
+        "Flak Helmet": { materials: { H: 81, RE: 57, M: 115, F: 34, D: 373, J:347 }, tek: 250 },
+        "Flak Leggings": { materials: { H: 91, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 250 },
         "Riot Helmet": { materials: { F: 37, P:625, B:312, H:87, RE: 125, C:437, D: 303, J:431 }, tek: 350 },             
       }
     },
     /* ---------- TIER 2 ---------- */
     tier2: {
       weapons: {
-        "Compound Bow": { materials: { M: 3037, RE: 357, P: 3395, A: 2680, D: 270, Q: 269 }, tek: 500 },
+        "Compound Bow": { materials: { M: 4143, RE: 487, P: 4630, A: 3655, D: 363, Q: 298 }, tek: 750 },
         "Cross Bow": { materials: { M: 403, W: 576, RE: 57, F: 2016, D: 805, Q: 298 }, tek: 200 },
         "Harpoon": { materials: { F:2807,M: 5614, P: 1403, W: 1871, H: 1169, O: 2339, RE: 233, A: 2807, D: 681, Q: 298 }, tek: 750 },        
         "Longneck Rifle": { materials: { M: 4064, W: 855, RE: 213, H: 1069, D: 418, Q: 298 }, tek: 500 },
