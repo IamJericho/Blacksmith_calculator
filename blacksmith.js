@@ -334,7 +334,8 @@
         "Flak Gloves": { materials: { H: 79, RE: 79, M: 94, F: 31, D: 657, J:468 }, tek: 250 },        
         "Flak Helmet": { materials: { H: 81, RE: 57, M: 115, F: 34, D: 373, J:347 }, tek: 250 },
         "Flak Leggings": { materials: { H: 91, RE: 78, M: 251, F: 78, D: 584, J:322 }, tek: 250 },
-        "Riot Helmet": { materials: { F: 37, P:625, B:312, H:87, RE: 125, C:437, D: 303, J:431 }, tek: 350 },             
+        "Riot Helmet": { materials: { F: 37, P:625, B:312, H:87, RE: 125, C:437, D: 303, J:431 }, tek: 350 }, 
+        "Riot Leggings": { materials: { H:178, RE:148, F:74, P: 1039, B:593, D: 527, J:471 }, tek: 375 },                    
       }
     },
     /* ---------- TIER 2 ---------- */
