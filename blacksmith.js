@@ -341,16 +341,16 @@
     /* ---------- TIER 2 ---------- */
     tier2: {
       weapons: {
-        "Compound Bow": { materials: { M: 4143, RE: 487, P: 4630, A: 3655, D: 363, Q: 298 }, tek: 750 },
+        "Compound Bow": { materials: { M: 4143, RE: 487, P: 4630, A: 3655, D: 363, Q: 298 }, tek: 1150 },
         "Cross Bow": { materials: { M: 403, W: 576, RE: 57, F: 2016, D: 805, Q: 298 }, tek: 200 },
         "Harpoon": { materials: { F:2807,M: 5614, P: 1403, W: 1871, H: 1169, O: 2339, RE: 233, A: 2807, D: 681, Q: 298 }, tek: 750 },        
         "Longneck Rifle": { materials: { M: 4064, W: 855, RE: 213, H: 1069, D: 418, Q: 298 }, tek: 500 },
         "Pike": { materials: { M: 447, W: 447, RE: 44, H: 894, D: 252, Q: 298 }, tek: 300 },
-        "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 750 },
+        "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 1150 },
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, Q: 298 }, tek: 300 }
       },
       tools: {
-        "Chainsaw": { materials: { E: 957, P: 2873, A: 1915, M: 1915, RE: 191, D: 389, Q: 298 }, tek: 350 },
+        "Chainsaw": { materials: { E: 957, P: 2873, A: 1915, M: 1915, RE: 191, D: 389, Q: 298 }, tek: 500 },
         "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140, Q: 298 }, tek: 200 },
         "Pick": { materials: { H: 417, RE: 41, M: 41, W: 41, D: 234, Q:296 }, tek: 250 },
       },
