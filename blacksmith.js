@@ -346,7 +346,7 @@
         "Harpoon": { materials: { F:2807,M: 5614, P: 1403, W: 1871, H: 1169, O: 2339, RE: 233, A: 2807, D: 681, Q: 298 }, tek: 750 },        
         "Longneck Rifle": { materials: { M: 4064, W: 855, RE: 213, H: 1069, D: 418, Q: 298 }, tek: 500 },
         "Pike": { materials: { M: 447, W: 447, RE: 44, H: 894, D: 252, Q: 298 }, tek: 300 },
-        "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 1150 },
+        "Pump Shotgun": { materials: { A: 2098, P: 2564, M: 1398, RE: 466, D: 1873, Q: 298 }, tek: 1050 },
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, Q: 298 }, tek: 300 }
       },
       tools: {
