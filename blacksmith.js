@@ -356,7 +356,7 @@
       },
       armor: {
         "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720, J:496 }, tek: 500 },
-        "Flak Boots": { materials: { H: 196, RE: 164, M: 262, F: 131, D: 675, J:496 }, tek: 350 },        
+        "Flak Boots": { materials: { H: 196, RE: 164, M: 262, F: 131, D: 675, J:496 }, tek: 450 },        
         "Flak Gloves": { materials: { H: 182, RE: 182, M: 218, F: 72, D: 601, J:496 }, tek: 450 },
         "Flak Helmet": { materials: { H: 421, RE: 301, M: 602, F: 180, D: 909, J:496 }, tek: 700 },
         "Flak Leggings": { materials: { H: 589, RE: 245, M: 785, F: 245, D: 829, J:496 }, tek: 600 },       
