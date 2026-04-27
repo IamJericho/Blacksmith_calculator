@@ -50,6 +50,7 @@
      ========================= */
   saddles: {
     regular: {
+      "Acrocanthosaurus": { materials: { H:5317, F:2798, M:699 }, tek: 35 },
       "Allosaurus": { materials: { F: 2394, M: 422, H: 4507 }, tek: 25 },
       "Ankylosaurus": { materials: { F: 2158, M: 154, H: 4008 }, tek: 20 },
       "Araneo": { materials: { K: 1345, H: 3497, F: 1883 }, tek: 25 },
@@ -72,12 +73,13 @@
       "Castoroides": { materials: { A: 2109, H: 4369, T: 2711, F: 3013, M: 1506 }, tek: 50 },
       "Ceratosaurus": { materials: { F: 3787, M: 280, H: 1823 }, tek: 25 },
       "Chalicotherium": { materials: { F: 2461, M: 615, H: 3623 }, tek: 30 },
-      "Cryolophosaurus": { materials: { H: 6686, BP: 1966, M: 2123, F: 5505 }, tek: 40 },
+      "Cryolophosaurus": { materials: { H: 6686, B: 1966, M: 2123, F: 5505 }, tek: 40 },
 
       "Companion Ammo Box": { materials: { F: 227, M: 60, H: 37, J:91 }, tek: 20 },
       "Companion Battle Spikes": { materials: { F: 270, M: 81, H: 18, J:94 }, tek: 20 },
       "Companion Camping Gear": { materials: { F: 380, H: 133, J:107 }, tek: 20 },
       "Companion Oxygen Tank": { materials: { H:3, P:9, M: 19, J:75 }, tek: 20 },      
+      "Companion Picknic Set": { materials: { M:17, F: 179, T: 358 }, tek: 20 },
       "Companion Rucksack": { materials: { F: 278, M: 9, H: 185, J:99 }, tek: 20 },    
       "Companion Speed Booster": { materials: { H:5, P:33, M: 22, F:55, M:22, SP:223, J:93 }, tek: 30 },              
 
@@ -193,12 +195,12 @@
     tier1: {
       weapons: {
         "AR": { materials: { A: 769, P: 923, M: 538, D: 209 }, tek: 25 },
-        "Compound Bow": { materials: { A: 1190, P: 1507, M: 1348, D: 299 }, tek: 45 },
-        "Cross Bow": { materials: { F: 551, W: 157, M: 110, D: 400 }, tek: 15 },
+        "Compound Bow": { materials: { M:1320, A:1165, P:1476, D: 338 }, tek: 45 },
+        "Cross Bow": { materials: { M:102, F:514, W:146 D: 635 }, tek: 15 },
         "Fabricated Crossbow": { materials: { A: 511, M: 877, F: 1169, P: 2338, D: 544 }, tek: 30 },
         "Fabricated Pistol": { materials: { A: 477, P: 556, M: 318, D: 1359 }, tek: 30 },
         "Fabricated Sniper": { materials: { A: 1322, P: 1382, M: 961, D: 426 }, tek: 35 },
-        "Flame Thrower": { materials: { A: 742, M: 519, L: 148, E: 222, P: 1113, D: 205 }, tek: 25 },
+        "Flame Thrower": { materials: { E:214, P:1070, A:713, M:499, L:142, D: 218 }, tek: 25 },
         "Harpoon Launcher": { materials: { A: 862, H: 359, O: 718, W: 574, F: 862, M: 172, P: 431, D: 297 }, tek: 20 },
         "Longneck Rifle": { materials: { H: 361, W: 289, M: 1373, D: 398 }, tek: 45 },
         "Pump Shotgun": { materials: { A: 326, P: 398, M: 217, D: 1665 }, tek: 25 },
@@ -251,7 +253,7 @@
         "Harpoon Launcher": { materials: { A: 4401, H: 1833, O: 3667, W: 2934, F: 4401, M: 8802, P: 2200, D: 1276 }, tek: 195 },
         "Longneck Rifle": { materials: { H: 2631, W: 2105, M: 10001, D: 1205 }, tek: 135 },
         "Pump Shotgun": { materials: { A: 2244, P: 2743, M: 1496, D: 3697 }, tek: 55 },
-        "Riot Shield": { materials: { C: 9695, P: 5817, M: 1939, B: 5817, D: 25958 }, tek: 70 },
+        "Riot Shield": { materials: { C: 15088, P: 9053, M: 3017, B: 9053, D: 38161 }, tek: 150 },
         "Shotgun": { materials: { H: 1766, W: 1412, M: 5651, D: 4060 }, tek: 130 },
         "Pike": { materials: { H: 1914, W: 957, M: 957, D: 521 }, tek: 35 },
         "Pistol": { materials: { H: 667, W: 222, M: 2668, D: 439 }, tek: 70 },
@@ -286,11 +288,11 @@
         "Ghillie Helm": { materials: { F: 202, OP: 337, H: 471, D: 524 }, tek: 20 },
         "Ghillie Legs": { materials: { F: 257, OP: 412, H: 619, D: 439 }, tek: 20 },
 
-        "Hazmat Boots": { materials: { V: 422, C: 844, H: 1689, GB: 1267, F: 2111, P: 864, D: 1007 }, tek: 50 },
-        "Hazmat Chest": { materials: { V: 876, C: 1753, H: 1577, GB: 1577, F: 2279, P: 876, D: 915 }, tek: 50 },
-        "Hazmat Gloves": { materials: { V: 636, C: 1273, H: 1193, GB: 1193, F: 2785, P: 159, D: 1077 }, tek: 50 },
-        "Hazmat Helm": { materials: { V: 1713, C: 3427, H: 2056, GB: 1370, F: 3084, P: 1370, D: 1041 }, tek: 50 },
-        "Hazmat Legs": { materials: { V: 913, C: 1827, H: 2055, GB: 1370, F: 2969, P: 685, D: 929 }, tek: 50 },
+        "Hazmat Boots": { materials: { V: 202, C: 404, H: 809, GB: 607, F: 1012, P: 404, D: 1116 }, tek: 50 },
+        "Hazmat Chest": { materials: { V: 953, C: 1906, H: 1716, GB: 1716, F: 2478, P: 953, D: 1124 }, tek: 50 },
+        "Hazmat Gloves": { materials: { V: 457, C: 915, H: 858, GB: 858, F: 2003, P: 114, D: 1109 }, tek: 50 },
+        "Hazmat Helm": { materials: { V: 910, C: 1821, H: 1092, GB: 728, F: 1638, P: 728, D: 1119 }, tek: 50 },
+        "Hazmat Legs": { materials: { V: 1147, C: 2294, H: 2581, GB: 1720, F: 3728, P: 860, D: 1125 }, tek: 50 },
 
         "Fur Boots": { materials: { F: 399, M: 799, H: 599, Z: 4797, D: 2045 }, tek: 65 },
         "Fur Helm": { materials: { F: 168, M: 560, H: 392, Z: 3140, D: 1935 }, tek: 60 },
@@ -350,8 +352,8 @@
         "Sword": { materials: { H: 571, RE: 38, M: 1903, W: 38, D: 363, Q: 298 }, tek: 300 }
       },
       tools: {
-        "Chainsaw": { materials: { E: 957, P: 2873, A: 1915, M: 1915, RE: 191, D: 389, Q: 298 }, tek: 500 },
-        "Hatchet": { materials: { H: 329, RE: 32, M: 263, W: 32, D: 140, Q: 298 }, tek: 200 },
+        "Chainsaw": { materials: { E: 905, P: 2717, A: 1811, M: 1811, RE: 181, D: 492, Q: 298 }, tek: 500 },
+        "Hatchet": { materials: { H: 462, RE: 46, M: 369, W: 46, D: 238, Q: 298 }, tek: 250 },
         "Pick": { materials: { H: 417, RE: 41, M: 41, W: 41, D: 234, Q:296 }, tek: 250 },
       },
       armor: {
