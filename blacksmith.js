@@ -196,7 +196,7 @@
       weapons: {
         "AR": { materials: { A: 769, P: 923, M: 538, D: 209 }, tek: 25 },
         "Compound Bow": { materials: { M:1320, A:1165, P:1476, D: 338 }, tek: 45 },
-        "Cross Bow": { materials: { M:102, F:514, W:146 D: 635 }, tek: 15 },
+        "Cross Bow": { materials: { M:102, F:514, W:146, D: 635 }, tek: 15 },
         "Fabricated Crossbow": { materials: { A: 511, M: 877, F: 1169, P: 2338, D: 544 }, tek: 30 },
         "Fabricated Pistol": { materials: { A: 477, P: 556, M: 318, D: 1359 }, tek: 30 },
         "Fabricated Sniper": { materials: { A: 1322, P: 1382, M: 961, D: 426 }, tek: 35 },
