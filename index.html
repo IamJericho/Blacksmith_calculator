@@ -169,14 +169,17 @@ Split Tek
       <option value="yes">Yes</option>
     </select>
   </div>
+
+  <div class="col-auto" style="margin-top:32px;">
+    <button class="btn btn-sm btn-primary" onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
+    <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
+    <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+  </div>
 </div>
 
 <div class="output">
   <h3>Order Summary</h3>
   <pre id="orderSummary"></pre>
-  <button class="btn btn-sm btn-primary" onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
-  <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-  <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
   </div>
 
 <script src="pricingEngine.js"></script>
@@ -441,9 +444,7 @@ Tribe: Department of War
 Room: ${room}
 Vault: ${vault}
 Pin: ${f2f ? "Face-to-Face Trade" : pin}
-${f2f ? "
-# Face to Face Trade. Message before you transfer to ensure I am online. If you let me know when you’ll be online I’ll do my best to accommodate your schedule.
-" : ""}Payment: ${paymentTotal} Tek Ceilings
+Payment: ${paymentTotal} Tek Ceilings
 Total Items: ${totalItems}
 
 If you’re able to use a teleporter:
@@ -453,7 +454,10 @@ Coords: 41.1 - 33.4
 Coords: 44.4 - 36.8
 TP: DoW Trade
 Look for the Red, White, Blue buildings
-  `;
+
+${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online. If you let me know when you’ll be online I’ll do my best to accommodate your schedule." : ""}
+
+`;
   
   }
   
