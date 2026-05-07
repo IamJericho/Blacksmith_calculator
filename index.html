@@ -441,7 +441,9 @@ Tribe: Department of War
 Room: ${room}
 Vault: ${vault}
 Pin: ${f2f ? "Face-to-Face Trade" : pin}
-Payment: ${paymentTotal} Tek Ceilings
+${f2f ? "
+# Face to Face Trade. Message before you transfer to ensure I am online. If you let me know when you’ll be online I’ll do my best to accommodate your schedule.
+" : ""}Payment: ${paymentTotal} Tek Ceilings
 Total Items: ${totalItems}
 
 If you’re able to use a teleporter:
