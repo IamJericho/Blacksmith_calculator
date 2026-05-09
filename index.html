@@ -79,6 +79,17 @@
     <tbody id="platform"></tbody>
   </table>
 
+  <h2>Tek Saddles</h2>
+  <table class="table table-dark table-sm table-zebra">
+    <thead>
+      <tr>
+        <th>Item</th>
+        <th>Qty</th>
+      </tr>
+    </thead>
+    <tbody id="teksaddles"></tbody>
+  </table>
+
   <h2>Tier 1</h2>
   <table class="table table-dark table-sm table-zebra">
     <thead>
@@ -269,6 +280,7 @@
 
     buildSimple("regular", BLACKSMITH.saddles.regular);
     buildSimple("platform", BLACKSMITH.saddles.platform);
+    buildSimple("teksaddles", BLACKSMITH.saddles.teksaddles);
     buildNested("tier1", BLACKSMITH.equipment.tier1);
     buildNested("tier2", BLACKSMITH.equipment.tier2);
     buildNested("cursed1", BLACKSMITH.cursed.tier1);
@@ -345,7 +357,7 @@
 
         let item, cat, itemName;
 
-        if (g === "regular" || g === "platform") {
+        if (g === "regular" || g === "platform" || g === "teksaddles") {
 
           item = BLACKSMITH.saddles[g][n];
           output.saddle.push(`${qty} ${n}`);
@@ -365,7 +377,7 @@
 
           output[g].push(`${qty} ${cat} – ${itemName}`);
 
-          if (cat === "weapons" || cat === "tools" || cat === "armor") {
+          if (cat === "weapons" || cat === "tools" || cat === "armor" || cat === "tek") {
             hasReinforce = true;
             reinforceTek += Math.ceil(item.tek * qty * 0.30);
           }
@@ -382,7 +394,7 @@
 
           baseMaterialTotals[k] = (baseMaterialTotals[k] || 0) + base;
 
-          if (cat === "weapons" || cat === "tools" || cat === "armor") {
+          if (cat === "weapons" || cat === "tools" || cat === "armor" || cat === "tek") {
             reinforceEligibleBaseTotals[k] = (reinforceEligibleBaseTotals[k] || 0) + base;
           }
 
