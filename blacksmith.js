@@ -190,11 +190,11 @@ window.BLACKSMITH = {
       "Shastasaurus Platform": { materials: { A: 2605, E: 1954, B: 3256, C: 4559, M: 19541 }, tek: 410 }
     },
     teksaddles: {
-      "Megalodon (223.2 Armor)": { tek: 150 },
-      "Mosasaurus (223.2 Armor)": { tek: 250 },
-      "Rex (223.2 Armor)": { tek: 250 },
-      "Rock Drake (223.2 Armor)": { tek: 250 },
-      "Tapejara (223.2 Armor)": { tek: 150 },
+      "Megalodon": { materials: { J: 223.2 }, tek: 150 },
+      "Mosasaurus": { materials: { J: 223.2 }, tek: 250 },
+      "Rex": { materials: { J: 223.2 }, tek: 250 },
+      "Rock Drake": { materials: { J: 223.2 }, tek: 250 },
+      "Tapejara": { materials: { J: 223.2 }, tek: 150 },
     }
   },
 
