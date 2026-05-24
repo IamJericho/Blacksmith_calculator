@@ -155,7 +155,7 @@ window.BLACKSMITH = {
       "Rhynio": { materials: { C: 257, H: 1285, P: 514, F: 1713, M: 1285 }, tek: 40 },
       "Rock Drake": { materials: { F: 1987, M: 1104, H: 3091, R: 750 }, tek: 35 },
       "Rock Golem": { materials: { F: 1295, M: 302, H: 2331 }, tek: 20 },
-      "Roll Rat": { materials: { A: 739, G: 391, M: 3699, F: 1305, H: 2350 }, tek: 100 },
+      "Roll Rat": { materials: { A: 739, G: 391, M: 3699, F: 1305, H: 2350 }, tek: 85 },
 
       "Sabertooth": { materials: { F: 1375, M: 177, H: 2573 }, tek: 15 },
       "Sarco": { materials: { A: 170, H: 1965, F: 640 }, tek: 10 },
