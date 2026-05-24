@@ -150,7 +150,7 @@ window.BLACKSMITH = {
 
       "Raptor": { materials: { F: 533, W: 164, H: 902 }, tek: 10 },
       "Ravager": { materials: { F: 915, H: 2087, FW: 805 }, tek: 20 },
-      "Rex": { materials: { F: 1440, M: 360, H: 2736 }, tek: 30 },
+      "Rex": { materials: { F: 1440, M: 360, H: 2736 }, tek: 25 },
       "Rhynio": { materials: { C: 257, H: 1285, P: 514, F: 1713, M: 1285 }, tek: 40 },
       "Rock Drake": { materials: { F: 1987, M: 1104, H: 3091, R: 750 }, tek: 35 },
       "Rock Golem": { materials: { F: 1295, M: 302, H: 2331 }, tek: 20 },
