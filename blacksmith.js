@@ -105,7 +105,7 @@ window.BLACKSMITH = {
       "Gacha": { materials: { K: 1230, H: 2870, F: 1517 }, tek: 20 },
       "Gallimimus": { materials: { F: 1364, M: 213, H: 2046, W: 1023 }, tek: 15 },
       "Gasbags": { materials: { K: 1322, H: 3086, F: 1631 }, tek: 20 },
-      "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 }, tek: 25 },
+      "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 }, tek: 15 },
       "Giganotosaurus": { materials: { F: 2929, M: 1004, H: 5690 }, tek: 45 },
       "Gigantoraptor": { materials: { F: 1376, M: 473, H: 2451, W: 1032 }, tek: 25 },
 
@@ -183,7 +183,7 @@ window.BLACKSMITH = {
     platform: {
       "Brontosaurus Platform": { materials: { F: 2983, M: 826, A: 413, H: 5049, B: 1147 }, tek: 30 },
       "Dreadnoughtus Platform": { materials: { A: 2633, H: 10533, B: 2194, F: 7022, M: 5705 }, tek: 145 },
-      "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 30 },
+      "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 20 },
       "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 }, tek: 45 },
       "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 260 },
       "Paracer Platform": { materials: { A: 223, H: 2855, B: 401, F: 1784, M: 624 }, tek: 30 },
