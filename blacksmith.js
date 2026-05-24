@@ -57,14 +57,14 @@ window.BLACKSMITH = {
       "Allosaurus": { materials: { F: 1588, M: 280, H: 2990 }, tek: 20 },
       "Ankylosaurus": { materials: { F: 2341, M: 90, H: 2341 }, tek: 15 },
       "Araneo": { materials: { K: 911, H: 2369, F: 1883 }, tek: 20 },
-      "Archelon": { materials: { F: 2211, H: 7520, M: 1769, W: 2211 }, tek: 45 },
+      "Archelon": { materials: { F: 2211, H: 7520, M: 1769, W: 2211 }, tek: 40 },
       "Argentavis": { materials: { K: 1358, H: 3170, F: 1675 }, tek: 20 },
       "Armadoggo": { materials: { H: 1616, P: 44, M: 269, F: 2019 }, tek: 20 },
       "Arthropluera": { materials: { A: 126, N: 67, M: 252, W: 169, F: 420, H: 673, O: 294 }, tek: 20 },
-      "Aurellax": { materials: { H: 2648, P: 441, M: 1324, F: 3090 }, tek: 45 },
+      "Aurellax": { materials: { H: 2648, P: 441, M: 1324, F: 3090 }, tek: 40 },
 
       "Baryonyx": { materials: { F: 3252, M: 232, H: 2091 }, tek: 20 },
-      "Basilisk": { materials: { A: 730, G: 386, M: 3654, F: 1289, H: 2321 }, tek: 100 },
+      "Basilisk": { materials: { A: 730, G: 386, M: 3654, F: 1289, H: 2321 }, tek: 90 },
       "Basilosaurus": { materials: { F: 1631, M: 448, H: 1631 }, tek: 20 },
       "Beelzebufo": { materials: { A: 41, H: 1404, F: 785, W: 247 }, tek: 15 },
       "Bison": { materials: { A: 528, H: 1939, F: 1057, M: 352 }, tek: 20 },
@@ -72,7 +72,7 @@ window.BLACKSMITH = {
       "Burrowbuck": { materials: { F: 2700, M: 67, H: 5063, A: 337 }, tek: 50 },
 
       "Carbonemys": { materials: { A: 86, H: 1469, F: 821 }, tek: 15 },
-      "Carcharodontosaurus": { materials: { K: 168, H: 4214, F: 2950, M: 1517 }, tek: 45 },
+      "Carcharodontosaurus": { materials: { K: 168, H: 4214, F: 2950, M: 1517 }, tek: 40 },
       "Carnotaurus": { materials: { F: 1593, M: 281, H: 3000 }, tek: 20 },
       "Castoroides": { materials: { A: 1085, H: 2248, T: 1395, F: 1550, M: 775 }, tek: 35 },
       "Ceratosaurus": { materials: { F: 2019, M: 149, H: 972 }, tek: 20 },
@@ -93,7 +93,7 @@ window.BLACKSMITH = {
       "Deinonychus (fluffy raptor)": { materials: { F: 984, W: 303, H: 1666 }, tek: 20 },
       "Deinosuchus (big croc)": { materials: { F: 1819, M: 454, H: 3456 }, tek: 20 },
       "Deinotherium": { materials: { A: 1394, H: 1394, W: 3253, F: 5298, M: 185 }, tek: 20 },
-      "Desmodus": { materials: { F: 1616, M: 404, H: 2334, W: 1077 }, tek: 35 },
+      "Desmodus": { materials: { F: 1616, M: 404, H: 2334, W: 1077 }, tek: 30 },
       "Diplodocus": { materials: { F: 9545, M: 3181, H: 13522, W: 3977 }, tek: 80 },
       "Dire Bear": { materials: { A: 922, H: 2766, F: 1199 }, tek: 20 },
       "Doedicurus": { materials: { F: 970, M: 44, H: 1764, S: 132 }, tek: 15 },
@@ -106,7 +106,7 @@ window.BLACKSMITH = {
       "Gallimimus": { materials: { F: 1364, M: 213, H: 2046, W: 1023 }, tek: 15 },
       "Gasbags": { materials: { K: 1322, H: 3086, F: 1631 }, tek: 20 },
       "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 }, tek: 15 },
-      "Giganotosaurus": { materials: { F: 2929, M: 1004, H: 5690 }, tek: 45 },
+      "Giganotosaurus": { materials: { F: 2929, M: 1004, H: 5690 }, tek: 40 },
       "Gigantoraptor": { materials: { F: 1376, M: 473, H: 2451, W: 1032 }, tek: 25 },
 
       "Helicoprion": { materials: { F: 1833, M: 550, H: 2934 }, tek: 30 },
@@ -120,7 +120,7 @@ window.BLACKSMITH = {
       "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
 
       "Maeguana": { materials: { F: 1254, M: 221, H: 2361 }, tek: 20 },
-      "Malwyn": { materials: { K: 561, H: 702, F: 2340, M: 1684 }, tek: 45 },
+      "Malwyn": { materials: { K: 561, H: 702, F: 2340, M: 1684 }, tek: 40 },
       "Mammoth": { materials: { F: 1246, M: 89, H: 2314 }, tek: 15 },
       "Managarmr": { materials: { K: 1163, H: 2715, F: 1435 }, tek: 20 },
       "Manta": { materials: { N: 188, M: 549, F: 1099, H: 1571, W: 392 }, tek: 50 },
@@ -132,7 +132,7 @@ window.BLACKSMITH = {
       "Megaraptor": { materials: { F: 1870, M: 467, H: 3272 }, tek: 20 },
       "Megatherium": { materials: { A: 866, H: 2816, F: 1126, M: 476 }, tek: 25 },
       "Morellatops": { materials: { F: 646, W: 242, H: 1131 }, tek: 10 },
-      "Mosasaurus": { materials: { A: 1308, H: 7475, B: 934, F: 5606, M: 3737 }, tek: 90 },
+      "Mosasaurus": { materials: { A: 1308, H: 7475, B: 934, F: 5606, M: 3737 }, tek: 80 },
 
       "Ossidon": { materials: { F: 1601, M: 1200, H: 3042 }, tek: 40 },
 
@@ -185,11 +185,11 @@ window.BLACKSMITH = {
       "Dreadnoughtus Platform": { materials: { A: 2633, H: 10533, B: 2194, F: 7022, M: 5705 }, tek: 145 },
       "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 20 },
       "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 }, tek: 45 },
-      "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 260 },
+      "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 240 },
       "Paracer Platform": { materials: { A: 223, H: 2855, B: 401, F: 1784, M: 624 }, tek: 30 },
       "Plesiosaur Platform": { materials: { A: 431, H: 5335, B: 1216, F: 3177, M: 878 }, tek: 35 },
       "Quetzal Platform": { materials: { A: 1024, H: 5292, B: 1877, F: 3414, M: 1536 }, tek: 50 },
-      "Shastasaurus Submarine": { materials: { A: 1665, E: 1248, B: 2081, C: 2913, M: 12488 }, tek: 250 }
+      "Shastasaurus Submarine": { materials: { A: 1665, E: 1248, B: 2081, C: 2913, M: 12488 }, tek: 230 }
     },
     teksaddles: {
       "Megalodon Tek Saddle": { materials: { J: 223.2 }, tek: 150 },
