@@ -185,7 +185,7 @@ window.BLACKSMITH = {
       "Dreadnoughtus Platform": { materials: { A: 2633, H: 10533, B: 2194, F: 7022, M: 5705 }, tek: 145 },
       "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 20 },
       "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 }, tek: 45 },
-      "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 240 },
+      "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 250 },
       "Paracer Platform": { materials: { A: 223, H: 2855, B: 401, F: 1784, M: 624 }, tek: 30 },
       "Plesiosaur Platform": { materials: { A: 431, H: 5335, B: 1216, F: 3177, M: 878 }, tek: 35 },
       "Quetzal Platform": { materials: { A: 1024, H: 5292, B: 1877, F: 3414, M: 1536 }, tek: 50 },
