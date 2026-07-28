@@ -45,7 +45,8 @@ window.BLACKSMITH = {
     PM: "Prime Meat",    
     RE: "Red Element",
     SP: "Spark Powder",
-    CB: "Charge Battery"
+    CB: "Charge Battery",
+    SF: "Shell Fragment"
   },
 
   /* =========================
@@ -117,7 +118,9 @@ window.BLACKSMITH = {
 
       "Kaprosuchus": { materials: { K: 517, H: 1314, F: 955 }, tek: 10 },
       "Karkinos": { materials: { V: 638, FW: 1596, F: 1796, H: 1357 }, tek: 15 },
-      "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
+      
+     "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
+     "Lumina": { materials: { H: 14019, B: 3823, M: 2548, F: 9558 }, tek: 65 },
 
       "Maeguana": { materials: { F: 1254, M: 221, H: 2361 }, tek: 20 },
       "Malwyn": { materials: { K: 561, H: 702, F: 2340, M: 1684 }, tek: 40 },
@@ -138,6 +141,7 @@ window.BLACKSMITH = {
 
       "Pachy": { materials: { F: 839, W: 258, H: 1421 }, tek: 20 },
       "Pachyrhinosaurus": { materials: { F: 734, W: 229, H: 1284 }, tek: 10 },
+      "Palaeoctopus": { materials: { F: 4291, M: 1430, K: 572, H: 7868, W: 2145 }, tek: 50 },     
       "Pararacer": { materials: { F: 932, M: 84, H: 1695 }, tek: 15 },
       "Parasaur": { materials: { F: 423, W: 127, H: 678 }, tek: 10 },
       "Pelagornis": { materials: { K: 1050, H: 3222, F: 1751 }, tek: 25 },
@@ -169,8 +173,11 @@ window.BLACKSMITH = {
       "Therizinosaurus": { materials: { F: 1970, M: 677, H: 3510, W: 1478 }, tek: 30 },
       "Thorny Dragon": { materials: { Y: 1199, H: 3810, W: 1764, F: 2116, M: 493 }, tek: 25 },
       "Thylacoleo": { materials: { F: 1178, M: 152, H: 2204 }, tek: 15 },
+      "Tidepup": { materials: { F: 699, M: 139, A: 69, H: 1118, W: 279 }, tek: 30 },     
       "Trike": { materials: { F: 700, W: 218, H: 1225 }, tek: 10 },
       "Tusoteuthis": { materials: { A: 391, H: 2782, F: 6914, M: 260 }, tek: 15 },
+      
+      "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 }, tek: 30 },
 
       "Velonasaur": { materials: { K: 1235, H: 2881, F: 1523 }, tek: 15 },
 
@@ -185,6 +192,7 @@ window.BLACKSMITH = {
       "Dreadnoughtus Platform": { materials: { A: 2633, H: 10533, B: 2194, F: 7022, M: 5705 }, tek: 145 },
       "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 }, tek: 20 },
       "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 }, tek: 45 },
+      "Megachelon Platform": { materials: { F: 2223, M: 650, B: 359, H: 2668, SF: 188, A: 239 }, tek: 150 },
       "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 }, tek: 250 },
       "Paracer Platform": { materials: { A: 223, H: 2855, B: 401, F: 1784, M: 624 }, tek: 30 },
       "Plesiosaur Platform": { materials: { A: 431, H: 5335, B: 1216, F: 3177, M: 878 }, tek: 35 },
@@ -227,6 +235,7 @@ window.BLACKSMITH = {
         "Chainsaw": { materials: { A: 790, M: 790, E: 395, P: 1185, D: 602 }, tek: 30 },
         "Charge Lantern": { materials: { GB: 6295, M: 2046, R: 1259, E: 1888, P: 1888, CB: 51 }, tek: 65 },       
         "Climbing Pick": { materials: { F: 145, G: 58, FW: 29, M: 116, D: 325 }, tek: 20 },
+        "Drake Claw": { materials: { C: 54, M: 273, F: 1094, A: 91, D: 81 }, tek: 20 },       
         "Hatchet": { materials: { H: 142, W: 14, M: 113, D: 125 }, tek: 20 },
         "Pick": { materials: { H: 158, W: 15, M: 15, D: 202 }, tek: 20 },
         "Shield": { materials: { A: 142, M: 570, H: 107, D: 7735 }, tek: 25 },
@@ -266,6 +275,7 @@ window.BLACKSMITH = {
         "Fabricated Sniper": { materials: { A: 9910, P: 10360, M: 7207, D: 1208 }, tek: 160 },
         "Flame Thrower": { materials: { A: 4050, M: 2835, L: 810, E: 1215, P: 6075, D: 514 }, tek: 70 },
         "Goo Gun": { materials: { A: 1927, E: 1927, P: 5139, C: 2569, M: 9637, D: 765 }, tek: 210 },
+        "Hand Cannon": { materials: { M: 4008, H: 1002, W: 334, D: 511 }, tek: 55 },       
         "Harpoon Launcher": { materials: { A: 4401, H: 1833, O: 3667, W: 2934, F: 4401, M: 8802, P: 2200, D: 1276 }, tek: 195 },
         "Longneck Rifle": { materials: { H: 2631, W: 2105, M: 10001, D: 1205 }, tek: 135 },
         "Pump Shotgun": { materials: { A: 2244, P: 2743, M: 1496, D: 3697 }, tek: 55 },
@@ -376,11 +386,11 @@ window.BLACKSMITH = {
         "Pick": { materials: { H: 417, RE: 41, M: 41, W: 41, D: 234, Q: 296 }, tek: 250 },
       },
       armor: {
-        "Flak Chest": { materials: { H: 407, RE: 203, M: 529, F: 162, D: 720, J: 496 }, tek: 500 },
+        "Flak Chest": { materials: { H: 614, RE: 307, M: 799, F: 245, D: 1059, J: 496 }, tek: 500 },
         "Flak Boots": { materials: { H: 196, RE: 164, M: 262, F: 131, D: 675, J: 496 }, tek: 400 },
         "Flak Gloves": { materials: { H: 182, RE: 182, M: 218, F: 72, D: 601, J: 496 }, tek: 450 },
         "Flak Helmet": { materials: { H: 421, RE: 301, M: 602, F: 180, D: 909, J: 496 }, tek: 650 },
-        "Flak Leggings": { materials: { H: 589, RE: 245, M: 785, F: 245, D: 829, J: 496 }, tek: 550 },
+        "Flak Leggings": { materials: { H: 934, RE: 389, M: 1245, F: 389, D: 1338, J: 496 }, tek: 550 },
       }
     }
   }
