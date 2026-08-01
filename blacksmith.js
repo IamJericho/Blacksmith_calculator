@@ -119,10 +119,11 @@ window.BLACKSMITH = {
       "Kaprosuchus": { materials: { K: 517, H: 1314, F: 955 }, tek: 10 },
       "Karkinos": { materials: { V: 638, FW: 1596, F: 1796, H: 1357 }, tek: 15 },
       
-     "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
-     "Lumina": { materials: { H: 14019, B: 3823, M: 2548, F: 9558 }, tek: 65 },
-
+      "Lumina": { materials: { H: 14019, B: 3823, M: 2548, F: 9558 }, tek: 65 },
+      "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
+     
       "Maeguana": { materials: { F: 1254, M: 221, H: 2361 }, tek: 20 },
+      "Magmasaur": { materials: { F: 1959, M: 5224, H: 3004, A: 1632 }, tek: 50 },      
       "Malwyn": { materials: { K: 561, H: 702, F: 2340, M: 1684 }, tek: 40 },
       "Mammoth": { materials: { F: 1246, M: 89, H: 2314 }, tek: 15 },
       "Managarmr": { materials: { K: 1163, H: 2715, F: 1435 }, tek: 20 },
