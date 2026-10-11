@@ -69,7 +69,7 @@ window.BLACKSMITH = {
       "Basilosaurus": { materials: { F: 1631, M: 448, H: 1631 }, tek: 20 },
       "Beelzebufo": { materials: { A: 41, H: 1404, F: 785, W: 247 }, tek: 15 },
       "Bison": { materials: { A: 655, H: 2403, F: 1311, M: 437 }, tek: 20 },
-      "Boaratos": { materials: { O: 1440, H: 7200, F: 8640, M: 1440 }, tek: 80 },     
+      "Boaratos": { materials: { O: 1440, H: 7200, F: 8640, M: 1440 }, tek: 80, additionalTek: 20 },     
       "Brontosaurus": { materials: { F: 1625, M: 351, H: 3075 }, tek: 20 },
       "Burrowbuck": { materials: { F: 1101, M: 27, H: 2065, A: 137 }, tek: 50 },
 
@@ -79,7 +79,7 @@ window.BLACKSMITH = {
       "Castoroides": { materials: { A: 1113, H: 2306, T: 1431, F: 1590, M: 795 }, tek: 35 },
       "Ceratosaurus": { materials: { F: 2107, M: 156, H: 1014 }, tek: 20 },
       "Chalicotherium": { materials: { F: 1481, M: 370, H: 2180 }, tek: 20 },
-      "Concavenator": { materials: { F: 1545, M: 193, H: 2705, C: 386 }, tek: 40 },     
+      "Concavenator": { materials: { F: 1545, M: 193, H: 2705, C: 386 }, tek: 40, additionalTek: 20 },     
       "Cryolophosaurus": { materials: { H: 6686, B: 1966, M: 2123, F: 5505 }, tek: 40 },
 
       "Companion Ammo Box": { materials: { F: 256, M: 68, H: 42, J: 98 }, tek: 20 },
@@ -125,7 +125,7 @@ window.BLACKSMITH = {
       "Lymantria": { materials: { K: 776, H: 1063, F: 1022 }, tek: 10 },
      
       "Maeguana": { materials: { F: 1491, M: 263, H: 2806 }, tek: 20 },
-      "Magmasaur": { materials: { F: 1332, M: 3554, H: 2043, A: 1110 }, tek: 50 },      
+      "Magmasaur": { materials: { F: 1332, M: 3554, H: 2043, A: 1110 }, tek: 50, additionalTek: 20 },      
       "Malwyn": { materials: { K: 561, H: 702, F: 2340, M: 1684 }, tek: 40 },
       "Mammoth": { materials: { F: 1246, M: 89, H: 2314 }, tek: 15 },
       "Managarmr": { materials: { K: 1163, H: 2715, F: 1435 }, tek: 20 },
@@ -144,7 +144,7 @@ window.BLACKSMITH = {
 
       "Pachy": { materials: { F: 839, W: 258, H: 1421 }, tek: 20 },
       "Pachyrhinosaurus": { materials: { F: 734, W: 229, H: 1284 }, tek: 10 },
-      "Palaeoctopus": { materials: { F: 4291, M: 1430, K: 572, H: 7868, W: 2145 }, tek: 50 },     
+      "Palaeoctopus": { materials: { F: 4291, M: 1430, K: 572, H: 7868, W: 2145 }, tek: 50, additionalTek: 20 },     
       "Pararacer": { materials: { F: 997, M: 90, H: 1813 }, tek: 15 },
       "Parasaur": { materials: { F: 423, W: 127, H: 678 }, tek: 10 },
       "Pelagornis": { materials: { K: 692, H: 2122, F: 1153 }, tek: 25 },
@@ -180,7 +180,7 @@ window.BLACKSMITH = {
       "Trike": { materials: { F: 700, W: 218, H: 1225 }, tek: 10 },
       "Tusoteuthis": { materials: { A: 391, H: 2782, F: 6914, M: 260 }, tek: 15 },
       
-      "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 }, tek: 30 },
+      "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 }, tek: 30, additionalTek: 20 },
 
       "Velonasaur": { materials: { K: 1318, H: 3077, F: 1626 }, tek: 15 },
 
@@ -407,3 +407,31 @@ window.BLACKSMITH = {
        }
     } */
 };
+
+
+/* Calculate recipe-based client prices from the pricing engine.
+   Tek saddles retain their fixed prices until crafting recipes are available. */
+(function syncBlacksmithPrices() {
+  if (!window.DTJ_PRICING || typeof window.DTJ_PRICING.priceItem !== "function") {
+    throw new Error("Load pricingEngine.js before blacksmith.js");
+  }
+  const collections = [window.BLACKSMITH.saddles, window.BLACKSMITH.equipment, window.BLACKSMITH.cursed];
+  for (const collection of collections) {
+    if (!collection) continue;
+    for (const section of Object.values(collection)) {
+      if (!section || section === window.BLACKSMITH.saddles.teksaddles) continue;
+      for (const entry of Object.values(section)) {
+        if (!entry || typeof entry !== "object") continue;
+        if (entry.materials) {
+          entry.tek = window.DTJ_PRICING.priceItem(entry.materials).CC.ideal + (entry.additionalTek || 0);
+        } else {
+          for (const item of Object.values(entry)) {
+            if (item && item.materials) {
+              item.tek = window.DTJ_PRICING.priceItem(item.materials).CC.ideal + (item.additionalTek || 0);
+            }
+          }
+        }
+      }
+    }
+  }
+})();
