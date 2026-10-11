@@ -176,6 +176,7 @@
     <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
   </div>
 
+  <script src="pricingEngine.js"></script>
   <script src="blacksmith.js"></script>
   <script>
 
@@ -287,7 +288,7 @@
       Object.entries(data).forEach(([name, itemData]) => {
         t.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${name}${formatStats(itemData.materials)}</td>
+        <td>${name} — ${itemData.tek} TEK${formatStats(itemData.materials)}</td>
         <td>${qtySelect(id, name)}</td>
       </tr>
     `);
@@ -309,7 +310,7 @@
         items.forEach(([item, itemData]) => {
           t.insertAdjacentHTML("beforeend", `
         <tr>
-          <td>${item}${formatStats(itemData.materials)}</td>
+          <td>${item} — ${itemData.tek} TEK${formatStats(itemData.materials)}</td>
           <td>${qtySelect(id, `${category}|${item}`)}</td>
         </tr>
       `);
@@ -325,9 +326,9 @@
     buildSimple("platform", BLACKSMITH.saddles.platform);
     buildSimple("teksaddles", BLACKSMITH.saddles.teksaddles);
     buildNested("tier1", BLACKSMITH.equipment.tier1);
-   /* buildNested("tier2", BLACKSMITH.equipment.tier2);
-    buildNested("cursed1", BLACKSMITH.cursed.tier1);
-    buildNested("cursed2", BLACKSMITH.cursed.tier2); */
+    if (BLACKSMITH.equipment.tier2) buildNested("tier2", BLACKSMITH.equipment.tier2);
+    if (BLACKSMITH.cursed?.tier1) buildNested("cursed1", BLACKSMITH.cursed.tier1);
+    if (BLACKSMITH.cursed?.tier2) buildNested("cursed2", BLACKSMITH.cursed.tier2);
 
     document.addEventListener("change", calc);
 

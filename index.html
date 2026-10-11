@@ -282,9 +282,9 @@
     buildSimple("platform", BLACKSMITH.saddles.platform);
     buildSimple("teksaddles", BLACKSMITH.saddles.teksaddles);
     buildNested("tier1", BLACKSMITH.equipment.tier1);
-    buildNested("tier2", BLACKSMITH.equipment.tier2);
-    buildNested("cursed1", BLACKSMITH.cursed.tier1);
-    buildNested("cursed2", BLACKSMITH.cursed.tier2);
+    if (BLACKSMITH.equipment.tier2) buildNested("tier2", BLACKSMITH.equipment.tier2);
+    if (BLACKSMITH.cursed?.tier1) buildNested("cursed1", BLACKSMITH.cursed.tier1);
+    if (BLACKSMITH.cursed?.tier2) buildNested("cursed2", BLACKSMITH.cursed.tier2);
 
     document.querySelectorAll("select[data-group]").forEach(sel => {
       sel.addEventListener("change", calc);
