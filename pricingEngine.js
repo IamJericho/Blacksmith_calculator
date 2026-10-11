@@ -88,8 +88,7 @@ function calculateTC(materials) {
 
     for (const [key, qty] of Object.entries(materials)) {
 
-        if (key === "D") continue; // Ignore durability
-
+    if (["D", "J", "Q"].includes(key)) continue; // Ignore durability D, damage Q, armor J
         // Handle Red Element
         if (key === "RE") {
             const reTC = qty * TEK_PER_RE;
@@ -106,7 +105,9 @@ function calculateTC(materials) {
         const stackSize = getStackSize(key);
         const tekPerStack = getTekPerStack(key);
 
-        if (!tekPerStack) continue;
+        if (!tekPerStack) {
+            throw new Error(`Missing DEDI price for material: ${key}`);
+        }
 
         const stacks = qty / stackSize;
         const tc = stacks * tekPerStack;
