@@ -8,7 +8,7 @@
 
 const DEDI_PRICE = {
     A: 400, B: 400, C: 500, E: 800, F: 400, FW: 500,
-    G: 500, H: 500, I: 1000, K: 500, L: 500, M: 500,
+    G: 500, H: 500, I: 1800, K: 500, L: 500, M: 500,
     N: 400, O: 400, OP: 500, P: 5000, R: 500, RM: 400,
     S: 400, T: 500, U: 500, V: 500, W: 500,
     X: 500, Y: 500, Z: 500, BP: 500, GB: 500, SP: 500, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700
@@ -28,7 +28,7 @@ const STACK_SIZE = {
     C: 100,
     FW: 100,
     G: 100,
-    I: 100,
+    I: 1,
     K: 100,
     L: 100,
     N: 100,
@@ -56,10 +56,11 @@ const STACK_SIZE = {
 // Red Element Conversion
 // -----------------------------
 
-// 1 Dust Dedi = 1000 Tek
+// 1 Dust Dedi = 1800 Tek
 // 1 Dedi = 1800 stacks
-// 1 RE = 2 dust stacks
-const TEK_PER_RE = (1000 / 1800) * 2; // 1.111111...
+// 1 Element = 1 Dust stack
+// 1 RE = 2 Dust stacks
+const TEK_PER_RE = (1800 / 1800) * 2; // 2 TEK
 
 // -----------------------------
 // Helpers
