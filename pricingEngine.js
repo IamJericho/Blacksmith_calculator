@@ -9,9 +9,9 @@
 const DEDI_PRICE = {
     A: 400, B: 400, C: 500, E: 800, F: 400, FW: 500,
     G: 500, H: 500, I: 1000, K: 500, L: 500, M: 500,
-    N: 400, O: 400, OP: 500, P: 800, R: 500, RM: 400,
+    N: 400, O: 400, OP: 500, P: 5000, R: 500, RM: 400,
     S: 400, T: 500, U: 500, V: 500, W: 500,
-    X: 500, Y: 500, Z: 500, BP: 500, GB: 500
+    X: 500, Y: 500, Z: 500, BP: 500, GB: 500, SP: 500, SF: 2000, PM: 400, MB: 400
 };
 
 // Correct stack sizes (add any missing ones here)
