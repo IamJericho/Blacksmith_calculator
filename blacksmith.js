@@ -409,8 +409,8 @@ window.BLACKSMITH = {
 };
 
 
-/* Calculate every active item's client price from the pricing engine.
-   Recipes remain the single source of material quantities. */
+/* Calculate recipe-based client prices from the pricing engine.
+   Tek saddles retain their fixed prices until crafting recipes are available. */
 (function syncBlacksmithPrices() {
   if (!window.DTJ_PRICING || typeof window.DTJ_PRICING.priceItem !== "function") {
     throw new Error("Load pricingEngine.js before blacksmith.js");
@@ -419,7 +419,7 @@ window.BLACKSMITH = {
   for (const collection of collections) {
     if (!collection) continue;
     for (const section of Object.values(collection)) {
-      if (!section) continue;
+      if (!section || section === window.BLACKSMITH.saddles.teksaddles) continue;
       for (const entry of Object.values(section)) {
         if (!entry || typeof entry !== "object") continue;
         if (entry.materials) {
