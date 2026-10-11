@@ -1,5 +1,5 @@
 // =============================
-// DTJ Pricing Engine (Corrected)
+// DTJ Pricing Engine
 // =============================
 
 // -----------------------------
@@ -8,7 +8,7 @@
 
 const DEDI_PRICE = {
     A: 400, B: 400, C: 500, E: 8000, F: 400, FW: 500,
-    G: 500, H: 400, I: 1800, K: 250, L: 500, M: 500,
+    G: 500, H: 500, I: 1800, K: 500, L: 500, M: 500,
     N: 400, O: 400, OP: 500, P: 5000, R: 500, RM: 400,
     S: 400, T: 500, U: 500, V: 500, W: 500,
     X: 500, Y: 500, Z: 500, BP: 4500, GB: 500, SP: 500, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700
@@ -88,7 +88,8 @@ function calculateTC(materials) {
 
     for (const [key, qty] of Object.entries(materials)) {
 
-    if (["D", "J", "Q"].includes(key)) continue; // Ignore durability D, damage Q, armor J
+        if (["D", "J", "Q"].includes(key)) continue; // Stats are not crafting materials
+
         // Handle Red Element
         if (key === "RE") {
             const reTC = qty * TEK_PER_RE;
@@ -105,9 +106,7 @@ function calculateTC(materials) {
         const stackSize = getStackSize(key);
         const tekPerStack = getTekPerStack(key);
 
-        if (!tekPerStack) {
-            throw new Error(`Missing DEDI price for material: ${key}`);
-        }
+        if (!tekPerStack) throw new Error(`Missing DEDI price for material: ${key}`);
 
         const stacks = qty / stackSize;
         const tc = stacks * tekPerStack;
