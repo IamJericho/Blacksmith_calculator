@@ -7,11 +7,11 @@
 // -----------------------------
 
 const DEDI_PRICE = {
-    A: 1800, B: 400, C: 1000, E: 8000, F: 400, FW: 500,
-    G: 500, H: 400, I: 1800, K: 250, L: 3000, M: 3000,
-    N: 400, O: 400, OP: 500, P: 5000, R: 500, RM: 400,
-    S: 400, T: 500, U: 500, V: 500, W: 500,
-    X: 500, Y: 500, Z: 500, BP: 4500, GB: 500, SP: 500, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700
+    A: 1800, B: 2500, C: 1000, E: 8000, F: 500, FW: 1000,
+    G: 2000, H: 400, I: 1800, K: 250, L: 3000, M: 3000,
+    N: 500, O: 3000, OP: 1000, P: 5000, R: 2000, RM: 1500,
+    S: 500, T: 500, U: 2500, V: 2000, W: 500,
+    X: 0, Y: 2000, Z: 500, BP: 4500, GB: 4000, SP: 0, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700
 };
 
 // Correct stack sizes (add any missing ones here)
@@ -51,6 +51,20 @@ const STACK_SIZE = {
     OL: 100,
     ST: 30
 };
+
+// Recipe-derived prices, expressed per full dedi of the crafted material.
+// 1 Absorbent Substrate = 2 Sap + 2 Oil + 2 Black Pearls.
+DEDI_PRICE.X = 2 * (
+    DEDI_PRICE.ST / STACK_SIZE.ST +
+    DEDI_PRICE.OL / STACK_SIZE.OL +
+    DEDI_PRICE.BP / STACK_SIZE.BP
+) * STACK_SIZE.X;
+
+// 1 Spark Powder = 1 Stone + 2 Flint.
+DEDI_PRICE.SP = (
+    DEDI_PRICE.S / STACK_SIZE.S +
+    2 * DEDI_PRICE.N / STACK_SIZE.N
+) * STACK_SIZE.SP;
 
 // -----------------------------
 // Red Element Conversion
