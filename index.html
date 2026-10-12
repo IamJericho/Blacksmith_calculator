@@ -18,6 +18,8 @@
 input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}.message-visible{margin-top:18px;border-top:1px solid var(--line);padding-top:16px}.message-visible pre{max-height:none}.order-cost{color:var(--accent);font-size:18px;font-weight:600;margin-top:12px}.skip-link{position:absolute;left:16px;top:-100px;background:var(--accent);color:#000;padding:10px;z-index:10}.skip-link:focus{top:12px}.catalog-tab,.btn,.form-select{min-height:44px}.table .form-select{min-height:44px}
 
 .catalog-tab{border-color:#87764e}.btn-primary,.btn-warning,.catalog-tab[aria-pressed=true]{background:#f1dda7;color:#242424;border:1px solid #87764e}.skip-link{background:#745610;color:#fff}.mode-tag{border-color:#ddd8ce}.order-cost{color:#745610}
+
+.table td:last-child,.table th:last-child{width:152px}.quantity-control{display:grid;grid-template-columns:36px 48px 36px;gap:4px;align-items:center}.quantity-control button{height:44px;min-height:44px;padding:0;background:#f1dda7;color:#242424;border:1px solid #87764e;border-radius:7px;font-size:22px;line-height:1}.quantity-control button:disabled{opacity:.45}.quantity-input{width:48px;height:44px;border:1px solid #87764e;border-radius:7px;background:#fff;color:#242424;text-align:center;padding:0;font-size:14px;appearance:textfield;-moz-appearance:textfield}.quantity-input::-webkit-inner-spin-button,.quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}@media(max-width:760px){.table td:last-child,.table th:last-child{width:138px}.table td{padding-left:10px;padding-right:10px}}
 </style>
 </head>
 
@@ -767,6 +769,48 @@ Ideal CC: ${result.CC.ideal}`;
   document.addEventListener("change",refresh);
   const originalReset=window.resetAll;window.resetAll=function(){originalReset();refresh();};
   refresh();
+})();
+
+</script>
+<script>
+(function addQuantitySteppers() {
+  const steppers = [];
+  for (const select of document.querySelectorAll('select[data-group]')) {
+    const name = select.dataset.name.split('|').pop();
+    const maximum = Number(select.options[select.options.length - 1].value);
+    const wrapper = document.createElement('div');
+    wrapper.className = 'quantity-control';
+    const minus = document.createElement('button');
+    minus.type = 'button'; minus.textContent = '−';
+    minus.setAttribute('aria-label', 'Decrease quantity for ' + name);
+    const input = document.createElement('input');
+    input.type = 'number'; input.min = '0'; input.max = String(maximum); input.step = '1';
+    input.inputMode = 'numeric'; input.className = 'quantity-input';
+    input.setAttribute('aria-label', 'Quantity for ' + name);
+    const plus = document.createElement('button');
+    plus.type = 'button'; plus.textContent = '+';
+    plus.setAttribute('aria-label', 'Increase quantity for ' + name);
+    select.hidden = true; select.tabIndex = -1; select.setAttribute('aria-hidden', 'true');
+    select.after(wrapper); wrapper.append(minus, input, plus);
+    function sync() {
+      input.value = select.value;
+      minus.disabled = Number(select.value) <= 0;
+      plus.disabled = Number(select.value) >= maximum;
+    }
+    function setQuantity(value) {
+      const safeValue = Number.isFinite(value) ? Math.min(maximum, Math.max(0, Math.floor(value))) : 0;
+      select.value = String(safeValue);
+      sync();
+      select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    minus.addEventListener('click', () => setQuantity(Number(select.value) - 1));
+    plus.addEventListener('click', () => setQuantity(Number(select.value) + 1));
+    input.addEventListener('input', () => setQuantity(input.valueAsNumber));
+    select.addEventListener('change', sync);
+    sync(); steppers.push(sync);
+  }
+  const originalReset = window.resetAll;
+  window.resetAll = function () { originalReset(); for (const sync of steppers) sync(); };
 })();
 
 </script>
