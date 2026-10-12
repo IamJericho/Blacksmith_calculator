@@ -185,15 +185,10 @@ window.DTJ_PRICING = {
 // A null override uses the supplier valuation; set unitsPerTek to an independent rate.
 const ALTERNATIVE_PAYMENTS = {
     enabled: true,
-    resources: {
-        H: { unitsPerTek: null },
-        M: { unitsPerTek: null },
-        F: { unitsPerTek: null },
-        W: { unitsPerTek: null },
-        OL: { unitsPerTek: null, label: "Oil" },
-        C: { unitsPerTek: null },
-        V: { unitsPerTek: null }
-    },
+    // Every material priced by PE is eligible; newly priced materials appear automatically.
+    resources: Object.fromEntries([...Object.keys(DEDI_PRICE), "RE"].map(key => [
+        key, { unitsPerTek: null, ...({ OL: { label: "Oil" }, ST: { label: "Sap" } }[key] || {}) }
+    ])),
     preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
     protectMinimumMargin: true,
     minimumProfitPercent: 0 // Never discount below the recorded material cost.
@@ -348,7 +343,10 @@ function getPaymentResourceRate(resource) {
     const entry = config.resources[resource];
     if (!entry || typeof entry !== "object") throw new Error("Missing resource exchange rate.");
     let unitsPerTek = entry.unitsPerTek;
-    if (unitsPerTek === null) {
+    if (unitsPerTek === null && resource === "RE") {
+        if (!Number.isFinite(TEK_PER_RE) || TEK_PER_RE <= 0) throw new Error("Invalid Red Element valuation.");
+        unitsPerTek = 1 / TEK_PER_RE;
+    } else if (unitsPerTek === null) {
         const dediPrice = DEDI_PRICE[resource];
         const stackSize = STACK_SIZE[resource];
         if (!Number.isFinite(dediPrice) || dediPrice <= 0 ||
