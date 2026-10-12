@@ -720,16 +720,18 @@ Ideal CC: ${result.CC.ideal}`;
   }else{
     const reinforce=document.getElementById("reinforceBox");const delivery=document.getElementById("deliverySelect").parentElement;aside.append(reinforce,payment,delivery);
   }
-  const message=document.createElement(internal ? "details" : "section");message.className=internal ? "message-details" : "message-visible";message.innerHTML=internal ? '<summary>Order message</summary>' : '<h3>Order summary</h3>';
+  const message=document.createElement("section");message.className="message-visible";message.innerHTML='<h3>Order message</h3>';
   message.append(document.getElementById("orderSummary"));aside.append(message);
-  // Keep existing clipboard/reset actions, with the message collapsed until needed.
+  // Keep existing clipboard/reset actions beneath the always-visible message.
   for(const el of [...orderOutput.children]){if(el.tagName!=="H3")aside.append(el);}
   orderOutput.remove();
   workspace.append(catalog,aside);masthead.after(workspace);
+  let tools = null;
   if(internal){
-    const tools=document.createElement("details");tools.className="internal-tools";tools.innerHTML='<summary>Crafting materials & manual pricing</summary>';
+    tools=document.createElement("section");tools.className="internal-tools";tools.hidden=true;tools.innerHTML='<h2>Crafting materials & manual pricing</h2>';
     for(const id of ["materialSummary","orderSummaryInternal","manualResult"]){tools.append(document.getElementById(id).closest(".output"));}
     catalog.append(tools);
+    const toolsTab=document.createElement("button");toolsTab.type="button";toolsTab.className="catalog-tab";toolsTab.dataset.group="tools";toolsTab.textContent="Crafting & pricing";toolsTab.setAttribute("aria-pressed","false");tabs.append(toolsTab);
   }
   for(const sel of document.querySelectorAll('select[data-group]'))sel.setAttribute('aria-label','Quantity for '+sel.dataset.name.split('|').pop());
   for(const label of document.querySelectorAll('label')){const container=label.parentElement;const control=container.querySelector('select[id],input[id]');if(control)label.htmlFor=control.id;}
@@ -751,7 +753,10 @@ Ideal CC: ${result.CC.ideal}`;
       panel.hidden=visible===0||(!query&&!selectedOnly&&panel.dataset.group!==active);if(!panel.hidden)shown+=visible;
     }
     if(!internal){const paymentLine=document.getElementById('orderSummary').textContent.split('\n').find(line=>line.startsWith('Payment:'));aside.querySelector('.order-cost').textContent=count>0?(paymentLine||'Select a payment resource'):'Payment: 0 Tek Ceilings';}
-    empty.hidden=shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
+    const toolsActive = active === "tools";
+    if(tools) tools.hidden = !toolsActive;
+    catalog.querySelector(".catalog-toolbar").hidden = toolsActive;
+    empty.hidden=toolsActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
     if(count===0){const p=document.createElement("p");p.className="empty-basket";p.textContent="Select an item to start your order.";basket.append(p);}
   }
   tabs.addEventListener("click",event=>{const b=event.target.closest("button");if(!b)return;active=b.dataset.group;search.value="";selectedOnly=false;selectedButton.setAttribute("aria-pressed","false");for(const tab of tabs.children)tab.setAttribute("aria-pressed",tab===b?"true":"false");refresh();});
