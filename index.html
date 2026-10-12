@@ -173,6 +173,7 @@
     <span id="copyMsgInternal" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
   </div>
 
+  <!-- Tek Split temporarily disabled; remove this comment to restore.
   <div class="output">
     <h3>Tek Split</h3>
 
@@ -194,6 +195,8 @@
 
     </div>
   </div>
+
+  -->
 
   <div class="row g-2 mb-3 mt-3">
 
@@ -474,7 +477,8 @@
 
       const split = splitTek(finalTek);
 
-      document.getElementById("tekSplit").textContent =
+      const tekSplitOutput = document.getElementById("tekSplit");
+      if (tekSplitOutput) tekSplitOutput.textContent =
         `Total Tek Owed: ${paymentTotal}
 Total Tek Split: ${finalTek}
 
@@ -591,7 +595,9 @@ ${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online
 
     function manualTekSplit() {
 
-      const total = Number(document.getElementById("manualTekSplitInput").value);
+      const input = document.getElementById("manualTekSplitInput");
+      if (!input || !document.getElementById("tekSplit")) return;
+      const total = Number(input.value);
 
       if (!total || total <= 0) {
         document.getElementById("tekSplit").textContent = "Enter a valid Tek amount.";
@@ -649,7 +655,8 @@ ${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online
       document.getElementById("reinforceSelect").value = "no";
 
       document.getElementById("manualMaterials").value = "";
-      document.getElementById("manualTekSplitInput").value = "";
+      const manualSplitInput = document.getElementById("manualTekSplitInput");
+      if (manualSplitInput) manualSplitInput.value = "";
 
       document.getElementById("manualResult").textContent = "";
 
