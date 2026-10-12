@@ -368,7 +368,7 @@ window.BLACKSMITH = {
    CURSED ==================== */
   
   /* ---------- TIER 1 ---------- */
-  /* cursed: {
+  cursed: {
     tier1: {
        weapons: {}, 
        tools: {
@@ -381,9 +381,9 @@ window.BLACKSMITH = {
          "Riot Helmet": { materials: { F: 37, P: 625, B: 312, H: 87, RE: 125, C: 437, D: 303, J: 431 } },
          "Riot Leggings": { materials: { H: 178, RE: 148, F: 74, P: 1039, B: 593, D: 527, J: 471 } },
        }
-      }, */
+      },
     /* ---------- TIER 2 ---------- */
-    /*tier2: {
+    tier2: {
        weapons: {
          "Compound Bow": { materials: { M: 4143, RE: 487, P: 4630, A: 3655, D: 363, Q: 298 } },
          "Cross Bow": { materials: { M: 403, W: 576, RE: 57, F: 2016, D: 805, Q: 298 } },
@@ -405,7 +405,8 @@ window.BLACKSMITH = {
          "Flak Helmet": { materials: { H: 421, RE: 301, M: 602, F: 180, D: 909, J: 496 } },
          "Flak Leggings": { materials: { H: 934, RE: 389, M: 1245, F: 389, D: 1338, J: 496 } },
        }
-    } */
+    }
+  }
 };
 
 
