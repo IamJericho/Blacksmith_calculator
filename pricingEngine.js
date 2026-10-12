@@ -34,7 +34,7 @@ const STACK_SIZE = {
     N: 100,
     O: 100,
     R: 100,
-    RM: 100,
+    RM: 300,
     S: 100,
     T: 100,
     U: 100,
@@ -201,7 +201,8 @@ const ALTERNATIVE_PAYMENTS = {
         C: { unitsPerTek: null },
         V: { unitsPerTek: null }
     },
-    preferredResource: { enabled: true, resource: "V", discountPercent: 10 }
+    preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
+    protectExistingMargin: true
 };
 
 // Hexagon costs are actual shop purchase costs per material unit.
@@ -380,14 +381,33 @@ function calculateAlternativePayment(cc, resource, charges = {}) {
         }
         if (resource === preferred.resource) discountPercent = preferred.discountPercent;
     }
-    const discountedTek = cc * (1 - discountPercent / 100);
+    const requestedDiscountPercent = discountPercent;
+    const requestedTek = cc * (1 - requestedDiscountPercent / 100);
+    let minimumItemTek = 0;
+    if (ALTERNATIVE_PAYMENTS.protectExistingMargin) {
+        if (Array.isArray(charges.items)) {
+            for (const { item, quantity } of charges.items) {
+                if (!item || !Number.isFinite(item.tek) || item.tek < 0 || !Number.isSafeInteger(quantity) || quantity <= 0) throw new Error("Invalid order item.");
+                const materialCost = calculateTC(item.materials).TC;
+                const existingMargin = Math.max(0, item.tek - materialCost);
+                minimumItemTek += (materialCost + existingMargin) * quantity;
+            }
+            if (Math.abs(charges.items.reduce((sum, entry) => sum + entry.item.tek * entry.quantity, 0) - cc) > 1e-7) throw new Error("Order prices do not match selected items.");
+        } else {
+            // Without a recipe, preserve the whole stored CC rather than guess its cost.
+            minimumItemTek = cc;
+        }
+    }
+    const discountedTek = Math.max(requestedTek, minimumItemTek);
+    discountPercent = cc > 0 ? Math.max(0, (cc - discountedTek) / cc * 100) : 0;
     const conversionTek = discountedTek + reinforcementTek + deliveryTek;
     const rawQuantity = conversionTek * unitsPerTek;
     const resourceQuantity = Math.ceil(rawQuantity);
     if (!Number.isSafeInteger(resourceQuantity)) throw new Error("Resource payment exceeds the supported quantity.");
     return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc,
         reinforcementTek, deliveryTek, resource, unitsPerTek, discountPercent,
-        discountedTek, conversionTek, resourceQuantity };
+        discountedTek, conversionTek, resourceQuantity, requestedDiscountPercent,
+        discountLimited: discountedTek > requestedTek, minimumItemTek };
 }
 
 function paymentResourceName(resource) {
@@ -402,6 +422,7 @@ function formatAlternativePayment(result, audience = "internal") {
     if (audience !== "client") lines.push(`Original Price: ${result.originalTek} Tek Ceilings`);
     lines.push("Payment Method: " + (result.resource === "HEX" ? "Hexagons" : "Resources"));
     if (audience === "client") lines.push(`Selected Resource: ${name}`);
+    if (audience !== "client" && result.discountLimited) lines.push("Preferred discount limited to protect crafting cost and margin.");
     if (audience !== "client" && result.discountPercent > 0) {
         lines.push(`Preferred Resource Discount: ${result.discountPercent}% on items only`);
     }
@@ -432,7 +453,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         }
         for (const key of keys) {
             const label = paymentResourceName(key) +
-                (preferred?.enabled && preferred.resource === key ? " (Preferred)" : "");
+                (preferred?.enabled && preferred.resource === key ? " (Preferred; margin protection applies)" : "");
             resource.add(new Option(label, key));
         }
         if (Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, selection)) resource.value = selection;
@@ -457,7 +478,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         let paymentText = `Payment: ${totalTek} Tek Ceilings`;
         if (alternative || hexagons) {
             try {
-                result = hexagons ? calculateHexagonPayment(itemTek, hexCharges) : calculateAlternativePayment(itemTek, resource.value, charges);
+                result = hexagons ? calculateHexagonPayment(itemTek, hexCharges) : calculateAlternativePayment(itemTek, resource.value, hexCharges);
                 paymentText = formatAlternativePayment(result, audience);
                 details.textContent = paymentText;
             } catch (err) {
