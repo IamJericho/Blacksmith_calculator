@@ -258,7 +258,17 @@ function calculateHexagonMaterialCost(materials) {
 function priceHexagonItem(item) {
     if (!item || !Number.isFinite(item.tek) || item.tek < 0) throw new Error("Invalid item price.");
     const recipe = calculateHexagonMaterialCost(item.materials);
-    if (!recipe.hasMaterials) throw new Error("Hexagon payment unavailable: this item has no crafting recipe.");
+    if (!recipe.hasMaterials) {
+        const isTekSaddle = Object.values(window.BLACKSMITH?.saddles?.teksaddles || {}).includes(item);
+        if (!isTekSaddle) throw new Error("Hexagon payment unavailable: this item has no crafting recipe.");
+        const rate = HEXAGON_PAYMENTS.fallbackHexPerTek;
+        const markup = CLIENT_PRICING.markupPercent;
+        if (!Number.isFinite(rate) || rate <= 0 || !Number.isFinite(markup) || markup < 0) throw new Error("Invalid fixed saddle conversion or markup.");
+        // Fixed saddle price converted at Tek crafting cost, plus the configured profit markup.
+        const materialCost = item.tek * rate;
+        const marginHex = materialCost * markup / 100;
+        return { materialCost, marginHex, price: materialCost + marginHex };
+    }
     const tc = calculateTC(item.materials).TC;
     const marginTek = Math.max(0, item.tek - tc);
     if (!Number.isFinite(HEXAGON_PAYMENTS.marginHexPerTek) || HEXAGON_PAYMENTS.marginHexPerTek < 0) {
