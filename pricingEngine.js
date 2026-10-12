@@ -297,8 +297,13 @@ function initializePaymentUI(onChange) {
     function populateResources() {
         const selection = resource.value;
         resource.replaceChildren(new Option("Select a resource", ""));
-        for (const key of Object.keys(ALTERNATIVE_PAYMENTS.resources)) {
-            const preferred = ALTERNATIVE_PAYMENTS.preferredResource;
+        const preferred = ALTERNATIVE_PAYMENTS.preferredResource;
+        const keys = Object.keys(ALTERNATIVE_PAYMENTS.resources);
+        if (preferred?.enabled && keys.includes(preferred.resource)) {
+            keys.splice(keys.indexOf(preferred.resource), 1);
+            keys.unshift(preferred.resource);
+        }
+        for (const key of keys) {
             const label = paymentResourceName(key) +
                 (preferred?.enabled && preferred.resource === key ? " (Preferred)" : "");
             resource.add(new Option(label, key));
