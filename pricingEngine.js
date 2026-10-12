@@ -195,7 +195,7 @@ const ALTERNATIVE_PAYMENTS = {
     },
     preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
     protectMinimumMargin: true,
-    minimumProfitPercent: 17
+    minimumProfitPercent: 0 // Never discount below the recorded material cost.
 };
 
 // Hexagon costs are actual shop purchase costs per material unit.
