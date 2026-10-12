@@ -458,7 +458,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         }
         for (const key of keys) {
             const label = paymentResourceName(key) +
-                (preferred?.enabled && preferred.resource === key ? ` — Preferred · Up to ${preferred.discountPercent}% off` : "");
+                (preferred?.enabled && preferred.resource === key ? ` — Preferred · ${preferred.discountPercent}% off` : "");
             resource.add(new Option(label, key));
         }
         if (Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, selection)) resource.value = selection;
