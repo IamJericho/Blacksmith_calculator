@@ -477,7 +477,8 @@ function initializePaymentUI(onChange, audience = "internal") {
         const alternative = method.value === "alternative";
         const hexagons = method.value === "hexagons";
         resourceBox.hidden = !alternative;
-        details.hidden = !alternative && !hexagons;
+        // Successful payment details already appear in the order total and message.
+        details.hidden = true;
         let result = null;
         let error = null;
         let paymentText = `Payment: ${totalTek} Tek Ceilings`;
@@ -492,6 +493,7 @@ function initializePaymentUI(onChange, audience = "internal") {
                 details.textContent = paymentText;
             }
         }
+        details.hidden = !error;
         details.classList.toggle("payment-error", Boolean(error));
         for (const button of copyButtons) button.disabled = Boolean(error);
         for (const el of document.querySelectorAll("[data-item-cc]")) {
