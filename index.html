@@ -451,6 +451,8 @@
       const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
       const paymentTotal = finalTek + deliveryFee;
       const payment = paymentUI.update(totalTek, { reinforcementTek: reinforce ? reinforceTek : 0, deliveryTek: deliveryFee });
+      const customerPaymentText = payment.paymentText.split("\n")
+        .filter(line => !line.startsWith("Original Price:")).join("\n");
 
       /* =========================
          MATERIAL TOTALS
@@ -522,7 +524,7 @@ Coords:
 Tribe Name:
 Pin (Vault, Dedi, Fridge):
 
-${payment.paymentText}
+${customerPaymentText}
 Total Items: ${totalItems}
 
 Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
@@ -540,7 +542,7 @@ Tribe: Department of War
 Room: ${room}
 Vault: ${vault}
 Pin: ${f2f ? "Face-to-Face Trade" : pin}
-${payment.paymentText}
+${customerPaymentText}
 Total Items: ${totalItems}
 
 If you’re able to use a teleporter:
