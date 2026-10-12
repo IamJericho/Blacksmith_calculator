@@ -266,17 +266,14 @@ function paymentResourceName(resource) {
         window.BLACKSMITH?.materialsKey[resource] || resource;
 }
 
-function formatAlternativePayment(result) {
+function formatAlternativePayment(result, audience = "internal") {
     const name = paymentResourceName(result.resource);
-    const lines = [
-        `Original Price: ${result.originalTek} Tek Ceilings`,
-        "Payment Method: Resources",
-        `Selected Resource: ${name}`,
-        `Exchange Rate: 1 Tek = ${result.unitsPerTek.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${name}`
-    ];
-    if (result.discountPercent > 0) {
+    const lines = [];
+    if (audience !== "client") lines.push(`Original Price: ${result.originalTek} Tek Ceilings`);
+    lines.push("Payment Method: Resources");
+    if (audience === "client") lines.push(`Selected Resource: ${name}`);
+    if (audience !== "client" && result.discountPercent > 0) {
         lines.push(`Preferred Resource Discount: ${result.discountPercent}% on items only`);
-        lines.push(`Item Subtotal: ${result.itemTek} Tek; discounted to ${result.discountedTek} Tek`);
     }
     if (result.reinforcementTek > 0) lines.push(`Reinforcement (no discount): ${result.reinforcementTek} Tek`);
     if (result.deliveryTek > 0) lines.push(`Delivery (no discount): ${result.deliveryTek} Tek`);
@@ -285,7 +282,7 @@ function formatAlternativePayment(result) {
 }
 
 // Shared controls and rendering for both pages; item and order CC remain in TEK.
-function initializePaymentUI(onChange) {
+function initializePaymentUI(onChange, audience = "internal") {
     const method = document.getElementById("paymentMethod");
     const resource = document.getElementById("paymentResource");
     const resourceBox = document.getElementById("paymentResourceBox");
@@ -326,11 +323,11 @@ function initializePaymentUI(onChange) {
         if (alternative) {
             try {
                 result = calculateAlternativePayment(itemTek, resource.value, charges);
-                paymentText = formatAlternativePayment(result);
+                paymentText = formatAlternativePayment(result, audience);
                 details.textContent = paymentText;
             } catch (err) {
                 error = err.message;
-                paymentText = `Original Price: ${totalTek} Tek Ceilings\nPayment unavailable: ${error}`;
+                paymentText = (audience === "client" ? "" : `Original Price: ${totalTek} Tek Ceilings\n`) + `Payment unavailable: ${error}`;
                 details.textContent = paymentText;
             }
         }
