@@ -50,12 +50,39 @@
     pre {
       white-space: pre-wrap
     }
+
+    .payment-note { color: #aaa; font-size: .85em; margin-top: 8px; }
+    .item-alternative { display: block; color: #8fb3ff; font-size: .85em; }
+    .payment-error { color: #ff8585; }
+    .payment-controls select { width: 100%; }
+    [hidden] { display: none !important; }
+    pre { overflow-wrap: anywhere; }
   </style>
 </head>
 
 <body class="container-fluid">
 
   <h1>Internal Calculator</h1>
+
+  <div class="output payment-controls">
+    <h2>Payment</h2>
+    <div class="row g-2">
+      <div class="col-12 col-sm-4">
+        <label class="form-label" for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod" class="form-select form-select-sm">
+          <option value="tek">Tek</option>
+          <option value="alternative">Alternative</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
+        <label class="form-label" for="paymentResource">Payment Resource</label>
+        <select id="paymentResource" class="form-select form-select-sm"></select>
+        <p class="payment-note">Pay with one resource. Preferred discounts apply to items only; reinforcement and delivery convert at full rate.</p>
+      </div>
+    </div>
+    <pre id="paymentDetails" aria-live="polite" hidden></pre>
+  </div>
+
 
   <h2>Regular Saddles</h2>
   <table class="table table-dark table-sm table-zebra">
@@ -234,7 +261,7 @@
     </div>
 
     <div class="col-auto" style="margin-top:32px;">
-      <button class="btn btn-sm btn-primary" onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
+      <button class="btn btn-sm btn-primary" data-payment-copy onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
       <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
       <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
     </div>
@@ -262,7 +289,7 @@
       const t = document.getElementById(id);
       Object.keys(data).forEach(name => {
         t.insertAdjacentHTML("beforeend",
-          `<tr><td>${name}</td><td>${qtySelect(id, name)}</td></tr>`);
+          `<tr><td>${name} — ${data[name].tek} TEK<span class="item-alternative" data-item-cc="${data[name].tek}" hidden></span></td><td>${qtySelect(id, name)}</td></tr>`);
       });
     }
 
@@ -273,7 +300,7 @@
           `<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
         Object.keys(data[cat]).forEach(item => {
           t.insertAdjacentHTML("beforeend",
-            `<tr><td>${item}</td><td>${qtySelect(id, `${cat}|${item}`)}</td></tr>`);
+            `<tr><td>${item} — ${data[cat][item].tek} TEK<span class="item-alternative" data-item-cc="${data[cat][item].tek}" hidden></span></td><td>${qtySelect(id, `${cat}|${item}`)}</td></tr>`);
         });
       });
     }
@@ -285,6 +312,8 @@
     if (BLACKSMITH.equipment.tier2) buildNested("tier2", BLACKSMITH.equipment.tier2);
     if (BLACKSMITH.cursed?.tier1) buildNested("cursed1", BLACKSMITH.cursed.tier1);
     if (BLACKSMITH.cursed?.tier2) buildNested("cursed2", BLACKSMITH.cursed.tier2);
+
+    const paymentUI = DTJ_PRICING.initializePaymentUI(calc);
 
     document.querySelectorAll("select[data-group]").forEach(sel => {
       sel.addEventListener("change", calc);
@@ -419,6 +448,7 @@
       const finalTek = totalTek + (reinforce ? reinforceTek : 0);
       const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
       const paymentTotal = finalTek + deliveryFee;
+      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforce ? reinforceTek : 0, deliveryTek: deliveryFee });
 
       /* =========================
          MATERIAL TOTALS
@@ -490,7 +520,7 @@ Coords:
 Tribe Name:
 Pin (Vault, Dedi, Fridge):
 
-Payment: ${paymentTotal} Tek Ceilings
+${payment.paymentText}
 Total Items: ${totalItems}
 
 Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.
@@ -508,7 +538,7 @@ Tribe: Department of War
 Room: ${room}
 Vault: ${vault}
 Pin: ${f2f ? "Face-to-Face Trade" : pin}
-Payment: ${paymentTotal} Tek Ceilings
+${payment.paymentText}
 Total Items: ${totalItems}
 
 If you’re able to use a teleporter:
@@ -582,6 +612,9 @@ ${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online
        ========================= */
 
     function copySections(sectionIds, msgId) {
+      if (sectionIds.includes("orderSummary")) {
+        if (document.querySelector("[data-payment-copy]").disabled) return;
+      }
       let text = "";
 
       sectionIds.forEach(id => {
@@ -616,6 +649,7 @@ ${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online
 
       document.getElementById("manualResult").textContent = "";
 
+      paymentUI.reset();
       calc();
 
     }

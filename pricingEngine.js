@@ -186,3 +186,176 @@ window.DTJ_PRICING = {
     calculateCC,
     priceItem
 };
+
+
+// Alternative payments are separate from TC, CC, reinforcement, and revenue splits.
+// A null override uses the supplier valuation; set unitsPerTek to an independent rate.
+const ALTERNATIVE_PAYMENTS = {
+    enabled: true,
+    resources: {
+        H: { unitsPerTek: null },
+        M: { unitsPerTek: null },
+        F: { unitsPerTek: null },
+        W: { unitsPerTek: null },
+        OL: { unitsPerTek: null, label: "Oil" },
+        C: { unitsPerTek: null },
+        V: { unitsPerTek: null }
+    },
+    preferredResource: { enabled: true, resource: "V", discountPercent: 10 }
+};
+
+function getPaymentResourceRate(resource) {
+    const config = ALTERNATIVE_PAYMENTS;
+    if (!config.enabled) throw new Error("Alternative payments are disabled.");
+    if (!resource) throw new Error("Select a payment resource.");
+    if (!Object.prototype.hasOwnProperty.call(config.resources, resource)) {
+        throw new Error("This payment resource is not available.");
+    }
+    const entry = config.resources[resource];
+    if (!entry || typeof entry !== "object") throw new Error("Missing resource exchange rate.");
+    let unitsPerTek = entry.unitsPerTek;
+    if (unitsPerTek === null) {
+        const dediPrice = DEDI_PRICE[resource];
+        const stackSize = STACK_SIZE[resource];
+        if (!Number.isFinite(dediPrice) || dediPrice <= 0 ||
+            !Number.isFinite(stackSize) || stackSize <= 0) {
+            throw new Error("Missing or invalid supplier price or stack size.");
+        }
+        unitsPerTek = 1800 * stackSize / dediPrice;
+    }
+    if (!Number.isFinite(unitsPerTek) || unitsPerTek <= 0) {
+        throw new Error("Missing or invalid resource exchange rate.");
+    }
+    return unitsPerTek;
+}
+
+// Accept the existing priced catalog item's .tek (or an unchanged order total).
+// Never recalculate a fixed price, surcharge, reinforcement charge, or delivery fee.
+function calculateAlternativePayment(cc, resource, charges = {}) {
+    if (!Number.isFinite(cc) || cc < 0) throw new Error("Invalid Tek price.");
+    const reinforcementTek = charges.reinforcementTek ?? 0;
+    const deliveryTek = charges.deliveryTek ?? 0;
+    if (![reinforcementTek, deliveryTek].every(value => Number.isFinite(value) && value >= 0)) {
+        throw new Error("Invalid reinforcement or delivery charge.");
+    }
+    const unitsPerTek = getPaymentResourceRate(resource);
+    const preferred = ALTERNATIVE_PAYMENTS.preferredResource;
+    let discountPercent = 0;
+    if (preferred && preferred.enabled) {
+        if (!Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, preferred.resource)) {
+            throw new Error("The preferred payment resource is no longer available.");
+        }
+        if (!Number.isFinite(preferred.discountPercent) ||
+            preferred.discountPercent < 0 || preferred.discountPercent > 100) {
+            throw new Error("Preferred resource discount must be between 0 and 100%.");
+        }
+        if (resource === preferred.resource) discountPercent = preferred.discountPercent;
+    }
+    const discountedTek = cc * (1 - discountPercent / 100);
+    const conversionTek = discountedTek + reinforcementTek + deliveryTek;
+    const rawQuantity = conversionTek * unitsPerTek;
+    const resourceQuantity = Math.ceil(rawQuantity);
+    if (!Number.isSafeInteger(resourceQuantity)) throw new Error("Resource payment exceeds the supported quantity.");
+    return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc,
+        reinforcementTek, deliveryTek, resource, unitsPerTek, discountPercent,
+        discountedTek, conversionTek, resourceQuantity };
+}
+
+function paymentResourceName(resource) {
+    return ALTERNATIVE_PAYMENTS.resources[resource]?.label ||
+        window.BLACKSMITH?.materialsKey[resource] || resource;
+}
+
+function formatAlternativePayment(result) {
+    const name = paymentResourceName(result.resource);
+    const lines = [
+        `Original Price: ${result.originalTek} Tek Ceilings`,
+        "Payment Method: Alternative",
+        `Selected Resource: ${name}`,
+        `Exchange Rate: 1 Tek = ${result.unitsPerTek.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${name}`
+    ];
+    if (result.discountPercent > 0) {
+        lines.push(`Preferred Resource Discount: ${result.discountPercent}% on items only`);
+        lines.push(`Item Subtotal: ${result.itemTek} Tek; discounted to ${result.discountedTek} Tek`);
+    }
+    if (result.reinforcementTek > 0) lines.push(`Reinforcement (no discount): ${result.reinforcementTek} Tek`);
+    if (result.deliveryTek > 0) lines.push(`Delivery (no discount): ${result.deliveryTek} Tek`);
+    lines.push(`Payment: ${result.resourceQuantity.toLocaleString()} ${name}`);
+    return lines.join("\n");
+}
+
+// Shared controls and rendering for both pages; item and order CC remain in TEK.
+function initializePaymentUI(onChange) {
+    const method = document.getElementById("paymentMethod");
+    const resource = document.getElementById("paymentResource");
+    const resourceBox = document.getElementById("paymentResourceBox");
+    const details = document.getElementById("paymentDetails");
+    const copyButtons = document.querySelectorAll("[data-payment-copy]");
+    let lastItemTek = 0;
+    let lastCharges = {};
+
+    function populateResources() {
+        const selection = resource.value;
+        resource.replaceChildren(new Option("Select a resource", ""));
+        for (const key of Object.keys(ALTERNATIVE_PAYMENTS.resources)) {
+            const preferred = ALTERNATIVE_PAYMENTS.preferredResource;
+            const label = paymentResourceName(key) +
+                (preferred?.enabled && preferred.resource === key ? " (Preferred)" : "");
+            resource.add(new Option(label, key));
+        }
+        if (Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, selection)) resource.value = selection;
+    }
+
+    function update(itemTek, charges = {}) {
+        lastItemTek = itemTek;
+        lastCharges = charges;
+        const totalTek = itemTek + (charges.reinforcementTek ?? 0) + (charges.deliveryTek ?? 0);
+        populateResources();
+        method.querySelector('option[value="alternative"]').disabled = !ALTERNATIVE_PAYMENTS.enabled;
+        const alternative = method.value === "alternative";
+        resourceBox.hidden = !alternative;
+        details.hidden = !alternative;
+        let result = null;
+        let error = null;
+        let paymentText = `Payment: ${totalTek} Tek Ceilings`;
+        if (alternative) {
+            try {
+                result = calculateAlternativePayment(itemTek, resource.value, charges);
+                paymentText = formatAlternativePayment(result);
+                details.textContent = paymentText;
+            } catch (err) {
+                error = err.message;
+                paymentText = `Original Price: ${totalTek} Tek Ceilings\nPayment unavailable: ${error}`;
+                details.textContent = paymentText;
+            }
+        }
+        details.classList.toggle("payment-error", Boolean(error));
+        for (const button of copyButtons) button.disabled = Boolean(error);
+        for (const el of document.querySelectorAll("[data-item-cc]")) {
+            el.hidden = !alternative;
+            if (!alternative) continue;
+            if (error) { el.textContent = "Resource payment unavailable"; continue; }
+            try {
+                const item = calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
+                el.textContent = `${item.resourceQuantity.toLocaleString()} ${paymentResourceName(item.resource)}` +
+                    (item.discountPercent > 0 ? ` (${item.discountPercent}% discount)` : "");
+            } catch (err) { el.textContent = `Payment unavailable: ${err.message}`; }
+        }
+        return { valid: !error, paymentText, result };
+    }
+
+    method.addEventListener("change", onChange);
+    resource.addEventListener("change", onChange);
+    function reset() { method.value = "tek"; resource.value = ""; update(0); }
+    populateResources();
+    update(0);
+    return { update, reset, refresh() { update(lastItemTek, lastCharges); onChange(); } };
+}
+
+Object.assign(window.DTJ_PRICING, {
+    alternativePayments: ALTERNATIVE_PAYMENTS,
+    getPaymentResourceRate,
+    calculateAlternativePayment,
+    formatAlternativePayment,
+    initializePaymentUI
+});
