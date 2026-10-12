@@ -360,7 +360,7 @@
     if (BLACKSMITH.cursed?.tier1) buildNested("cursed1", BLACKSMITH.cursed.tier1);
     if (BLACKSMITH.cursed?.tier2) buildNested("cursed2", BLACKSMITH.cursed.tier2);
 
-    const paymentUI = DTJ_PRICING.initializePaymentUI(calc);
+    const paymentUI = DTJ_PRICING.initializePaymentUI(calc, "client");
 
     document.addEventListener("change", event => {
       if (event.target.id !== "paymentMethod" && event.target.id !== "paymentResource") calc();
