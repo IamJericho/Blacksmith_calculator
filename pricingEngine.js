@@ -142,11 +142,12 @@ function calculateTC(materials) {
 // CC Calculation (Correct Rule)
 // -----------------------------
 
-const CLIENT_PRICING = { markupPercent: 30, roundingIncrement: 1 };
+const CLIENT_PRICING = { markupPercent: 30, minimumMarkupTek: 10, roundingIncrement: 5 };
 
 function calculateCC(tc) {
     if (!Number.isFinite(tc) || tc < 0) throw new Error("Invalid material cost.");
-    const ideal = Math.ceil(tc * (1 + CLIENT_PRICING.markupPercent / 100) / CLIENT_PRICING.roundingIncrement) * CLIENT_PRICING.roundingIncrement;
+    const markup = Math.max(tc * CLIENT_PRICING.markupPercent / 100, CLIENT_PRICING.minimumMarkupTek);
+    const ideal = Math.ceil((tc + markup) / CLIENT_PRICING.roundingIncrement) * CLIENT_PRICING.roundingIncrement;
     // Preserve the existing API shape; flat percentage pricing has one selling price.
     return { low: ideal, high: ideal, ideal };
 }
