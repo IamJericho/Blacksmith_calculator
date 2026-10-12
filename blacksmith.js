@@ -249,6 +249,17 @@ window.BLACKSMITH = {
         "Wooden Club": { materials: { F: 961, W: 256, D: 752 } }       
       },
       armor: {
+        "Fur Boots": { materials: { F: 399, M: 799, H: 599, Z: 4797, D: 2045 } },
+        "Fur Helm": { materials: { F: 168, M: 560, H: 392, Z: 3140, D: 1935 } },
+        "Fur Chest": { materials: { F: 172, M: 561, H: 431, Z: 3454, D: 1298 } },
+        "Fur Gloves": { materials: { F: 113, M: 339, H: 283, Z: 2264, D: 1609 } },
+        "Fur Legs": { materials: { F: 186, M: 597, H: 447, Z: 3582, D: 1290 } },
+        "Arctic Boots": { materials: { F: 255, M: 170, H: 383, Z: 2045, D: 662 } },
+        "Arctic Chest": { materials: { F: 323, M: 323, H: 646, Z: 3232, D: 737 } },
+        "Arctic Gloves": { materials: { F: 143, M: 71, H: 287, Z: 1437, D: 1060 } },
+        "Arctic Helm": { materials: { F: 259, M: 173, H: 432, Z: 2423, D: 964 } },
+        "Arctic Legs": { materials: { F: 502, M: 401, H: 893, Z: 4820, D: 1124 } },
+
         "Glider Suit - (Not Max)": { materials: { V: 354, H: 851, F: 1418, M: 851, D: 4447 } },
         "Gas Mask": { materials: { X: 5, P: 57, C: 28, D: 85 } },
 

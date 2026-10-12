@@ -204,6 +204,27 @@ const ALTERNATIVE_PAYMENTS = {
     preferredResource: { enabled: true, resource: "V", discountPercent: 10 }
 };
 
+// Hexagons are a separate currency, not a crafting material.
+const HEXAGON_PAYMENTS = { enabled: false, unitsPerTek: null, discountPercent: 0 };
+
+function calculateHexagonPayment(cc, charges = {}) {
+    if (!HEXAGON_PAYMENTS.enabled) throw new Error("Hexagon payments are disabled.");
+    if (!Number.isFinite(HEXAGON_PAYMENTS.unitsPerTek) || HEXAGON_PAYMENTS.unitsPerTek <= 0) {
+        throw new Error("Hexagon exchange rate has not been configured.");
+    }
+    const reinforcementTek = charges.reinforcementTek ?? 0;
+    const deliveryTek = charges.deliveryTek ?? 0;
+    if (![cc, reinforcementTek, deliveryTek].every(value => Number.isFinite(value) && value >= 0)) throw new Error("Invalid Tek price or charges.");
+    const discountPercent = HEXAGON_PAYMENTS.discountPercent;
+    if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) throw new Error("Invalid Hexagon discount.");
+    const discountedTek = cc * (1 - discountPercent / 100);
+    const resourceQuantity = Math.ceil((discountedTek + reinforcementTek + deliveryTek) * HEXAGON_PAYMENTS.unitsPerTek);
+    if (!Number.isSafeInteger(resourceQuantity)) throw new Error("Hexagon payment exceeds the supported quantity.");
+    return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc, reinforcementTek,
+        deliveryTek, resource: "HEX", unitsPerTek: HEXAGON_PAYMENTS.unitsPerTek,
+        discountPercent, discountedTek, resourceQuantity };
+}
+
 function getPaymentResourceRate(resource) {
     const config = ALTERNATIVE_PAYMENTS;
     if (!config.enabled) throw new Error("Resource payments are disabled.");
@@ -262,6 +283,7 @@ function calculateAlternativePayment(cc, resource, charges = {}) {
 }
 
 function paymentResourceName(resource) {
+    if (resource === "HEX") return "Hexagons";
     return ALTERNATIVE_PAYMENTS.resources[resource]?.label ||
         window.BLACKSMITH?.materialsKey[resource] || resource;
 }
@@ -270,7 +292,7 @@ function formatAlternativePayment(result, audience = "internal") {
     const name = paymentResourceName(result.resource);
     const lines = [];
     if (audience !== "client") lines.push(`Original Price: ${result.originalTek} Tek Ceilings`);
-    lines.push("Payment Method: Resources");
+    lines.push("Payment Method: " + (result.resource === "HEX" ? "Hexagons" : "Resources"));
     if (audience === "client") lines.push(`Selected Resource: ${name}`);
     if (audience !== "client" && result.discountPercent > 0) {
         lines.push(`Preferred Resource Discount: ${result.discountPercent}% on items only`);
@@ -314,15 +336,19 @@ function initializePaymentUI(onChange, audience = "internal") {
         const totalTek = itemTek + (charges.reinforcementTek ?? 0) + (charges.deliveryTek ?? 0);
         populateResources();
         method.querySelector('option[value="alternative"]').disabled = !ALTERNATIVE_PAYMENTS.enabled;
+        const hexagonOption = method.querySelector('option[value="hexagons"]');
+        hexagonOption.disabled = !HEXAGON_PAYMENTS.enabled;
+        hexagonOption.textContent = HEXAGON_PAYMENTS.enabled ? "Hexagons" : "Hexagons (not available yet)";
         const alternative = method.value === "alternative";
+        const hexagons = method.value === "hexagons";
         resourceBox.hidden = !alternative;
-        details.hidden = !alternative;
+        details.hidden = !alternative && !hexagons;
         let result = null;
         let error = null;
         let paymentText = `Payment: ${totalTek} Tek Ceilings`;
-        if (alternative) {
+        if (alternative || hexagons) {
             try {
-                result = calculateAlternativePayment(itemTek, resource.value, charges);
+                result = hexagons ? calculateHexagonPayment(itemTek, charges) : calculateAlternativePayment(itemTek, resource.value, charges);
                 paymentText = formatAlternativePayment(result, audience);
                 details.textContent = paymentText;
             } catch (err) {
@@ -334,11 +360,11 @@ function initializePaymentUI(onChange, audience = "internal") {
         details.classList.toggle("payment-error", Boolean(error));
         for (const button of copyButtons) button.disabled = Boolean(error);
         for (const el of document.querySelectorAll("[data-item-cc]")) {
-            el.hidden = !alternative;
-            if (!alternative) continue;
+            el.hidden = !alternative && !hexagons;
+            if (!alternative && !hexagons) continue;
             if (error) { el.textContent = "Resource payment unavailable"; continue; }
             try {
-                const item = calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
+                const item = hexagons ? calculateHexagonPayment(Number(el.dataset.itemCc)) : calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
                 el.textContent = `${item.resourceQuantity.toLocaleString()} ${paymentResourceName(item.resource)}` +
                     (item.discountPercent > 0 ? ` (${item.discountPercent}% discount)` : "");
             } catch (err) { el.textContent = `Payment unavailable: ${err.message}`; }
@@ -356,6 +382,8 @@ function initializePaymentUI(onChange, audience = "internal") {
 
 Object.assign(window.DTJ_PRICING, {
     alternativePayments: ALTERNATIVE_PAYMENTS,
+    hexagonPayments: HEXAGON_PAYMENTS,
+    calculateHexagonPayment,
     getPaymentResourceRate,
     calculateAlternativePayment,
     formatAlternativePayment,

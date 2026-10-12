@@ -62,7 +62,7 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
     <tbody id="teksaddles"></tbody>
   </table>
 
-  <h2>Equipment – Tier 1</h2>
+  <h2>Equipment</h2>
   <table class="table table-dark table-sm table-zebra">
     <thead>
       <tr>
@@ -127,6 +127,7 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
         <select id="paymentMethod" class="form-select form-select-sm">
           <option value="tek">Tek</option>
           <option value="alternative">Resources</option>
+          <option value="hexagons">Hexagons</option>
         </select>
       </div>
       <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
@@ -387,7 +388,7 @@ Order:
 `;
 
       if (output.saddle.length) summary += `Saddle:\n${output.saddle.join("\n")}\n\n`;
-      if (output.tier1.length) summary += `Tier 1\n${output.tier1.join("\n")}\n\n`;
+      if (output.tier1.length) summary += `Equipment\n${output.tier1.join("\n")}\n\n`;
       if (output.tier2.length) summary += `Tier 2\n${output.tier2.join("\n")}\n\n`;
       if (output.cursed1.length) summary += `Cursed Tier 1\n${output.cursed1.join("\n")}\n\n`;
       if (output.cursed2.length) summary += `Cursed Tier 2\n${output.cursed2.join("\n")}\n\n`;
