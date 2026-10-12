@@ -74,7 +74,7 @@ window.BLACKSMITH = {
       "Burrowbuck": { materials: { F: 1101, M: 27, H: 2065, A: 137 } },
 
       "Carbonemys": { materials: { A: 86, H: 1469, F: 821 } },
-      "Carcharodontosaurus": { materials: { K: 168, H: 4214, F: 2950, M: 1517 } },
+      "Carcharodontosaurus": { materials: { F: 3187, H: 4554, M: 1639, A: 182 } },
       "Carnotaurus": { materials: { F: 1486, M: 262, H: 2797 } },
       "Castoroides": { materials: { A: 1113, H: 2306, T: 1431, F: 1590, M: 795 } },
       "Ceratosaurus": { materials: { F: 2107, M: 156, H: 1014 } },
