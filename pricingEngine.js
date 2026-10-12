@@ -206,7 +206,7 @@ const ALTERNATIVE_PAYMENTS = {
 
 function getPaymentResourceRate(resource) {
     const config = ALTERNATIVE_PAYMENTS;
-    if (!config.enabled) throw new Error("Alternative payments are disabled.");
+    if (!config.enabled) throw new Error("Resource payments are disabled.");
     if (!resource) throw new Error("Select a payment resource.");
     if (!Object.prototype.hasOwnProperty.call(config.resources, resource)) {
         throw new Error("This payment resource is not available.");
@@ -270,7 +270,7 @@ function formatAlternativePayment(result) {
     const name = paymentResourceName(result.resource);
     const lines = [
         `Original Price: ${result.originalTek} Tek Ceilings`,
-        "Payment Method: Alternative",
+        "Payment Method: Resources",
         `Selected Resource: ${name}`,
         `Exchange Rate: 1 Tek = ${result.unitsPerTek.toLocaleString(undefined, { maximumFractionDigits: 6 })} ${name}`
     ];

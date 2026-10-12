@@ -64,24 +64,7 @@
 
   <h1>Internal Calculator</h1>
 
-  <div class="output payment-controls">
-    <h2>Payment</h2>
-    <div class="row g-2">
-      <div class="col-12 col-sm-4">
-        <label class="form-label" for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod" class="form-select form-select-sm">
-          <option value="tek">Tek</option>
-          <option value="alternative">Alternative</option>
-        </select>
-      </div>
-      <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
-        <label class="form-label" for="paymentResource">Payment Resource</label>
-        <select id="paymentResource" class="form-select form-select-sm"></select>
-        <p class="payment-note">Pay with one resource. Preferred discounts apply to items only; reinforcement and delivery convert at full rate.</p>
-      </div>
-    </div>
-    <pre id="paymentDetails" aria-live="polite" hidden></pre>
-  </div>
+
 
 
   <h2>Regular Saddles</h2>
@@ -267,6 +250,25 @@
     </div>
   </div>
 
+  <div class="output payment-controls">
+    <h2>Payment</h2>
+    <div class="row g-2">
+      <div class="col-12 col-sm-4">
+        <label class="form-label" for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod" class="form-select form-select-sm">
+          <option value="tek">Tek</option>
+          <option value="alternative">Resources</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
+        <label class="form-label" for="paymentResource">Payment Resource</label>
+        <select id="paymentResource" class="form-select form-select-sm"></select>
+        <p class="payment-note">Pay with one resource. Preferred discounts apply to items only; reinforcement and delivery convert at full rate.</p>
+      </div>
+    </div>
+    <pre id="paymentDetails" aria-live="polite" hidden></pre>
+  </div>
+
   <div class="output">
     <h3>Order Summary</h3>
     <pre id="orderSummary"></pre>
@@ -289,7 +291,7 @@
       const t = document.getElementById(id);
       Object.keys(data).forEach(name => {
         t.insertAdjacentHTML("beforeend",
-          `<tr><td>${name} — ${data[name].tek} TEK<span class="item-alternative" data-item-cc="${data[name].tek}" hidden></span></td><td>${qtySelect(id, name)}</td></tr>`);
+          `<tr><td>${name}</td><td>${qtySelect(id, name)}</td></tr>`);
       });
     }
 
@@ -300,7 +302,7 @@
           `<tr class="category-row"><td colspan="2">${cat}</td></tr>`);
         Object.keys(data[cat]).forEach(item => {
           t.insertAdjacentHTML("beforeend",
-            `<tr><td>${item} — ${data[cat][item].tek} TEK<span class="item-alternative" data-item-cc="${data[cat][item].tek}" hidden></span></td><td>${qtySelect(id, `${cat}|${item}`)}</td></tr>`);
+            `<tr><td>${item}</td><td>${qtySelect(id, `${cat}|${item}`)}</td></tr>`);
         });
       });
     }

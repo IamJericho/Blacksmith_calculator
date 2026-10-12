@@ -78,27 +78,9 @@
 <body class="container-fluid">
 
   <h1>Client Calculator</h1>
+  
 
-  <div class="output payment-controls">
-    <h2>Payment</h2>
-    <div class="row g-2">
-      <div class="col-12 col-sm-4">
-        <label class="form-label" for="paymentMethod">Payment Method</label>
-        <select id="paymentMethod" class="form-select form-select-sm">
-          <option value="tek">Tek</option>
-          <option value="alternative">Alternative</option>
-        </select>
-      </div>
-      <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
-        <label class="form-label" for="paymentResource">Payment Resource</label>
-        <select id="paymentResource" class="form-select form-select-sm"></select>
-        <p class="payment-note">Pay with one resource. Preferred discounts apply to items only; reinforcement and delivery convert at full rate.</p>
-      </div>
-    </div>
-    <pre id="paymentDetails" aria-live="polite" hidden></pre>
-  </div>
-
-
+  
   <h2>Regular Saddles</h2>
   <table class="table table-dark table-sm table-zebra">
     <thead>
@@ -189,6 +171,25 @@
     <div class="note">Applies to weapons, tools, and armor only. Adds 30% Durability.</div>
   </div>
 
+  <div class="output payment-controls">
+    <h2>Payment</h2>
+    <div class="row g-2">
+      <div class="col-12 col-sm-4">
+        <label class="form-label" for="paymentMethod">Payment Method</label>
+        <select id="paymentMethod" class="form-select form-select-sm">
+          <option value="tek">Tek</option>
+          <option value="alternative">Resources</option>
+        </select>
+      </div>
+      <div class="col-12 col-sm-8" id="paymentResourceBox" hidden>
+        <label class="form-label" for="paymentResource">Payment Resource</label>
+        <select id="paymentResource" class="form-select form-select-sm"></select>
+        <p class="payment-note">Pay with one resource. Preferred discounts apply to items only; reinforcement and delivery convert at full rate.</p>
+      </div>
+    </div>
+    <pre id="paymentDetails" aria-live="polite" hidden></pre>
+  </div>
+
   <div class="mb-3">
     <h2>Delivery</h2>
     <select id="deliverySelect" class="form-select form-select-sm" style="max-width:200px">
@@ -197,7 +198,7 @@
     </select>
     <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).</div>
   </div>
-
+  
   <div class="output">
     <pre id="orderSummary"></pre>
     <button class="btn btn-sm btn-primary" data-payment-copy onclick="copyOrder()">Copy to Clipboard</button>
