@@ -429,12 +429,11 @@ function formatAlternativePayment(result, audience = "internal") {
     lines.push("Payment Method: " + (result.resource === "HEX" ? "Hexagons" : "Resources"));
     if (audience === "client") lines.push(`Selected Resource: ${name}`);
     if (audience !== "client" && result.discountLimited) lines.push("Preferred discount limited to protect crafting cost and margin.");
-    if (audience !== "client" && result.discountPercent > 0) {
-        lines.push(`Preferred Resource Discount: ${result.discountPercent}% on items only`);
-    }
+
     if (result.reinforcementTek > 0) lines.push(`Reinforcement (no discount): ${result.reinforcementTek} Tek`);
     if (result.deliveryTek > 0) lines.push(`Delivery (no discount): ${result.deliveryTek} Tek`);
-    lines.push(`Payment: ${result.resourceQuantity.toLocaleString()} ${name}`);
+    lines.push(`Payment: ${result.resourceQuantity.toLocaleString()} ${name}` +
+        (result.discountPercent > 0 ? ` (${result.discountPercent}% off items)` : ""));
     return lines.join("\n");
 }
 
@@ -459,7 +458,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         }
         for (const key of keys) {
             const label = paymentResourceName(key) +
-                (preferred?.enabled && preferred.resource === key ? " (Preferred)" : "");
+                (preferred?.enabled && preferred.resource === key ? ` — Preferred · Up to ${preferred.discountPercent}% off` : "");
             resource.add(new Option(label, key));
         }
         if (Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, selection)) resource.value = selection;
