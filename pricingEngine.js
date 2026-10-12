@@ -142,21 +142,13 @@ function calculateTC(materials) {
 // CC Calculation (Correct Rule)
 // -----------------------------
 
+const CLIENT_PRICING = { markupPercent: 30, roundingIncrement: 1 };
+
 function calculateCC(tc) {
-
-    const lowRaw = tc + 10;
-    const highRaw = tc + 15;
-
-    const lowRounded = Math.round(lowRaw / 5) * 5;
-    const highRounded = Math.round(highRaw / 5) * 5;
-
-    const ideal = Math.round(((lowRounded + highRounded) / 2) / 5) * 5;
-
-    return {
-        low: lowRounded,
-        high: highRounded,
-        ideal
-    };
+    if (!Number.isFinite(tc) || tc < 0) throw new Error("Invalid material cost.");
+    const ideal = Math.ceil(tc * (1 + CLIENT_PRICING.markupPercent / 100) / CLIENT_PRICING.roundingIncrement) * CLIENT_PRICING.roundingIncrement;
+    // Preserve the existing API shape; flat percentage pricing has one selling price.
+    return { low: ideal, high: ideal, ideal };
 }
 
 // -----------------------------
@@ -202,7 +194,8 @@ const ALTERNATIVE_PAYMENTS = {
         V: { unitsPerTek: null }
     },
     preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
-    protectExistingMargin: true
+    protectMinimumMargin: true,
+    minimumProfitPercent: 17
 };
 
 // Hexagon costs are actual shop purchase costs per material unit.
@@ -384,13 +377,15 @@ function calculateAlternativePayment(cc, resource, charges = {}) {
     const requestedDiscountPercent = discountPercent;
     const requestedTek = cc * (1 - requestedDiscountPercent / 100);
     let minimumItemTek = 0;
-    if (ALTERNATIVE_PAYMENTS.protectExistingMargin) {
+    if (ALTERNATIVE_PAYMENTS.protectMinimumMargin) {
         if (Array.isArray(charges.items)) {
             for (const { item, quantity } of charges.items) {
                 if (!item || !Number.isFinite(item.tek) || item.tek < 0 || !Number.isSafeInteger(quantity) || quantity <= 0) throw new Error("Invalid order item.");
                 const materialCost = calculateTC(item.materials).TC;
-                const existingMargin = Math.max(0, item.tek - materialCost);
-                minimumItemTek += (materialCost + existingMargin) * quantity;
+                const minProfit = ALTERNATIVE_PAYMENTS.minimumProfitPercent;
+                if (!Number.isFinite(minProfit) || minProfit < 0) throw new Error("Invalid minimum profit percentage.");
+                const hasRecipe = Object.keys(item.materials).some(key => !["D", "J", "Q"].includes(key));
+                minimumItemTek += (hasRecipe ? materialCost * (1 + minProfit / 100) + (item.additionalTek || 0) * (1 - requestedDiscountPercent / 100) : item.tek) * quantity;
             }
             if (Math.abs(charges.items.reduce((sum, entry) => sum + entry.item.tek * entry.quantity, 0) - cc) > 1e-7) throw new Error("Order prices do not match selected items.");
         } else {
@@ -399,7 +394,7 @@ function calculateAlternativePayment(cc, resource, charges = {}) {
         }
     }
     const discountedTek = Math.max(requestedTek, minimumItemTek);
-    discountPercent = cc > 0 ? Math.max(0, (cc - discountedTek) / cc * 100) : 0;
+    discountPercent = cc > 0 ? Math.round(Math.max(0, (cc - discountedTek) / cc * 100) * 1e6) / 1e6 : 0;
     const conversionTek = discountedTek + reinforcementTek + deliveryTek;
     const rawQuantity = conversionTek * unitsPerTek;
     const resourceQuantity = Math.ceil(rawQuantity);
@@ -453,7 +448,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         }
         for (const key of keys) {
             const label = paymentResourceName(key) +
-                (preferred?.enabled && preferred.resource === key ? " (Preferred; margin protection applies)" : "");
+                (preferred?.enabled && preferred.resource === key ? " (Preferred)" : "");
             resource.add(new Option(label, key));
         }
         if (Object.prototype.hasOwnProperty.call(ALTERNATIVE_PAYMENTS.resources, selection)) resource.value = selection;
@@ -496,15 +491,16 @@ function initializePaymentUI(onChange, audience = "internal") {
             try {
                 const select = el.closest("tr").querySelector("select[data-group]");
                 let item;
-                if (hexagons) {
+                {
                     const group = select.dataset.group;
                     const [category, name] = select.dataset.name.split("|");
                     const saddle = ["regular", "platform", "teksaddles"].includes(group);
                     const catalogItem = saddle ? window.BLACKSMITH.saddles[group][select.dataset.name] :
                         group.startsWith("cursed") ? window.BLACKSMITH.cursed[group === "cursed1" ? "tier1" : "tier2"][category][name] :
                             window.BLACKSMITH.equipment[group][category][name];
-                    item = { resourceQuantity: Math.ceil(priceHexagonItem(catalogItem).price), resource: "HEX", discountPercent: 0 };
-                } else item = calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
+                    item = hexagons ? { resourceQuantity: Math.ceil(priceHexagonItem(catalogItem).price), resource: "HEX", discountPercent: 0 } :
+                        calculateAlternativePayment(Number(el.dataset.itemCc), resource.value, { items: [{ item: catalogItem, quantity: 1 }] });
+                }
                 el.textContent = `${item.resourceQuantity.toLocaleString()} ${paymentResourceName(item.resource)}` +
                     (item.discountPercent > 0 ? ` (${item.discountPercent}% discount)` : "");
             } catch (err) { el.textContent = `Payment unavailable: ${err.message}`; }
@@ -521,6 +517,7 @@ function initializePaymentUI(onChange, audience = "internal") {
 }
 
 Object.assign(window.DTJ_PRICING, {
+    clientPricing: CLIENT_PRICING,
     alternativePayments: ALTERNATIVE_PAYMENTS,
     hexagonPayments: HEXAGON_PAYMENTS,
     calculateHexagonPayment,
