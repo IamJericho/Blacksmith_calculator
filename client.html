@@ -381,7 +381,7 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
         : 0;
 
       const paymentTotal = orderTotal + deliveryFee;
-      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforceMarkup, deliveryTek: deliveryFee });
+      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforceMarkup, deliveryTek: deliveryFee, reinforce: reinforceYes });
 
       let summary = `Name: @your name
 Order:

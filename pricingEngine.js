@@ -204,26 +204,134 @@ const ALTERNATIVE_PAYMENTS = {
     preferredResource: { enabled: true, resource: "V", discountPercent: 10 }
 };
 
-// Hexagons are a separate currency, not a crafting material.
-const HEXAGON_PAYMENTS = { enabled: false, unitsPerTek: null, discountPercent: 0 };
+// Hexagon costs are actual shop purchase costs per material unit.
+// Hard Polymer is valued using interchangeable Organic Polymer for crafting.
+const HEXAGON_PAYMENTS = {
+    enabled: true,
+    // Unlisted materials use the Hexagon-store crafting cost of one Tek Ceiling.
+    fallbackHexPerTek: 50 * (195 / 5) + 25 * (125 / 5) + 20 * (115 / 10) + 2000,
+    marginHexPerTek: 1000,
+    deliveryHexPerTek: 1000,
+    materials: {
+        F: 12 / 50, T: 20 / 50, W: 25 / 50, H: 60 / 50,
+        N: 18 / 50, S: 40 / 50, K: 60 / 25,
+        RM: 150 / 10, M: 195 / 5, C: 115 / 10,
+        O: 180 / 5, OL: 120 / 20, Z: 65 / 25,
+        A: 75 / 25, OP: 125 / 5, P: 125 / 5,
+        ST: 150 / 5, B: 125 / 5, BP: 300,
+        FW: 46 / 50, G: 55 / 25, V: 95 / 20, R: 175 / 20,
+        L: 50 / 50, U: 48 / 50, Y: 45 / 50, E: 700 / 5,
+        I: 2000, RE: 2 * 5 * 2000,
+        MB: 20 * (10 / 50) + 5 * (80 / 20) + (25 / 20)
+    },
+    recipes: { X: { ST: 2, OL: 2, BP: 2 }, SP: { S: 1, N: 2 } }
+};
+
+function getHexagonMaterialCost(key, visited = new Set()) {
+    const config = HEXAGON_PAYMENTS;
+    if (Object.prototype.hasOwnProperty.call(config.recipes, key)) {
+        if (visited.has(key)) throw new Error("Circular Hexagon material recipe.");
+        const next = new Set(visited); next.add(key);
+        return Object.entries(config.recipes[key]).reduce((sum, [ingredient, qty]) =>
+            sum + qty * getHexagonMaterialCost(ingredient, next), 0);
+    }
+    if (!Object.prototype.hasOwnProperty.call(config.materials, key)) {
+        const price = DEDI_PRICE[key], stackSize = STACK_SIZE[key];
+        if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(stackSize) || stackSize <= 0 ||
+            !Number.isFinite(config.fallbackHexPerTek) || config.fallbackHexPerTek <= 0) {
+            throw new Error(`Material valuation unavailable for ${window.BLACKSMITH?.materialsKey[key] || key}.`);
+        }
+        return price / (1800 * stackSize) * config.fallbackHexPerTek;
+    }
+    const cost = config.materials[key];
+    if (!Number.isFinite(cost) || cost <= 0) throw new Error(`Invalid Hexagon cost for ${key}.`);
+    return cost;
+}
+
+function calculateHexagonMaterialCost(materials) {
+    if (!materials || typeof materials !== "object") throw new Error("Missing crafting recipe.");
+    let total = 0, hasMaterials = false;
+    for (const [key, qty] of Object.entries(materials)) {
+        if (["D", "J", "Q"].includes(key)) continue;
+        if (!Number.isFinite(qty) || qty < 0) throw new Error("Invalid crafting quantity.");
+        if (!qty) continue;
+        hasMaterials = true;
+        total += qty * getHexagonMaterialCost(key);
+    }
+    return { cost: total, hasMaterials };
+}
+
+function priceHexagonItem(item) {
+    if (!item || !Number.isFinite(item.tek) || item.tek < 0) throw new Error("Invalid item price.");
+    const recipe = calculateHexagonMaterialCost(item.materials);
+    if (!recipe.hasMaterials) throw new Error("Hexagon payment unavailable: this item has no crafting recipe.");
+    const tc = calculateTC(item.materials).TC;
+    const marginTek = Math.max(0, item.tek - tc);
+    if (!Number.isFinite(HEXAGON_PAYMENTS.marginHexPerTek) || HEXAGON_PAYMENTS.marginHexPerTek < 0) {
+        throw new Error("Invalid Hexagon margin conversion.");
+    }
+    const marginHex = marginTek * HEXAGON_PAYMENTS.marginHexPerTek;
+    return { materialCost: recipe.cost, marginHex, price: recipe.cost + marginHex };
+}
 
 function calculateHexagonPayment(cc, charges = {}) {
     if (!HEXAGON_PAYMENTS.enabled) throw new Error("Hexagon payments are disabled.");
-    if (!Number.isFinite(HEXAGON_PAYMENTS.unitsPerTek) || HEXAGON_PAYMENTS.unitsPerTek <= 0) {
-        throw new Error("Hexagon exchange rate has not been configured.");
-    }
     const reinforcementTek = charges.reinforcementTek ?? 0;
     const deliveryTek = charges.deliveryTek ?? 0;
-    if (![cc, reinforcementTek, deliveryTek].every(value => Number.isFinite(value) && value >= 0)) throw new Error("Invalid Tek price or charges.");
-    const discountPercent = HEXAGON_PAYMENTS.discountPercent;
-    if (!Number.isFinite(discountPercent) || discountPercent < 0 || discountPercent > 100) throw new Error("Invalid Hexagon discount.");
-    const discountedTek = cc * (1 - discountPercent / 100);
-    const resourceQuantity = Math.ceil((discountedTek + reinforcementTek + deliveryTek) * HEXAGON_PAYMENTS.unitsPerTek);
+    if (![cc, reinforcementTek, deliveryTek].every(value => Number.isFinite(value) && value >= 0)) {
+        throw new Error("Invalid Tek price or charges.");
+    }
+    if (!Array.isArray(charges.items)) throw new Error("Select items with crafting recipes for Hexagon payments.");
+    let baseHex = 0, materialCost = 0, marginHex = 0, eligibleHex = 0, expectedCC = 0;
+    const reinforceMaterials = {};
+    for (const { item, quantity, reinforceEligible } of charges.items) {
+        if (!Number.isSafeInteger(quantity) || quantity <= 0) throw new Error("Invalid item quantity.");
+        const priced = priceHexagonItem(item);
+        expectedCC += item.tek * quantity;
+        baseHex += priced.price * quantity;
+        materialCost += priced.materialCost * quantity;
+        marginHex += priced.marginHex * quantity;
+        if (reinforceEligible) {
+            eligibleHex += priced.price * quantity;
+            for (const [key, qty] of Object.entries(item.materials)) {
+                if (!["D", "J", "Q"].includes(key)) reinforceMaterials[key] = (reinforceMaterials[key] || 0) + qty * quantity;
+            }
+        }
+    }
+    if (Math.abs(expectedCC - cc) > 1e-7) throw new Error("Order prices do not match the selected recipes.");
+    let reinforcementHex = 0;
+    if (charges.reinforce && eligibleHex > 0) {
+        const extraMaterials = Object.fromEntries(Object.entries(reinforceMaterials).map(([key, qty]) => [key, Math.ceil(qty * 0.285)]));
+        const extraCost = calculateHexagonMaterialCost(extraMaterials).cost;
+        reinforcementHex = Math.max(eligibleHex * 0.30, extraCost);
+    }
+    if (!Number.isFinite(HEXAGON_PAYMENTS.deliveryHexPerTek) || HEXAGON_PAYMENTS.deliveryHexPerTek <= 0) {
+        throw new Error("Invalid Hexagon delivery conversion.");
+    }
+    const deliveryHex = deliveryTek * HEXAGON_PAYMENTS.deliveryHexPerTek;
+    const resourceQuantity = Math.ceil(baseHex + reinforcementHex + deliveryHex);
     if (!Number.isSafeInteger(resourceQuantity)) throw new Error("Hexagon payment exceeds the supported quantity.");
-    return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc, reinforcementTek,
-        deliveryTek, resource: "HEX", unitsPerTek: HEXAGON_PAYMENTS.unitsPerTek,
-        discountPercent, discountedTek, resourceQuantity };
+    return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc,
+        reinforcementTek, deliveryTek, resource: "HEX", discountPercent: 0,
+        resourceQuantity, materialCost, marginHex, reinforcementHex, deliveryHex };
 }
+
+function selectedHexagonItems() {
+    const items = [];
+    for (const select of document.querySelectorAll("select[data-group]")) {
+        const quantity = Number(select.value);
+        if (!quantity) continue;
+        const group = select.dataset.group;
+        const [category, name] = select.dataset.name.split("|");
+        const saddle = ["regular", "platform", "teksaddles"].includes(group);
+        const item = saddle ? window.BLACKSMITH.saddles[group][select.dataset.name] :
+            group.startsWith("cursed") ? window.BLACKSMITH.cursed[group === "cursed1" ? "tier1" : "tier2"][category][name] :
+                window.BLACKSMITH.equipment[group][category][name];
+        items.push({ item, quantity, reinforceEligible: !saddle && ["weapons", "tools", "armor", "tek"].includes(category) });
+    }
+    return items;
+}
+
 
 function getPaymentResourceRate(resource) {
     const config = ALTERNATIVE_PAYMENTS;
@@ -334,6 +442,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         lastItemTek = itemTek;
         lastCharges = charges;
         const totalTek = itemTek + (charges.reinforcementTek ?? 0) + (charges.deliveryTek ?? 0);
+        const hexCharges = { ...charges, items: selectedHexagonItems() };
         populateResources();
         method.querySelector('option[value="alternative"]').disabled = !ALTERNATIVE_PAYMENTS.enabled;
         const hexagonOption = method.querySelector('option[value="hexagons"]');
@@ -348,7 +457,7 @@ function initializePaymentUI(onChange, audience = "internal") {
         let paymentText = `Payment: ${totalTek} Tek Ceilings`;
         if (alternative || hexagons) {
             try {
-                result = hexagons ? calculateHexagonPayment(itemTek, charges) : calculateAlternativePayment(itemTek, resource.value, charges);
+                result = hexagons ? calculateHexagonPayment(itemTek, hexCharges) : calculateAlternativePayment(itemTek, resource.value, charges);
                 paymentText = formatAlternativePayment(result, audience);
                 details.textContent = paymentText;
             } catch (err) {
@@ -364,7 +473,17 @@ function initializePaymentUI(onChange, audience = "internal") {
             if (!alternative && !hexagons) continue;
             if (error) { el.textContent = "Resource payment unavailable"; continue; }
             try {
-                const item = hexagons ? calculateHexagonPayment(Number(el.dataset.itemCc)) : calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
+                const select = el.closest("tr").querySelector("select[data-group]");
+                let item;
+                if (hexagons) {
+                    const group = select.dataset.group;
+                    const [category, name] = select.dataset.name.split("|");
+                    const saddle = ["regular", "platform", "teksaddles"].includes(group);
+                    const catalogItem = saddle ? window.BLACKSMITH.saddles[group][select.dataset.name] :
+                        group.startsWith("cursed") ? window.BLACKSMITH.cursed[group === "cursed1" ? "tier1" : "tier2"][category][name] :
+                            window.BLACKSMITH.equipment[group][category][name];
+                    item = { resourceQuantity: Math.ceil(priceHexagonItem(catalogItem).price), resource: "HEX", discountPercent: 0 };
+                } else item = calculateAlternativePayment(Number(el.dataset.itemCc), resource.value);
                 el.textContent = `${item.resourceQuantity.toLocaleString()} ${paymentResourceName(item.resource)}` +
                     (item.discountPercent > 0 ? ` (${item.discountPercent}% discount)` : "");
             } catch (err) { el.textContent = `Payment unavailable: ${err.message}`; }
@@ -384,6 +503,9 @@ Object.assign(window.DTJ_PRICING, {
     alternativePayments: ALTERNATIVE_PAYMENTS,
     hexagonPayments: HEXAGON_PAYMENTS,
     calculateHexagonPayment,
+    calculateHexagonMaterialCost,
+    getHexagonMaterialCost,
+    priceHexagonItem,
     getPaymentResourceRate,
     calculateAlternativePayment,
     formatAlternativePayment,

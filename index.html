@@ -417,7 +417,7 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
       const finalTek = totalTek + (reinforce ? reinforceTek : 0);
       const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
       const paymentTotal = finalTek + deliveryFee;
-      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforce ? reinforceTek : 0, deliveryTek: deliveryFee });
+      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforce ? reinforceTek : 0, deliveryTek: deliveryFee, reinforce: reinforce });
       const customerPaymentText = payment.paymentText.split("\n")
         .filter(line => !line.startsWith("Original Price:")).join("\n");
 
