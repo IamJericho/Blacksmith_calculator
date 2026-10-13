@@ -210,9 +210,7 @@ const ALTERNATIVE_PAYMENTS = {
 const HEXAGON_PAYMENTS = {
     enabled: true,
     // Unlisted materials use the Hexagon-store crafting cost of one Tek Ceiling.
-    fallbackHexPerTek: 50 * (195 / 5) + 25 * (125 / 5) + 20 * (115 / 10) + 2000,
-    marginHexPerTek: 1000,
-    deliveryHexPerTek: 1000,
+    unitsPerTek: 50 * (195 / 5) + 25 * (125 / 5) + 20 * (115 / 10) + 2000,
     materials: {
         F: 12 / 50, T: 20 / 50, W: 25 / 50, H: 60 / 50,
         N: 18 / 50, S: 40 / 50, K: 60 / 25,
@@ -239,10 +237,10 @@ function getHexagonMaterialCost(key, visited = new Set()) {
     if (!Object.prototype.hasOwnProperty.call(config.materials, key)) {
         const price = DEDI_PRICE[key], stackSize = STACK_SIZE[key];
         if (!Number.isFinite(price) || price <= 0 || !Number.isFinite(stackSize) || stackSize <= 0 ||
-            !Number.isFinite(config.fallbackHexPerTek) || config.fallbackHexPerTek <= 0) {
+            !Number.isFinite(config.unitsPerTek) || config.unitsPerTek <= 0) {
             throw new Error(`Material valuation unavailable for ${window.BLACKSMITH?.materialsKey[key] || key}.`);
         }
-        return price / (1800 * stackSize) * config.fallbackHexPerTek;
+        return price / (1800 * stackSize) * config.unitsPerTek;
     }
     const cost = config.materials[key];
     if (!Number.isFinite(cost) || cost <= 0) throw new Error(`Invalid Hexagon cost for ${key}.`);
@@ -262,32 +260,17 @@ function calculateHexagonMaterialCost(materials) {
     return { cost: total, hasMaterials };
 }
 
+function getHexagonsPerTek() {
+    const rate = HEXAGON_PAYMENTS.unitsPerTek;
+    if (!Number.isFinite(rate) || rate <= 0) throw new Error("Invalid Hexagon-to-TEK crafting conversion.");
+    return rate;
+}
+
 function priceHexagonItem(item) {
     if (!item || !Number.isFinite(item.tek) || item.tek < 0) throw new Error("Invalid item price.");
-    const recipe = calculateHexagonMaterialCost(item.materials);
-    if (!recipe.hasMaterials) {
-        const isTekSaddle = Object.values(window.BLACKSMITH?.saddles?.teksaddles || {}).includes(item);
-        if (!isTekSaddle) throw new Error("Hexagon payment unavailable: this item has no crafting recipe.");
-        const rate = HEXAGON_PAYMENTS.fallbackHexPerTek;
-        const markup = CLIENT_PRICING.markupPercent;
-        if (!Number.isFinite(rate) || rate <= 0 || !Number.isFinite(markup) || markup < 0) throw new Error("Invalid fixed saddle conversion or markup.");
-        // Fixed saddle price converted at Tek crafting cost, plus the configured profit markup.
-        const materialCost = item.tek * rate;
-        const marginHex = materialCost * markup / 100;
-        return { materialCost, marginHex, price: materialCost + marginHex };
-    }
-    const markupPercent = CLIENT_PRICING.markupPercent;
-    const minimumMarkupTek = CLIENT_PRICING.minimumMarkupTek;
-    const surchargeTek = item.additionalTek || 0;
-    const rate = HEXAGON_PAYMENTS.marginHexPerTek;
-    if (![markupPercent, minimumMarkupTek, surchargeTek].every(value => Number.isFinite(value) && value >= 0) ||
-        !Number.isFinite(rate) || rate <= 0) {
-        throw new Error("Invalid Hexagon markup or surcharge.");
-    }
-    // Profit is based on actual Hexagon replacement cost, not supplier TEK margin.
-    const marginHex = Math.max(recipe.cost * markupPercent / 100, minimumMarkupTek * rate);
-    const surchargeHex = surchargeTek * rate;
-    return { materialCost: recipe.cost, marginHex, surchargeHex, price: recipe.cost + marginHex + surchargeHex };
+    const rate = getHexagonsPerTek();
+    // Existing CC includes profit and surcharges; never add a second markup.
+    return { tekPrice: item.tek, conversionRate: rate, price: item.tek * rate };
 }
 
 function calculateHexagonPayment(cc, charges = {}) {
@@ -297,39 +280,13 @@ function calculateHexagonPayment(cc, charges = {}) {
     if (![cc, reinforcementTek, deliveryTek].every(value => Number.isFinite(value) && value >= 0)) {
         throw new Error("Invalid Tek price or charges.");
     }
-    if (!Array.isArray(charges.items)) throw new Error("Select items with crafting recipes for Hexagon payments.");
-    let baseHex = 0, materialCost = 0, marginHex = 0, eligibleHex = 0, expectedCC = 0;
-    const reinforceMaterials = {};
-    for (const { item, quantity, reinforceEligible } of charges.items) {
-        if (!Number.isSafeInteger(quantity) || quantity <= 0) throw new Error("Invalid item quantity.");
-        const priced = priceHexagonItem(item);
-        expectedCC += item.tek * quantity;
-        baseHex += priced.price * quantity;
-        materialCost += priced.materialCost * quantity;
-        marginHex += priced.marginHex * quantity;
-        if (reinforceEligible) {
-            eligibleHex += priced.price * quantity;
-            for (const [key, qty] of Object.entries(item.materials)) {
-                if (!["D", "J", "Q"].includes(key)) reinforceMaterials[key] = (reinforceMaterials[key] || 0) + qty * quantity;
-            }
-        }
-    }
-    if (Math.abs(expectedCC - cc) > 1e-7) throw new Error("Order prices do not match the selected recipes.");
-    let reinforcementHex = 0;
-    if (charges.reinforce && eligibleHex > 0) {
-        const extraMaterials = Object.fromEntries(Object.entries(reinforceMaterials).map(([key, qty]) => [key, Math.ceil(qty * 0.285)]));
-        const extraCost = calculateHexagonMaterialCost(extraMaterials).cost;
-        reinforcementHex = Math.max(eligibleHex * 0.30, extraCost);
-    }
-    if (!Number.isFinite(HEXAGON_PAYMENTS.deliveryHexPerTek) || HEXAGON_PAYMENTS.deliveryHexPerTek <= 0) {
-        throw new Error("Invalid Hexagon delivery conversion.");
-    }
-    const deliveryHex = deliveryTek * HEXAGON_PAYMENTS.deliveryHexPerTek;
-    const resourceQuantity = Math.ceil(baseHex + reinforcementHex + deliveryHex);
+    const rate = getHexagonsPerTek();
+    const originalTek = cc + reinforcementTek + deliveryTek;
+    const resourceQuantity = Math.ceil(originalTek * rate);
     if (!Number.isSafeInteger(resourceQuantity)) throw new Error("Hexagon payment exceeds the supported quantity.");
-    return { originalTek: cc + reinforcementTek + deliveryTek, itemTek: cc,
-        reinforcementTek, deliveryTek, resource: "HEX", discountPercent: 0,
-        resourceQuantity, materialCost, marginHex, reinforcementHex, deliveryHex };
+    return { originalTek, itemTek: cc, reinforcementTek, deliveryTek,
+        resource: "HEX", discountPercent: 0, resourceQuantity, conversionRate: rate,
+        reinforcementHex: reinforcementTek * rate, deliveryHex: deliveryTek * rate };
 }
 
 function selectedHexagonItems() {
