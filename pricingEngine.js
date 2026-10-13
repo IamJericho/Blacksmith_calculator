@@ -276,13 +276,18 @@ function priceHexagonItem(item) {
         const marginHex = materialCost * markup / 100;
         return { materialCost, marginHex, price: materialCost + marginHex };
     }
-    const tc = calculateTC(item.materials).TC;
-    const marginTek = Math.max(0, item.tek - tc);
-    if (!Number.isFinite(HEXAGON_PAYMENTS.marginHexPerTek) || HEXAGON_PAYMENTS.marginHexPerTek < 0) {
-        throw new Error("Invalid Hexagon margin conversion.");
+    const markupPercent = CLIENT_PRICING.markupPercent;
+    const minimumMarkupTek = CLIENT_PRICING.minimumMarkupTek;
+    const surchargeTek = item.additionalTek || 0;
+    const rate = HEXAGON_PAYMENTS.marginHexPerTek;
+    if (![markupPercent, minimumMarkupTek, surchargeTek].every(value => Number.isFinite(value) && value >= 0) ||
+        !Number.isFinite(rate) || rate <= 0) {
+        throw new Error("Invalid Hexagon markup or surcharge.");
     }
-    const marginHex = marginTek * HEXAGON_PAYMENTS.marginHexPerTek;
-    return { materialCost: recipe.cost, marginHex, price: recipe.cost + marginHex };
+    // Profit is based on actual Hexagon replacement cost, not supplier TEK margin.
+    const marginHex = Math.max(recipe.cost * markupPercent / 100, minimumMarkupTek * rate);
+    const surchargeHex = surchargeTek * rate;
+    return { materialCost: recipe.cost, marginHex, surchargeHex, price: recipe.cost + marginHex + surchargeHex };
 }
 
 function calculateHexagonPayment(cc, charges = {}) {
