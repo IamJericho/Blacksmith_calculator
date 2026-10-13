@@ -11,7 +11,7 @@ const DEDI_PRICE = {
     G: 2000, H: 400, I: 1800, K: 250, L: 3000, M: 3000,
     N: 500, O: 3000, OP: 1000, P: 5000, R: 2000, RM: 1500,
     S: 500, T: 500, U: 2500, V: 2000, W: 500,
-    X: 0, Y: 2000, Z: 500, BP: 4500, GB: 4000, SP: 0, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700
+    X: 0, Y: 2000, Z: 500, BP: 4500, GB: 4000, SP: 0, SF: 2000, PM: 1, MB: 400, OL: 2000, ST: 1700, ED: 1800
 };
 
 // Correct stack sizes (add any missing ones here)
@@ -49,7 +49,8 @@ const STACK_SIZE = {
     PM: 1,
     MB: 100,
     OL: 100,
-    ST: 30
+    ST: 30,
+    ED: 1000 // Element Dust units per stack; separate from Element (I).
 };
 
 // Recipe-derived prices, expressed per full dedi of the crafted material.
@@ -188,18 +189,18 @@ const ALTERNATIVE_PAYMENTS = {
     // Edit these ten codes to choose which materials customers can pay with.
     // Prices and crafting materials remain defined separately in DEDI_PRICE.
     resources: {
-        A: { unitsPerTek: null },  // Cementing Paste
-        B: { unitsPerTek: null },  // Silica Pearls
-        C: { unitsPerTek: null },  // Crystal
-        E: { unitsPerTek: null },  // Electronics
-        F: { unitsPerTek: null },  // Fiber
-        FW: { unitsPerTek: null }, // Fungal Wood
-        G: { unitsPerTek: null },  // Green Gems
-        H: { unitsPerTek: null },  // Hide
-        I: { unitsPerTek: null },  // Element
-        K: { unitsPerTek: null }   // Chitin / Keratin
+        V: { unitsPerTek: null, label: "Blue Gems/Sap" }, // Preferred
+        H: { unitsPerTek: null, label: "Hide" },
+        M: { unitsPerTek: null, label: "Metal" },
+        E: { unitsPerTek: null, label: "Electronics" },
+        R: { unitsPerTek: null, label: "Red Gems/Sap" },
+        FW: { unitsPerTek: null, label: "Fungal Wood" },
+        ED: { unitsPerTek: null, label: "Element Dust" },
+        GB: { unitsPerTek: null, label: "Congealed Gas Ball" },
+        O: { unitsPerTek: null, label: "Obsidian" },
+        X: { unitsPerTek: null, label: "Absorbent Substrate" }
     },
-    preferredResource: { enabled: false, resource: "V", discountPercent: 10 },
+    preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
     protectMinimumMargin: true,
     minimumProfitPercent: 0 // Never discount below the recorded material cost.
 };
@@ -221,7 +222,7 @@ const HEXAGON_PAYMENTS = {
         ST: 150 / 5, B: 125 / 5, BP: 300,
         FW: 46 / 50, G: 55 / 25, V: 95 / 20, R: 175 / 20,
         L: 50 / 50, U: 48 / 50, Y: 45 / 50, E: 700 / 5,
-        I: 2000, RE: 2 * 5 * 2000,
+        I: 2000, RE: 2 * 5 * 2000, ED: (5 * 2000) / STACK_SIZE.ED,
         MB: 20 * (10 / 50) + 5 * (80 / 20) + (25 / 20)
     },
     recipes: { X: { ST: 2, OL: 2, BP: 2 }, SP: { S: 1, N: 2 } }
