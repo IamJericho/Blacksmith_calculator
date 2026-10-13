@@ -33,6 +33,7 @@ select.form-select{
 }
 @media(forced-colors:active){select.form-select{appearance:auto;background-image:none}}
 textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.remaining-item{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}@media(max-width:600px){.remaining-item{grid-template-columns:1fr 80px}.remaining-item span{grid-column:1/-1}}
 </style>
 </head>
 
@@ -886,6 +887,50 @@ Ideal CC: ${result.CC.ideal}`;
     for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push(`${quantity} ${select.dataset.name.split('|').pop()}`);}
     status.textContent=`Added ${count} items:\n`+lines.join('\n');document.getElementById('pastedOrders').value='';
   });
+})();
+
+</script>
+<script>
+(function rememberInternalItems(){
+  const key='blacksmith-internal-items-v1';
+  const selects=[...document.querySelectorAll('select[data-group]')];
+  const tools=document.querySelector('.internal-tools');if(!tools)return;
+  const id=select=>select.dataset.group+'|'+select.dataset.name;
+  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
+  document.querySelector('.order-import').after(section);
+  const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
+  let storageWorks=true;
+  function save(){
+    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)])),draft:document.getElementById('pastedOrders').value}));status.textContent='Saved in this browser.';}
+    catch(_){storageWorks=false;status.textContent='Browser storage is unavailable. These items will not survive a refresh.';}
+  }
+  function render(){
+    list.replaceChildren();
+    for(const select of selects){
+      const quantity=Number(select.value);if(!quantity)continue;
+      const row=document.createElement('div');row.className='remaining-item';
+      const name=document.createElement('span');const groupLabels={regular:'Saddle',platform:'Platform saddle',teksaddles:'Tek saddle',tier1:'Equipment',tier2:'Tier 2',cursed1:'Cursed Tier 1',cursed2:'Cursed Tier 2'};
+      name.textContent=`${select.dataset.name.split('|').pop()} · ${groupLabels[select.dataset.group]} · ${quantity} remaining`;
+      const input=document.createElement('input');input.type='number';input.min='1';input.max=String(quantity);input.step='1';input.value=String(quantity);input.className='form-control';input.setAttribute('aria-label','Completed quantity for '+name.textContent);
+      const button=document.createElement('button');button.type='button';button.className='btn btn-secondary';button.textContent='Complete';
+      input.addEventListener('input',()=>{button.disabled=!Number.isInteger(input.valueAsNumber)||input.valueAsNumber<1||input.valueAsNumber>Number(select.value);});
+      button.addEventListener('click',()=>{const completed=input.valueAsNumber,current=Number(select.value);if(!Number.isInteger(completed)||completed<1||completed>current)return;select.value=String(current-completed);select.dispatchEvent(new Event('change',{bubbles:true}));});
+      row.append(name,input,button);list.append(row);
+    }
+    if(!list.children.length){const empty=document.createElement('p');empty.className='note';empty.textContent='No remaining items.';list.append(empty);}
+  }
+  try{
+    const saved=JSON.parse(localStorage.getItem(key)||'null');
+    if(saved&&saved.items&&typeof saved.items==='object'){
+      for(const select of selects){const quantity=saved.items[id(select)],max=Number(select.options[select.options.length-1].value);if(Number.isInteger(quantity)&&quantity>=0&&quantity<=max){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}}
+      if(typeof saved.draft==='string')document.getElementById('pastedOrders').value=saved.draft;
+    }
+  }catch(_){storageWorks=false;status.textContent='Could not restore saved items. Browser storage may be unavailable.';}
+  document.addEventListener('change',event=>{if(event.target.matches('select[data-group]')){save();render();}});
+  document.getElementById('pastedOrders').addEventListener('input',save);
+  document.getElementById('importOrders').addEventListener('click',save);
+  const originalReset=window.resetAll;window.resetAll=function(){originalReset();document.getElementById('pastedOrders').value='';document.getElementById('importOrderStatus').textContent='';save();render();};
+  render();if(storageWorks)save();
 })();
 
 </script>
