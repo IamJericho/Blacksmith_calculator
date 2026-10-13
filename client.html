@@ -91,6 +91,12 @@ select.form-select{
     <tbody id="regular"></tbody>
   </table>
 
+  <h2>Companion Saddles</h2>
+  <table class="table table-dark table-sm table-zebra">
+    <thead><tr><th>Item</th><th>Qty</th></tr></thead>
+    <tbody id="companion"></tbody>
+  </table>
+
   <h2>Platform Saddles</h2>
   <table class="table table-dark table-sm table-zebra">
     <thead>
@@ -313,13 +319,13 @@ select.form-select{
        BUILDERS
     ============================= */
 
-    function buildSimple(id, data) {
+    function buildSimple(id, data, group = id) {
       const t = document.getElementById(id);
       Object.entries(data).forEach(([name, itemData]) => {
         t.insertAdjacentHTML("beforeend", `
       <tr>
         <td>${name} — ${itemData.tek} TEK${formatStats(itemData.materials)}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
-        <td>${qtySelect(id, name)}</td>
+        <td>${qtySelect(group, name)}</td>
       </tr>
     `);
       });
@@ -352,7 +358,8 @@ select.form-select{
        BUILD UI
     ============================= */
 
-    buildSimple("regular", BLACKSMITH.saddles.regular);
+    buildSimple("regular", Object.fromEntries(Object.entries(BLACKSMITH.saddles.regular).filter(([name]) => !name.startsWith("Companion "))));
+    buildSimple("companion", Object.fromEntries(Object.entries(BLACKSMITH.saddles.regular).filter(([name]) => name.startsWith("Companion "))), "regular");
     buildSimple("platform", BLACKSMITH.saddles.platform);
     buildSimple("teksaddles", BLACKSMITH.saddles.teksaddles);
     buildNested("tier1", BLACKSMITH.equipment.tier1);
@@ -496,7 +503,7 @@ Trader: <@1303790610620350587>`;
   catalog.innerHTML = `<div class="catalog-toolbar"><input class="form-control" id="catalogSearch" type="search" placeholder="Search items…" aria-label="Search all items"><button type="button" class="btn btn-secondary selected-filter" aria-pressed="false">Selected items</button><a class="btn btn-secondary order-jump" href="#orderPanel">View order</a></div><nav class="catalog-tabs" aria-label="Item categories"></nav>`;
   const tabs = catalog.querySelector("nav");
   const panels = [];
-  for (const id of ["regular", "platform", "teksaddles", "tier1", "tier2", "cursed1", "cursed2"]) {
+  for (const id of ["regular", "companion", "platform", "teksaddles", "tier1", "tier2", "cursed1", "cursed2"]) {
     const tbody = document.getElementById(id);
     if (!tbody || !tbody.querySelector("select[data-group]")) {
       if (tbody) { const table=tbody.closest("table"); const h=table.previousElementSibling;if(h?.tagName==="H2")h.remove();table.remove(); }
