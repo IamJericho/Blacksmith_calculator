@@ -64,6 +64,8 @@ button,input:not([type=checkbox]){background:var(--panel);color:var(--text);bord
 :root[data-theme=dark] .primary,:root[data-theme=dark] .segmented button[aria-pressed=true],:root[data-theme=dark] .duration-presets button[aria-pressed=true]{background:#f1d78c;color:#151515;border-color:#f1d78c}
 :root[data-theme=dark] #snipeActive{background:#202020;color:var(--text)}#snipeActive[aria-pressed=true],:root[data-theme=dark] #snipeActive[aria-pressed=true]{background:#21633d;color:#fff;border-color:#21633d}
 .theme-actions{display:flex;gap:8px;flex-wrap:wrap}.page-header{flex-wrap:wrap}
+
+.bid-layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(280px,1fr);gap:28px;margin-top:22px}.bid-layout .field:first-child{margin-top:0}.sequence-box{padding:20px;border:1px solid var(--border);border-radius:12px;min-width:0}.sequence-box h3{margin:0;font-size:18px}.sequence-values{margin-top:16px;max-height:240px;overflow:auto;line-height:1.8;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}.sequence-box .hint{margin-bottom:16px}@media(max-width:850px){.bid-layout{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -108,11 +110,20 @@ button,input:not([type=checkbox]){background:var(--panel);color:var(--text);bord
 
     <section class="card bidding-section" aria-labelledby="biddingTitle">
       <h2 id="biddingTitle">Bid amounts</h2>
+<div class="bid-layout"><div>
       <div class="two-fields field"><label>Starting bid<input id="bidStart" type="number" min="1" step="1" value="1"></label><label>Increment<input id="bidIncrement" type="number" min="1" step="1" value="1000"></label></div>
       <label class="check"><input id="splitPayment" type="checkbox"><span>Different item for increments</span></label>
       <p class="hint" id="bidBaseline"></p>
       <div class="two-fields field"><label>Bid amount<input id="candidateBid" type="number" min="1" step="1" value="1"></label><label id="candidateIncrementField" hidden>Increment payment amount<input id="candidateIncrement" type="number" min="0" step="1" value="0"></label></div>
       <div class="actions"><button id="checkBid" type="button">Check bid</button><button id="resetBids" type="button">Reset</button><div id="bidValidation" class="bid-result" role="status" aria-live="polite" hidden></div></div>
+</div>
+      <aside class="sequence-box" aria-labelledby="sequenceTitle">
+        <h3 id="sequenceTitle">Sequential bids</h3>
+        <p class="hint" id="sequenceHint">Valid bid amounts within your range.</p>
+        <div class="two-fields"><label>From<input id="sequenceFrom" type="number" min="0" step="1" value="1"></label><label>To<input id="sequenceTo" type="number" min="0" step="1" value="24001"></label></div>
+        <div id="sequenceValues" class="sequence-values" role="status" aria-live="polite"></div>
+      </aside>
+</div>
     </section>
   </main>
 <script>
@@ -245,16 +256,30 @@ el('startTime').value=localInput(new Date());el('bidTime').value=el('startTime')
 <script>
 'use strict';
 (()=>{
-const get=id=>document.getElementById(id);let current=null,currentIncrement=null;
+const get=id=>document.getElementById(id);let current=null,currentIncrement=null;let customSequenceRange=false;
 const number=id=>get(id).value===''?NaN:Number(get(id).value);
 function setup(){return {start:number('bidStart'),increment:number('bidIncrement'),bid:number('candidateBid'),incrementBid:number('candidateIncrement'),split:get('splitPayment').checked,current,currentIncrement};}
 function payment(base,extra=0){return get('splitPayment').checked?`${base.toLocaleString()}  + ${extra.toLocaleString()} `:`${base.toLocaleString()} `;}
-function refresh(){const s=setup();get('candidateIncrementField').hidden=!s.split;get('bidBaseline').textContent=s.split?`Starting amount stays ${s.start.toLocaleString()}; separate increment amounts: ${[0,1,2,3].map(n=>n*s.increment).join(", ")}…`:`Valid amounts: ${[0,1,2,3].map(n=>s.start+n*s.increment).join(', ')}…`;}
+function refresh(){const s=setup();if(!customSequenceRange&&Number.isSafeInteger(s.start)&&s.start>0&&Number.isSafeInteger(s.increment)&&s.increment>0){const base=s.split?0:s.start;const end=base+24*s.increment;if(Number.isSafeInteger(end)){get('sequenceFrom').value=base;get('sequenceTo').value=end;}}refreshSequence();get('candidateIncrementField').hidden=!s.split;get('bidBaseline').textContent=s.split?`Starting amount stays ${s.start.toLocaleString()}; separate increment amounts: ${[0,1,2,3].map(n=>n*s.increment).join(", ")}…`:`Valid amounts: ${[0,1,2,3].map(n=>s.start+n*s.increment).join(', ')}…`;}
 
+function sequenceAmounts(start,increment,from,to,split){
+  if(![start,increment,from,to].every(Number.isSafeInteger)||start<1||increment<1||from<0||to<from) return {error:'Enter positive whole numbers for the starting bid and increment, and a range from 0 or higher with To at least From.'};
+  const base=split?0:start;
+  const first=base+Math.max(0,Math.ceil((from-base)/increment))*increment;
+  if(!Number.isSafeInteger(first)||first>to)return {values:[],count:0};
+  const count=Math.floor((to-first)/increment)+1;
+  return {values:Array.from({length:Math.min(count,200)},(_,i)=>first+i*increment),count};
+}
+function refreshSequence(){
+  const s=setup(),r=sequenceAmounts(s.start,s.increment,number('sequenceFrom'),number('sequenceTo'),s.split);
+  get('sequenceHint').textContent=s.split?'Range applies to the separate increment payment. The starting payment stays fixed.':'Defaults to the first 25 bids. Change From and To for a custom range.';
+  get('sequenceValues').textContent=r.error||(r.count===0?'No valid bids in this range.':r.values.map(v=>s.split?`${s.start.toLocaleString()} + ${v.toLocaleString()}`:v.toLocaleString()).join(' • ')+(r.count>200?` • … Showing the first 200 of ${r.count.toLocaleString()} bids. Narrow the range to see more.`:''));
+}
+for(const id of ['sequenceFrom','sequenceTo'])get(id).addEventListener('input',()=>{customSequenceRange=true;refreshSequence();});
 function check(){const r=AuctionBidding.validateBid(setup());const box=get('bidValidation');box.hidden=false;box.textContent=r.valid?'✓':'✕';box.className='bid-result '+(r.valid?'valid':'invalid');box.setAttribute('aria-label',r.message);box.title=r.message;return r;}
 for(const id of ['bidStart','bidIncrement','splitPayment'])get(id).addEventListener('input',()=>{current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
 for(const id of ['candidateBid','candidateIncrement'])get(id).addEventListener('input',()=>{get('bidValidation').hidden=true;});
-get('resetBids').addEventListener('click',()=>{get('bidStart').value=1;get('bidIncrement').value=1000;get('candidateBid').value=1;get('candidateIncrement').value=0;get('splitPayment').checked=false;current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
+get('resetBids').addEventListener('click',()=>{get('bidStart').value=1;get('bidIncrement').value=1000;get('candidateBid').value=1;get('candidateIncrement').value=0;get('splitPayment').checked=false;customSequenceRange=false;current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
 get('checkBid').addEventListener('click',check);refresh();
 })();
 
