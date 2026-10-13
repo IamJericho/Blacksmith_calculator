@@ -185,11 +185,21 @@ window.DTJ_PRICING = {
 // A null override uses the supplier valuation; set unitsPerTek to an independent rate.
 const ALTERNATIVE_PAYMENTS = {
     enabled: true,
-    // Every material priced by PE is eligible; newly priced materials appear automatically.
-    resources: Object.fromEntries([...Object.keys(DEDI_PRICE), "RE"].map(key => [
-        key, { unitsPerTek: null, ...({ OL: { label: "Oil" }, ST: { label: "Sap" } }[key] || {}) }
-    ])),
-    preferredResource: { enabled: true, resource: "V", discountPercent: 10 },
+    // Edit these ten codes to choose which materials customers can pay with.
+    // Prices and crafting materials remain defined separately in DEDI_PRICE.
+    resources: {
+        A: { unitsPerTek: null },  // Cementing Paste
+        B: { unitsPerTek: null },  // Silica Pearls
+        C: { unitsPerTek: null },  // Crystal
+        E: { unitsPerTek: null },  // Electronics
+        F: { unitsPerTek: null },  // Fiber
+        FW: { unitsPerTek: null }, // Fungal Wood
+        G: { unitsPerTek: null },  // Green Gems
+        H: { unitsPerTek: null },  // Hide
+        I: { unitsPerTek: null },  // Element
+        K: { unitsPerTek: null }   // Chitin / Keratin
+    },
+    preferredResource: { enabled: false, resource: "V", discountPercent: 10 },
     protectMinimumMargin: true,
     minimumProfitPercent: 0 // Never discount below the recorded material cost.
 };
