@@ -20,6 +20,18 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
 .catalog-tab{border-color:#87764e}.btn-primary,.btn-warning,.catalog-tab[aria-pressed=true]{background:#f1dda7;color:#242424;border:1px solid #87764e}.skip-link{background:#745610;color:#fff}.mode-tag{border-color:#ddd8ce}.order-cost{color:#745610}
 
 .table td:last-child,.table th:last-child{width:152px}.quantity-control{display:grid;grid-template-columns:36px 48px 36px;gap:4px;align-items:center}.quantity-control button{height:44px;min-height:44px;padding:0;background:#f1dda7;color:#242424;border:1px solid #87764e;border-radius:7px;font-size:22px;line-height:1}.quantity-control button:disabled{opacity:.45}.quantity-input{width:48px;height:44px;border:1px solid #87764e;border-radius:7px;background:#fff;color:#242424;text-align:center;padding:0;font-size:14px;appearance:textfield;-moz-appearance:textfield}.quantity-input::-webkit-inner-spin-button,.quantity-input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}@media(max-width:760px){.table td:last-child,.table th:last-child{width:138px}.table td{padding-left:10px;padding-right:10px}}
+
+/* Keep dropdown arrows clear of the border and option text. */
+select.form-select{
+  appearance:none;-webkit-appearance:none;
+  padding-right:42px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23595959' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:16px 16px;
+}
+:root[data-theme=dark] select.form-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23c7c7c7' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+@media(forced-colors:active){select.form-select{appearance:auto;background-image:none}}
 </style>
 </head>
 
