@@ -842,23 +842,25 @@ Ideal CC: ${result.CC.ideal}`;
   const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
   function parseOrders(text,items){
     const cleaned=text.replace(/\*\*|`/g,'');
-    const orders=[...cleaned.matchAll(/\bOrder\s*:\s*([\s\S]*?)(?=\b(?:Payment|Total Items|Trader|Name)\s*:|$)/gi)];
+    const orders=[...cleaned.matchAll(/\bOrder\s*:\s*([\s\S]*?)(?=\b(?:Payment|Total Items|Trader|Name|Reinforced?|Delivery)\s*(?::|(?=\s))|$)/gi)];
     const bodies=orders.length?orders.map(match=>match[1]):[cleaned];
     const totals=new Map(),errors=[];
-    const headings=/^(Saddles?|Equipment|Tier\s*1|Tier\s*2|Cursed\s*Tier\s*1|Cursed\s*Tier\s*2)\s*:?\s*/i;
+    const headings=/^(Saddles?|Equipment|Tier\s*1|Tier\s*2|Curs(?:e|ed)\s*(?:Tier\s*)?1|Curs(?:e|ed)\s*(?:Tier\s*)?2)\s*:?\s*/i;
     for(const body of bodies){
       let group=null;
       const chunks=body.replace(/\b(Saddles?|Equipment|Tier\s*[12]|Cursed\s*Tier\s*[12])\s*:/gi,'\n$1:\n').split(/\n|,(?!\d{3}\b)|;/);
       for(let chunk of chunks){
         chunk=chunk.trim();if(!chunk)continue;
+        if(/^(?:Name|Trader|Payment|Total Items|Reinforced?|Delivery)\b/i.test(chunk))continue;
+        chunk=chunk.replace(/^(\d[\d,]*)\s+saddles?\s+(?:\d+(?:\.\d+)?\s+)?(.+)$/i,(_,quantity,name)=>{group='saddle';return quantity+' '+name;});
         const heading=chunk.match(headings);
-        if(heading){const label=normalize(heading[1]);group=label.startsWith('saddle')?'saddle':label==='equipment'||label==='tier 1'?'tier1':label==='tier 2'?'tier2':label==='cursed tier 1'?'cursed1':'cursed2';chunk=chunk.slice(heading[0].length).trim();}
+        if(heading){const label=normalize(heading[1]);group=label.startsWith('saddle')?'saddle':label==='equipment'||label==='tier 1'?'tier1':label==='tier 2'?'tier2':/^curs(?:e|ed) (?:tier )?1$/.test(label)?'cursed1':'cursed2';chunk=chunk.slice(heading[0].length).trim();}
         if(!chunk)continue;
         const entries=[...chunk.matchAll(/(?:^|\s)(\d[\d,]*)\s+(.+?)(?=\s+\d[\d,]*\s+|$)/g)];
         if(!entries.length){errors.push(chunk);continue;}
         for(const entry of entries){
           const quantity=Number(entry[1].replace(/,/g,'')),name=normalize(entry[2]);
-          const matches=items.filter(item=>(!group||(group==='saddle'?['regular','platform','teksaddles'].includes(item.group):item.group===group))&&item.aliases.includes(name));
+          const matches=items.filter(item=>(!group||(group==='saddle'?['regular','platform','teksaddles'].includes(item.group):item.group===group))&&item.aliases.some(alias=>alias===name||({ 'cross bows':'cross bow','crossbow':'cross bow','crossbows':'cross bow','longneck':'longneck rifle','pump':'pump shotgun' }[name]===alias)));
           if(matches.length!==1||!Number.isSafeInteger(quantity)||quantity<1){errors.push(entry[0].trim());continue;}
           const item=matches[0];totals.set(item.key,(totals.get(item.key)||0)+quantity);
         }
