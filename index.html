@@ -32,6 +32,7 @@ select.form-select{
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23c7c7c7' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
 }
 @media(forced-colors:active){select.form-select{appearance:auto;background-image:none}}
+textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 </style>
 </head>
 
@@ -833,6 +834,56 @@ Ideal CC: ${result.CC.ideal}`;
   }
   const originalReset = window.resetAll;
   window.resetAll = function () { originalReset(); for (const sync of steppers) sync(); };
+})();
+
+</script>
+<script>
+(function(){
+  const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
+  function parseOrders(text,items){
+    const cleaned=text.replace(/\*\*|`/g,'');
+    const orders=[...cleaned.matchAll(/\bOrder\s*:\s*([\s\S]*?)(?=\b(?:Payment|Total Items|Trader|Name)\s*:|$)/gi)];
+    const bodies=orders.length?orders.map(match=>match[1]):[cleaned];
+    const totals=new Map(),errors=[];
+    const headings=/^(Saddles?|Equipment|Tier\s*1|Tier\s*2|Cursed\s*Tier\s*1|Cursed\s*Tier\s*2)\s*:?\s*/i;
+    for(const body of bodies){
+      let group=null;
+      const chunks=body.replace(/\b(Saddles?|Equipment|Tier\s*[12]|Cursed\s*Tier\s*[12])\s*:/gi,'\n$1:\n').split(/\n|,(?!\d{3}\b)|;/);
+      for(let chunk of chunks){
+        chunk=chunk.trim();if(!chunk)continue;
+        const heading=chunk.match(headings);
+        if(heading){const label=normalize(heading[1]);group=label.startsWith('saddle')?'saddle':label==='equipment'||label==='tier 1'?'tier1':label==='tier 2'?'tier2':label==='cursed tier 1'?'cursed1':'cursed2';chunk=chunk.slice(heading[0].length).trim();}
+        if(!chunk)continue;
+        const entries=[...chunk.matchAll(/(?:^|\s)(\d[\d,]*)\s+(.+?)(?=\s+\d[\d,]*\s+|$)/g)];
+        if(!entries.length){errors.push(chunk);continue;}
+        for(const entry of entries){
+          const quantity=Number(entry[1].replace(/,/g,'')),name=normalize(entry[2]);
+          const matches=items.filter(item=>(!group||(group==='saddle'?['regular','platform','teksaddles'].includes(item.group):item.group===group))&&item.aliases.includes(name));
+          if(matches.length!==1||!Number.isSafeInteger(quantity)||quantity<1){errors.push(entry[0].trim());continue;}
+          const item=matches[0];totals.set(item.key,(totals.get(item.key)||0)+quantity);
+        }
+      }
+    }
+    return {totals,errors};
+  }
+  window.parsePastedBlacksmithOrders=parseOrders;
+  const tools=document.querySelector('.internal-tools');if(!tools)return;
+  const box=document.createElement('div');box.className='output order-import';
+  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
+  tools.querySelector('h2').after(box);
+  document.getElementById('importOrders').addEventListener('click',()=>{
+    const text=document.getElementById('pastedOrders').value.trim(),status=document.getElementById('importOrderStatus');
+    if(!text){status.textContent='Paste an order first.';return;}
+    const selects=[...document.querySelectorAll('select[data-group]')];
+    const items=selects.map((select,key)=>{const [category,name]=select.dataset.name.split('|');return {key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(name||category)]};});
+    const result=parseOrders(text,items);
+    if(result.errors.length){status.textContent='Nothing added. Check these unrecognized or ambiguous items:\n'+result.errors.join('\n');return;}
+    if(!result.totals.size){status.textContent='No order items found.';return;}
+    for(const [key,quantity] of result.totals){const select=selects[key],max=Number(select.options[select.options.length-1].value);if(Number(select.value)+quantity>max){status.textContent=`Nothing added. ${select.dataset.name.split('|').pop()} exceeds the ${max}-item limit including your current order.`;return;}}
+    let count=0;const lines=[];
+    for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push(`${quantity} ${select.dataset.name.split('|').pop()}`);}
+    status.textContent=`Added ${count} items:\n`+lines.join('\n');document.getElementById('pastedOrders').value='';
+  });
 })();
 
 </script>
