@@ -264,7 +264,11 @@ select.form-select{
 
     function qtySelect(group, name) {
 
-      let maxQty = 50;
+      const saddleGroups = ["regular", "platform", "teksaddles"];
+      const category = name.split("|")[0];
+      const cursed = group === "cursed1" || group === "cursed2";
+      let maxQty = saddleGroups.includes(group) ? 20 :
+        cursed && (category === "weapons" || category === "tools") ? 2 : 5;
 
       // Apply stock limits for cursed + tier2
       if (group === "cursed1" || group === "cursed2" || group === "tier2") {
@@ -275,7 +279,7 @@ select.form-select{
         const stock = CURSED_STOCK?.[tier]?.[category]?.[itemName];
 
         if (typeof stock === "number") {
-          maxQty = stock;
+          maxQty = Math.min(maxQty, stock);
 
           if (stock === 0) {
             return `
