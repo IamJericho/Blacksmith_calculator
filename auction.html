@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Starfall moderator auction timing calculator for 6, 12, and 24-hour rooms.">
+  <title>Starfall Auction Calculator</title>
+  <script>
+(function () {
+  const system = window.matchMedia('(prefers-color-scheme: dark)');
+  let preference = null;
+  try { const stored = localStorage.getItem('blacksmith-theme'); if (['light', 'dark'].includes(stored)) preference = stored; } catch (_) {}
+  function apply() {
+    document.documentElement.dataset.theme = preference || (system.matches ? 'dark' : 'light');
+    window.dispatchEvent(new Event('blacksmith-theme-change'));
+  }
+  window.BLACKSMITH_THEME = {
+    set(value) {
+      preference = ['light', 'dark'].includes(value) ? value : null;
+      try { if (preference) localStorage.setItem('blacksmith-theme', preference); else localStorage.removeItem('blacksmith-theme'); } catch (_) {}
+      apply();
+    },
+    get preference() { return preference; }
+  };
+  system.addEventListener('change', () => { if (!preference) apply(); });
+  apply();
+})();
+</script>
+<style>:root{color-scheme:light;--bg:#f5f6fa;--text:#182033;--muted:#526077;--border:#d7dde7;--accent:#354ac9;--panel:#fff}*{box-sizing:border-box}body{margin:0;padding:40px 28px;color:var(--text);background:var(--bg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:1280px;margin:auto}h1,h2,p{margin:0}h1{font-size:42px;letter-spacing:-1.5px;line-height:1.2}h2{font-size:20px}button,input{font:inherit}button{cursor:pointer;border:1px solid #8995aa;border-radius:9px;padding:10px 16px;min-height:44px;background:#fff;color:var(--text)}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.page-header{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:32px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--muted);margin-bottom:10px}.subtitle{color:var(--muted);margin-top:12px}.badge{border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;color:var(--muted);white-space:nowrap}.workspace{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;align-items:start}.card{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:24px}.section-heading{display:flex;align-items:center;gap:12px;margin-bottom:24px}.step{font:12px ui-monospace,monospace;background:#eef0fd;color:#293ca6;border-radius:7px;padding:7px 9px}fieldset{border:0;padding:0;margin:0 0 24px;min-width:0}legend,label{font-size:13px;font-weight:600;margin-bottom:8px}.segmented{display:flex;gap:6px}.segmented button{flex:1;padding:9px 5px}.segmented button[aria-pressed=true],.duration-presets button[aria-pressed=true]{background:#e8ecff;color:#263ca8;border:2px solid #354ac9}.duration-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.duration-presets button{font-size:12px;padding:6px 10px}.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block}input:not([type=checkbox]){width:100%;min-width:0;border:1px solid #8995aa;border-radius:9px;padding:10px;color:var(--text);background:#fff;min-height:44px;margin-top:6px}input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}.hint{font-size:12px;font-weight:400;color:var(--muted);margin-top:8px}.field{margin-top:22px}.check{display:flex;align-items:center;gap:8px;margin-top:24px;margin-bottom:0}.actions{margin-top:24px}.secondary{background:#fff}.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}.deadline-card{background:#182348;color:#fff;border-radius:16px;padding:32px}.deadline-card .eyebrow{color:#bac8ed}.big-time{font-size:clamp(30px,4vw,48px);font-weight:650;letter-spacing:-1px;line-height:1.2}.close-date{color:#d0dbf4;margin-top:12px}.deadline-meta{border-top:1px solid #6677a2;margin-top:24px;padding-top:16px;display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#d0dbf4}.milestones{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.milestones h2{font-size:24px;font-variant-numeric:tabular-nums}.status{font-size:12px;margin-top:16px;color:#236443;font-weight:600}.status.unavailable{color:#7a3915}.summary-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:20px}.summary-bar p{font-size:13px;color:var(--muted)}.bid-section,.rules{grid-column:1/-1}.bid-form{display:flex;align-items:end;gap:12px}.bid-form label{flex:1;margin:0;max-width:420px}.bid-list{margin-top:24px}.bid-entry{display:grid;grid-template-columns:1fr auto;gap:12px;padding:16px 0;border-top:1px solid var(--border)}.bid-entry strong{font-size:14px}.bid-entry p{font-size:12px;color:var(--muted);margin-top:4px}.bid-entry .invalid{color:#a32626}.bid-entry button{font-size:12px}.empty{font-size:13px;color:var(--muted);padding:16px;background:#f7f8fc;border-radius:10px}.error{color:#a32626;background:#fff0f0;border:1px solid #d48686;border-radius:9px;padding:12px;margin-bottom:14px;font-size:13px}.rules summary{font-weight:600;cursor:pointer}.rules ul{padding-left:20px;color:var(--muted);font-size:13px}.rules p{font-size:13px;color:var(--muted)}footer{font-size:12px;color:var(--muted);margin-top:24px}.skip-link{position:absolute;top:-100px;background:#fff;padding:10px;color:var(--accent)}.skip-link:focus{top:10px}[hidden]{display:none!important}
+@media(max-width:850px){.workspace{grid-template-columns:1fr}.setup{grid-row:1}.results{grid-row:2}.badge{display:none}.bid-section,.rules{grid-column:1}.summary-bar{flex-wrap:wrap}.summary-bar button{width:100%}}
+@media(max-width:480px){body{padding:24px 14px}h1{font-size:34px}.card{padding:20px}.deadline-card{padding:24px}.milestones{grid-template-columns:1fr}.bid-form{flex-direction:column;align-items:stretch}.bid-form label{max-width:none}.deadline-meta{flex-wrap:wrap}.bid-entry{grid-template-columns:1fr}.bid-entry button{justify-self:start}.big-time{font-size:32px}}
+
+#bidList{padding:24px;border-radius:12px;background:#eef0fd}#bidList button{margin-top:16px}
+
+.results > .bid-section{margin-top:16px}
+
+#bidList{padding:0;background:transparent}#bidList:empty{display:none}.bid-form{margin-top:16px}
+
+#snipeActive{background:#fff;color:var(--text)}#snipeActive[aria-pressed=true]{background:#21633d;color:#fff;border-color:#21633d}
+
+.snipe-heading{justify-content:space-between;flex-wrap:wrap;align-items:center}
+
+.bid-buttons{display:flex;flex-direction:column;gap:8px}
+
+.milestones{grid-template-columns:1fr}
+
+#rooms{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch}#rooms button{width:100%;margin:0}
+
+.duration-row{display:grid;grid-template-columns:72px minmax(0,1fr);gap:12px;align-items:end}.duration-row .duration-presets{margin:0 0 8px;display:block}.duration-row .duration-presets button{width:100%;min-height:44px}.duration-row .two-fields{min-width:0}
+
+.clock-row{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}.clock-row .close-date,.clock-row .hint{margin-top:0}
+
+.bidding-section{grid-column:1/-1}.bidding-section .actions{display:flex;gap:8px;flex-wrap:wrap}
+
+.bid-result{display:flex;align-items:center;justify-content:center;width:52px;min-height:44px;border:2px solid;border-radius:9px;font-size:28px;font-weight:700}.bid-result.valid{color:#21633d;background:#edf8f0;border-color:#21633d}.bid-result.invalid{color:#a32626;background:#fff0f0;border-color:#a32626}
+
+:root{--bg:#faf9f6;--panel:#fff;--border:#ddd8ce;--muted:#595959;--text:#242424;--accent:#745610}
+button,input:not([type=checkbox]){background:var(--panel);color:var(--text);border-color:#87764e}
+.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.segmented button[aria-pressed=true],.duration-presets button[aria-pressed=true]{background:#f4eedf;color:var(--accent);border-color:var(--accent)}
+.deadline-card{background:#242424}.deadline-card .eyebrow,.close-date,.deadline-meta{color:#f1d78c}.deadline-meta{border-color:#87764e}
+:root[data-theme=dark]{color-scheme:dark;--bg:#080808;--panel:#151515;--border:#55514a;--muted:#c7c7c7;--text:#f5f5f5;--accent:#f1d78c}
+:root[data-theme=dark] button,:root[data-theme=dark] input:not([type=checkbox]){background:#202020;color:var(--text);border-color:#a08b58}
+:root[data-theme=dark] .primary,:root[data-theme=dark] .segmented button[aria-pressed=true],:root[data-theme=dark] .duration-presets button[aria-pressed=true]{background:#f1d78c;color:#151515;border-color:#f1d78c}
+:root[data-theme=dark] #snipeActive{background:#202020;color:var(--text)}#snipeActive[aria-pressed=true],:root[data-theme=dark] #snipeActive[aria-pressed=true]{background:#21633d;color:#fff;border-color:#21633d}
+.theme-actions{display:flex;gap:8px;flex-wrap:wrap}.page-header{flex-wrap:wrap}
+</style>
+</head>
+<body>
+  <a href="#calculator" class="skip-link">Skip to calculator</a>
+  <header class="page-header">
+    <div><p class="eyebrow">STARFALL / MODERATOR TOOLS</p><h1>Auction clock</h1><p class="subtitle">Check when an auction can close. Keep late bids clear.</p></div>
+    <div class="theme-actions"><button id="themeToggle" type="button">Dark mode</button><button id="systemTheme" type="button">Use device theme</button></div>
+  </header>
+  <main id="calculator" class="workspace">
+    <section class="card setup" aria-labelledby="setupTitle">
+      <div class="section-heading"><h2 id="setupTitle">Auction setup</h2></div>
+      <fieldset aria-label="Auction room duration"><div class="segmented" id="rooms">
+        <button type="button" data-room="6" aria-pressed="true">6 hours</button>
+        <button type="button" data-room="12" aria-pressed="false">12 hours</button>
+        <button type="button" data-room="24" aria-pressed="false">24 hours</button>
+      </div></fieldset>
+      <fieldset><legend>Duration</legend><div class="duration-row"><div class="duration-presets" id="presets"></div>
+        <div class="two-fields"><label>Hours<input id="durationHours" type="number" min="0" max="6" step="1" value="6" inputmode="numeric"></label><label>Minutes<input id="durationMinutes" type="number" min="0" max="59" step="1" value="0" inputmode="numeric"></label></div></div>
+        <p class="hint" id="durationHint">Up to 6 hours in this room. Shorter auctions use the chosen duration.</p>
+      </fieldset>
+      <label class="field">Started at<input id="startTime" type="datetime-local" step="60" required></label>
+      <p class="hint" id="timezone"></p>
+      <div class="actions"><button class="secondary" id="reset" type="button">Reset auction</button></div>
+    </section>
+    <section class="results" aria-label="Auction deadlines">
+      <div id="error" class="error" role="alert" hidden></div>
+      <div class="deadline-card" id="deadlineCard">
+        <p class="eyebrow">CURRENT CLOSING TIME</p><div class="clock-row"><p class="big-time" id="closeTime">—</p><p id="closeDate" class="close-date">Enter the start time to calculate.</p></div>
+        <div class="deadline-meta"><span id="durationLabel">6-hour auction</span><span id="extensionLabel">No extensions</span></div>
+      </div>
+      <div class="milestones" aria-live="polite">
+        <article class="card"><p class="eyebrow">NO-BID HALFWAY MARK</p><div class="clock-row"><h2 id="halfTime">—</h2><p id="halfDate" class="hint"></p></div></article>
+      </div>
+    <section class="card bid-section" aria-labelledby="bidTitle">
+      <div class="section-heading snipe-heading"><h2 id="bidTitle">Snipe timer</h2><button id="snipeActive" type="button" aria-pressed="false">Snipe timer inactive</button></div>
+      <form id="bidForm" class="bid-form"><label>Bid date & time<input id="bidTime" type="datetime-local" step="60" required></label><div class="bid-buttons"><button id="undoBid" type="button" hidden>Undo last bid</button><button class="primary" type="submit">Add bid</button></div></form>
+      <p id="bidError" class="error" role="alert" hidden></p>
+      <div id="bidList" aria-live="polite"></div>
+    </section>
+    </section>
+
+
+    <section class="card bidding-section" aria-labelledby="biddingTitle">
+      <h2 id="biddingTitle">Bid amounts</h2>
+      <div class="two-fields field"><label>Starting bid<input id="bidStart" type="number" min="1" step="1" value="1"></label><label>Increment<input id="bidIncrement" type="number" min="1" step="1" value="1000"></label></div>
+      <label class="check"><input id="splitPayment" type="checkbox"><span>Different item for increments</span></label>
+      <p class="hint" id="bidBaseline"></p>
+      <div class="two-fields field"><label>Bid amount<input id="candidateBid" type="number" min="1" step="1" value="1"></label><label id="candidateIncrementField" hidden>Increment payment amount<input id="candidateIncrement" type="number" min="0" step="1" value="0"></label></div>
+      <div class="actions"><button id="checkBid" type="button">Check bid</button><button id="resetBids" type="button">Reset</button><div id="bidValidation" class="bid-result" role="status" aria-live="polite" hidden></div></div>
+    </section>
+  </main>
+<script>
+(function (root) {
+  'use strict';
+  const MINUTE = 60000;
+  function calculateAuction({ roomHours, durationMinutes, start, bids = [], hasBids = false, snipeActive = false }) {
+    if (![6, 12, 24].includes(roomHours)) throw new Error('Choose a 6, 12, or 24-hour room.');
+    if (!Number.isInteger(durationMinutes) || durationMinutes < 1 || durationMinutes > roomHours * 60) {
+      throw new Error(`Duration must be between 1 minute and ${roomHours} hours.`);
+    }
+    const startTime = typeof start === 'number' ? start : new Date(start).getTime();
+    if (!Number.isFinite(startTime)) throw new Error('Enter the auction start date and time.');
+    const halfway = startTime + durationMinutes * MINUTE / 2;
+    const durationEnd = startTime + durationMinutes * MINUTE;
+    const originalDeadline = durationEnd + MINUTE;
+    let deadline = originalDeadline;
+    let acceptedBids = 0;
+    let extensions = 0;
+    let manualSnipeStarted = false;
+    const history = [];
+    const ordered = bids.map((bid, index) => ({ index, activation: typeof bid === 'object' && bid !== null && bid.activation, forceSnipe: typeof bid === 'object' && bid !== null && bid.snipeActive, time: typeof bid === 'object' && bid !== null ? new Date(bid.time).getTime() : typeof bid === 'number' ? bid : new Date(bid).getTime() }))
+      .sort((a, b) => a.time - b.time || a.index - b.index);
+    for (const bid of ordered) {
+      let valid = true, extended = false, reason = 'Accepted — deadline unchanged.';
+      const previousDeadline = deadline;
+      if (!Number.isFinite(bid.time)) { valid = false; reason = 'Invalid bid date or time.'; }
+      else if (bid.time < startTime) { valid = false; reason = 'Before the auction started.'; }
+      else if (!bid.activation && bid.time >= deadline) { valid = false; reason = 'At or after the closing time.'; }
+      else {
+        if (!bid.activation) acceptedBids++;
+        // Discord timestamps resolve to minutes: close on the third minute after the bid.
+        if (bid.forceSnipe || snipeActive || bid.time >= durationEnd) {
+          const candidate = Math.floor(bid.time / MINUTE) * MINUTE + 3 * MINUTE;
+          if (bid.activation || ((bid.forceSnipe || snipeActive) && !manualSnipeStarted)) {
+            deadline = candidate;
+            manualSnipeStarted = true;
+          } else {
+            deadline = Math.max(deadline, candidate);
+          }
+          extended = deadline !== previousDeadline;
+          if (extended) extensions++;
+          reason = extended ? 'Accepted — closing time updated.' : 'Accepted — closing time unchanged.';
+        }
+      }
+      history.push({ index: bid.index, time: bid.time, valid, extended, reason, previousDeadline, deadline });
+    }
+    return { startTime, halfway, durationEnd, originalDeadline, deadline, acceptedBids, extensions,
+      canCloseAtHalfway: !hasBids && acceptedBids === 0 && !manualSnipeStarted, history };
+  }
+  root.AuctionTiming = { calculateAuction };
+  if (typeof module !== 'undefined' && module.exports) module.exports = root.AuctionTiming;
+})(typeof window !== 'undefined' ? window : globalThis);
+
+</script>
+<script>
+'use strict';
+const el = id => document.getElementById(id);
+let roomHours = 6;
+let bidTimes = [];
+let manualBidTime = false;
+let result = null;
+const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+el('timezone').textContent = 'All times are shown in your local timezone.';
+function localInput(date) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth()+1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+function time(ms) { return new Date(ms).toLocaleTimeString(undefined, { hour:'numeric', minute:'2-digit', hour12:true }); }
+function date(ms) { return new Date(ms).toLocaleDateString(undefined, { weekday:'short', month:'short', day:'numeric', year:'numeric' }); }
+function setDuration(minutes) { el('durationHours').value = Math.floor(minutes/60); el('durationMinutes').value=minutes%60; render(); }
+function updatePresets() {
+  el('presets').replaceChildren();
+  for (const hours of [roomHours]) {
+    const button=document.createElement('button');button.type='button';button.dataset.minutes=hours*60;
+    button.textContent=`${hours}h`;
+    button.addEventListener('click',()=>setDuration(hours*60));el('presets').append(button);
+  }
+  el('durationHours').max=roomHours;
+  el('durationHint').textContent=`Up to ${roomHours} hours in this room. Shorter auctions use the chosen duration.`;
+}
+function render() {
+  const hours=Number(el('durationHours').value), minutes=Number(el('durationMinutes').value);
+  try {
+    if (el('durationHours').value===''||el('durationMinutes').value===''||!Number.isInteger(hours)||!Number.isInteger(minutes)||hours<0||minutes<0||minutes>59) throw new Error('Enter whole hours and minutes (minutes must be 0–59).');
+    result=AuctionTiming.calculateAuction({roomHours,durationMinutes:hours*60+minutes,start:el('startTime').value,bids:bidTimes});
+    el('error').hidden=true;el('closeTime').textContent=time(result.deadline);el('closeDate').textContent=date(result.deadline);
+    el('halfTime').textContent=time(result.halfway);el('halfDate').textContent=date(result.halfway);
+    el('durationLabel').textContent=`${hours}h ${minutes}m chosen duration`;
+    el('extensionLabel').textContent=result.extensions?`Snipe timer · closes ${time(result.deadline)}`:'No extensions';
+    const duration=hours*60+minutes;for(const button of el('presets').children)button.setAttribute('aria-pressed',String(Number(button.dataset.minutes)===duration));
+  } catch(error) {
+    result=null;el('error').textContent=error.message;el('error').hidden=false;
+    for(const id of ['closeTime','halfTime'])el(id).textContent='—';
+    for(const id of ['closeDate','halfDate','durationLabel','extensionLabel'])el(id).textContent='';
+  }
+  renderBids();
+}
+function renderBids() {
+  el('bidList').replaceChildren();
+  el('undoBid').hidden=bidTimes.length===0;
+}
+el('undoBid').addEventListener('click',()=>{bidTimes.pop();render();});
+function setSnipeActive(active) { el('snipeActive').setAttribute('aria-pressed',String(active)); el('snipeActive').textContent=active?'✓ Snipe timer active':'Snipe timer inactive'; }
+el('snipeActive').addEventListener('click',()=>{const active=el('snipeActive').getAttribute('aria-pressed')!=='true';if(active && !result){el('bidError').textContent='Enter valid auction setup before activating the snipe timer.';el('bidError').hidden=false;return;}refreshBidTime();setSnipeActive(active);if(active){bidTimes.push({time:el('bidTime').value,snipeActive:true,activation:true});el('bidError').hidden=true;}render();});
+el('rooms').addEventListener('click',event=>{const button=event.target.closest('[data-room]');if(!button)return;roomHours=Number(button.dataset.room);for(const b of el('rooms').children)b.setAttribute('aria-pressed',String(b===button));updatePresets();setDuration(roomHours*60);});
+for(const id of ['durationHours','durationMinutes','startTime'])el(id).addEventListener('input',render);
+function refreshBidTime() { if (!manualBidTime && document.activeElement !== el('bidTime')) el('bidTime').value=localInput(new Date()); }
+el('bidTime').addEventListener('input',()=>{manualBidTime=true;});
+el('bidForm').addEventListener('submit',event=>{event.preventDefault();refreshBidTime();if(!result){el('bidError').textContent='Enter valid auction setup before adding bids.';el('bidError').hidden=false;return;}const value=el('bidTime').value;if(!value||!Number.isFinite(new Date(value).getTime())){el('bidError').textContent='Enter a valid bid date and time.';el('bidError').hidden=false;return;}bidTimes.push({time:value,snipeActive:el('snipeActive').getAttribute('aria-pressed')==='true'});el('bidError').hidden=true;render();});
+el('reset').addEventListener('click',()=>{bidTimes=[];manualBidTime=false;setSnipeActive(false);el('bidError').hidden=true;el('startTime').value=localInput(new Date());refreshBidTime();setDuration(roomHours*60);});
+el('startTime').value=localInput(new Date());el('bidTime').value=el('startTime').value;refreshBidTime();updatePresets();render();setInterval(refreshBidTime,1000);setInterval(()=>{if(result)render();},30000);
+
+</script>
+<script>
+(function(root){
+  function validateBid({start,increment,bid,current=null,split=false,incrementBid=0,currentIncrement=null}){
+    if(!Number.isSafeInteger(start)||start<1||!Number.isSafeInteger(increment)||increment<1) return {valid:false,message:'Starting bid and increment must be positive whole numbers.'};
+    if(!Number.isSafeInteger(bid)||bid<start) return {valid:false,message:'Bid must meet the starting amount.'};
+    const amount=split?incrementBid:bid-start;
+    if(split&&bid!==start)return {valid:false,message:'Split bids must keep the starting payment unchanged.'};
+    if(!Number.isSafeInteger(amount)||amount<0||amount%increment!==0)return {valid:false,message:'Bid does not follow the increment baseline.'};
+    if((split&&currentIncrement!==null&&amount<=currentIncrement)||(!split&&current!==null&&bid<=current))return {valid:false,message:'Bid must exceed the current bid.'};
+    return {valid:true,message:'Valid bid.',next:split?amount+increment:bid+increment};
+  }
+  root.AuctionBidding={validateBid};if(typeof module!=='undefined')module.exports=root.AuctionBidding;
+})(typeof window!=='undefined'?window:globalThis);
+
+</script>
+<script>
+'use strict';
+(()=>{
+const get=id=>document.getElementById(id);let current=null,currentIncrement=null;
+const number=id=>get(id).value===''?NaN:Number(get(id).value);
+function setup(){return {start:number('bidStart'),increment:number('bidIncrement'),bid:number('candidateBid'),incrementBid:number('candidateIncrement'),split:get('splitPayment').checked,current,currentIncrement};}
+function payment(base,extra=0){return get('splitPayment').checked?`${base.toLocaleString()}  + ${extra.toLocaleString()} `:`${base.toLocaleString()} `;}
+function refresh(){const s=setup();get('candidateIncrementField').hidden=!s.split;get('bidBaseline').textContent=s.split?`Starting amount stays ${s.start.toLocaleString()}; separate increment amounts: ${[0,1,2,3].map(n=>n*s.increment).join(", ")}…`:`Valid amounts: ${[0,1,2,3].map(n=>s.start+n*s.increment).join(', ')}…`;}
+
+function check(){const r=AuctionBidding.validateBid(setup());const box=get('bidValidation');box.hidden=false;box.textContent=r.valid?'✓':'✕';box.className='bid-result '+(r.valid?'valid':'invalid');box.setAttribute('aria-label',r.message);box.title=r.message;return r;}
+for(const id of ['bidStart','bidIncrement','splitPayment'])get(id).addEventListener('input',()=>{current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
+for(const id of ['candidateBid','candidateIncrement'])get(id).addEventListener('input',()=>{get('bidValidation').hidden=true;});
+get('resetBids').addEventListener('click',()=>{get('bidStart').value=1;get('bidIncrement').value=1000;get('candidateBid').value=1;get('candidateIncrement').value=0;get('splitPayment').checked=false;current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
+get('checkBid').addEventListener('click',check);refresh();
+})();
+
+</script>
+<script>
+function refreshThemeControls(){const dark=document.documentElement.dataset.theme==='dark';document.getElementById('themeToggle').textContent=dark?'Light mode':'Dark mode';document.getElementById('systemTheme').hidden=!window.BLACKSMITH_THEME.preference;}
+document.getElementById('themeToggle').addEventListener('click',()=>window.BLACKSMITH_THEME.set(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+document.getElementById('systemTheme').addEventListener('click',()=>window.BLACKSMITH_THEME.set(null));window.addEventListener('blacksmith-theme-change',refreshThemeControls);refreshThemeControls();
+</script>
+</body>
+</html>
