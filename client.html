@@ -58,6 +58,18 @@ input::placeholder{color:#595959;opacity:1}a:focus-visible{outline:2px solid var
 :root[data-theme=dark] .payment-error{color:#ffb4aa}
 .theme-controls{display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0}.theme-controls .btn{white-space:nowrap}.theme-controls .system-theme{font-size:12px;padding:5px 10px;min-height:32px}.theme-controls .mode-tag{margin-bottom:4px}
 @media(max-width:760px){.masthead{flex-wrap:wrap}.theme-controls{flex-direction:row;align-items:center;flex-wrap:wrap}.theme-controls .system-theme{min-height:44px}}
+
+/* Keep dropdown arrows clear of the border and option text. */
+select.form-select{
+  appearance:none;-webkit-appearance:none;
+  padding-right:42px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23595959' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;background-size:16px 16px;
+}
+:root[data-theme=dark] select.form-select{
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3E%3Cpath d='M3 6l5 5 5-5' fill='none' stroke='%23c7c7c7' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+@media(forced-colors:active){select.form-select{appearance:auto;background-image:none}}
 </style>
 </head>
 
