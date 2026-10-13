@@ -469,11 +469,11 @@ Trader: <@1303790610620350587>`;
   const heading = body.querySelector("h1");
   const masthead = document.createElement("header");
   masthead.className = "masthead";
-  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Build & manage orders" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="mode-tag">${internal ? "Internal workspace" : "Customer calculator"}</span>`;
+  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Build & manage orders" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div>`;
   heading.replaceWith(masthead);
   const themeControls=document.createElement('div');themeControls.className='theme-controls';
   themeControls.innerHTML='<button type="button" class="btn btn-secondary" id="themeToggle">Dark mode</button><button type="button" class="btn btn-secondary system-theme" id="systemTheme">Use device theme</button>';
-  themeControls.prepend(masthead.querySelector('.mode-tag'));masthead.append(themeControls);
+  masthead.append(themeControls);
   function refreshThemeControls(){const dark=document.documentElement.dataset.theme==='dark';document.getElementById('themeToggle').textContent=dark?'Light mode':'Dark mode';document.getElementById('themeToggle').setAttribute('aria-label',dark?'Switch to light mode':'Switch to dark mode');document.getElementById('systemTheme').hidden=!window.BLACKSMITH_THEME.preference;}
   document.getElementById('themeToggle').addEventListener('click',()=>window.BLACKSMITH_THEME.set(document.documentElement.dataset.theme==='dark'?'light':'dark'));
   document.getElementById('systemTheme').addEventListener('click',()=>window.BLACKSMITH_THEME.set(null));window.addEventListener('blacksmith-theme-change',refreshThemeControls);refreshThemeControls();
