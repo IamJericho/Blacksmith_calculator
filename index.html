@@ -727,6 +727,15 @@ Ideal CC: ${result.CC.ideal}`;
     catalog.append(panel);panels.push(panel);
     const button=document.createElement("button");button.type="button";button.className="catalog-tab";button.textContent=label.replace("Equipment – ","");button.dataset.group=id;button.setAttribute("aria-pressed",panels.length===1?"true":"false");tabs.append(button);
   }
+  // One browsing tab; recipes, selectors, stock limits and summaries keep their tiers.
+  const cursedPanels=panels.filter(panel=>['cursed1','cursed2'].includes(panel.dataset.group));
+  if(cursedPanels.length){
+    const combined=document.createElement('section');combined.dataset.group='cursed';combined.className='cursed-gear-group';
+    for(const panel of cursedPanels){combined.append(panel);panels.splice(panels.indexOf(panel),1);}
+    catalog.append(combined);panels.push(combined);
+    for(const button of [...tabs.children])if(['cursed1','cursed2'].includes(button.dataset.group))button.remove();
+    const button=document.createElement('button');button.type='button';button.className='catalog-tab';button.dataset.group='cursed';button.textContent='Cursed Gear';button.setAttribute('aria-pressed','false');tabs.append(button);
+  }
   const empty=document.createElement("p");empty.className="empty-results";empty.textContent="No matching items. Try another search or category.";empty.hidden=true;catalog.append(empty);
   const aside=document.createElement("aside");aside.className="order-panel";aside.id="orderPanel";aside.setAttribute("aria-label","Order controls");
   aside.innerHTML='<div class="order-heading"><h2>Your order</h2><span class="order-count">0 items</span></div><div class="basket"><p class="empty-basket">Select an item to start your order.</p></div>';
