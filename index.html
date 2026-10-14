@@ -839,9 +839,17 @@ Ideal CC: ${result.CC.ideal}`;
 
 </script>
 <script>
+window.formatBlacksmithItemList=function(entries){
+  const groups={regular:'Saddles',platform:'Saddles',teksaddles:'Saddles',tier1:'Equipment',tier2:'Tier 2',cursed1:'Cursed Tier 1',cursed2:'Cursed Tier 2'};
+  const sections=new Map();
+  for(const {select,quantity} of entries){const heading=groups[select.dataset.group];if(!sections.has(heading))sections.set(heading,[]);sections.get(heading).push(`${quantity} ${select.dataset.name.replace('|',' – ')}`);}
+  return [...sections].map(([heading,lines])=>heading+'\n'+lines.join('\n')).join('\n\n');
+};
+</script>
+<script>
 (function(){
   const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
-  function parseOrders(text,items,plainTier="cursed2"){
+  function parseOrders(text,items){
     const cleaned=text.replace(/\*\*|`/g,'');
     const orders=[...cleaned.matchAll(/\bOrder\s*:\s*([\s\S]*?)(?=\b(?:Payment|Total Items|Trader|Name|Reinforced?|Delivery)\s*(?::|(?=\s))|$)/gi)];
     const bodies=orders.length?orders.map(match=>match[1]):[cleaned];
@@ -862,7 +870,6 @@ Ideal CC: ${result.CC.ideal}`;
         for(const entry of entries){
           const quantity=Number(entry[1].replace(/,/g,'')),name=normalize(entry[2]);
           let matches=items.filter(item=>(!group||(group==='saddle'?['regular','platform','teksaddles'].includes(item.group):item.group===group))&&item.aliases.some(alias=>alias===name||({ 'cross bows':'cross bow','crossbow':'cross bow','crossbows':'cross bow','longneck':'longneck rifle','pump':'pump shotgun' }[name]===alias)));
-          if(matches.length>1&&!group&&!orders.length)matches=matches.filter(item=>item.group===plainTier);
           if(matches.length!==1||!Number.isSafeInteger(quantity)||quantity<1){errors.push(entry[0].trim());continue;}
           const item=matches[0];totals.set(item.key,(totals.get(item.key)||0)+quantity);
         }
@@ -873,20 +880,20 @@ Ideal CC: ${result.CC.ideal}`;
   window.parsePastedBlacksmithOrders=parseOrders;
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const box=document.createElement('div');box.className='output order-import';
-  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><label class="form-label" for="plainOrderTier">Tier for repeated equipment names in plain lists</label><select id="plainOrderTier" class="form-select"><option value="cursed2">Cursed Tier 2</option><option value="cursed1">Cursed Tier 1</option><option value="tier2">Tier 2</option><option value="tier1">Equipment / Tier 1</option></select><p class="note">Full orders use their category headings. Plain lists use this tier only when a name appears in multiple categories.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
+  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
   tools.querySelector('h2').after(box);
   document.getElementById('importOrders').addEventListener('click',()=>{
     const text=document.getElementById('pastedOrders').value.trim(),status=document.getElementById('importOrderStatus');
     if(!text){status.textContent='Paste an order first.';return;}
     const selects=[...document.querySelectorAll('select[data-group]')];
     const items=selects.map((select,key)=>{const [category,name]=select.dataset.name.split('|');return {key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(name||category)]};});
-    const result=parseOrders(text,items,document.getElementById('plainOrderTier').value);
+    const result=parseOrders(text,items);
     if(result.errors.length){status.textContent='Nothing added. Check these unrecognized or ambiguous items:\n'+result.errors.join('\n');return;}
     if(!result.totals.size){status.textContent='No order items found.';return;}
     for(const [key,quantity] of result.totals){const select=selects[key],max=Number(select.options[select.options.length-1].value);if(Number(select.value)+quantity>max){status.textContent=`Nothing added. ${select.dataset.name.split('|').pop()} exceeds the ${max}-item limit including your current order.`;return;}}
     let count=0;const lines=[];
-    for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push(`${quantity} ${select.dataset.name.split('|').pop()}`);}
-    status.textContent=`Added ${count} items:\n`+lines.join('\n');document.getElementById('pastedOrders').value='';
+    for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push({select,quantity});}
+    status.textContent=`Added ${count} items:\n\n`+window.formatBlacksmithItemList(lines);document.getElementById('pastedOrders').value='';
   });
 })();
 
@@ -897,15 +904,21 @@ Ideal CC: ${result.CC.ideal}`;
   const selects=[...document.querySelectorAll('select[data-group]')];
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const id=select=>select.dataset.group+'|'+select.dataset.name;
-  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
+  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy remaining items</button><pre id="remainingItemList"></pre><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
   document.querySelector('.order-import').after(section);
   const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
+  document.getElementById('copyRemainingItems').addEventListener('click',async()=>{
+    const text=document.getElementById('remainingItemList').textContent;
+    if(!text){status.textContent='No remaining items to copy.';return;}
+    try{await navigator.clipboard.writeText(text);status.textContent='Copied remaining items with categories.';}catch(_){status.textContent='Copy unavailable. Select and copy the list above.';}
+  });
   let storageWorks=true;
   function save(){
-    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)])),draft:document.getElementById('pastedOrders').value,plainTier:document.getElementById('plainOrderTier').value}));status.textContent='Saved in this browser.';}
+    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)])),draft:document.getElementById('pastedOrders').value}));status.textContent='Saved in this browser.';}
     catch(_){storageWorks=false;status.textContent='Browser storage is unavailable. These items will not survive a refresh.';}
   }
   function render(){
+    document.getElementById('remainingItemList').textContent=window.formatBlacksmithItemList(selects.filter(select=>Number(select.value)>0).map(select=>({select,quantity:Number(select.value)})));
     list.replaceChildren();
     for(const select of selects){
       const quantity=Number(select.value);if(!quantity)continue;
@@ -924,12 +937,10 @@ Ideal CC: ${result.CC.ideal}`;
     const saved=JSON.parse(localStorage.getItem(key)||'null');
     if(saved&&saved.items&&typeof saved.items==='object'){
       for(const select of selects){const quantity=saved.items[id(select)],max=Number(select.options[select.options.length-1].value);if(Number.isInteger(quantity)&&quantity>=0&&quantity<=max){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}}
-      if(['cursed2','cursed1','tier2','tier1'].includes(saved.plainTier))document.getElementById('plainOrderTier').value=saved.plainTier;
       if(typeof saved.draft==='string')document.getElementById('pastedOrders').value=saved.draft;
     }
   }catch(_){storageWorks=false;status.textContent='Could not restore saved items. Browser storage may be unavailable.';}
   document.addEventListener('change',event=>{if(event.target.matches('select[data-group]')){save();render();}});
-  document.getElementById('plainOrderTier').addEventListener('change',save);
   document.getElementById('pastedOrders').addEventListener('input',save);
   document.getElementById('importOrders').addEventListener('click',save);
   const originalReset=window.resetAll;window.resetAll=function(){originalReset();document.getElementById('pastedOrders').value='';document.getElementById('importOrderStatus').textContent='';save();render();};
