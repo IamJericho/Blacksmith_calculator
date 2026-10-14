@@ -783,6 +783,7 @@ Ideal CC: ${result.CC.ideal}`;
     const materials=new Set(['I','ED','RE','RS']);
     function collect(value){if(!value||typeof value!=='object')return;for(const [key,child] of Object.entries(value)){if(key==='materials'){for(const code of Object.keys(child))if(!['D','J','Q'].includes(code))materials.add(code);}else collect(child);}}
     collect(BLACKSMITH.saddles);collect(BLACKSMITH.equipment);collect(BLACKSMITH.cursed);
+    materials.delete('MB');materials.delete('PM');
     for(const code of [...materials].sort((a,b)=>(inventoryNames[a]||a).localeCompare(inventoryNames[b]||b))){
       const name=inventoryNames[code]||code;
       const row=document.createElement('div');row.className='inventory-material';row.dataset.material=(name+' '+code).toLowerCase();
