@@ -779,8 +779,8 @@ Ideal CC: ${result.CC.ideal}`;
     const storageKey='blacksmith-material-inventory-v1';let quantities={};
     const status=inventory.querySelector('#inventoryStatus');
     try{const saved=JSON.parse(localStorage.getItem(storageKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))quantities=saved;}catch(_){status.textContent='Could not load saved inventory.';}
-    const inventoryNames={...BLACKSMITH.materialsKey,I:'Element',ED:'Element Dust',RE:'Red Element',RS:'Red Shards'};
-    const materials=new Set(['I','ED','RE','RS']);
+    const inventoryNames={...BLACKSMITH.materialsKey,I:'Element',ED:'Element Dust',RE:'Red Element',RS:'Red Shards',SAP:'Sap',OIL:'Oil'};
+    const materials=new Set(['I','ED','RE','RS','SAP','OIL']);
     function collect(value){if(!value||typeof value!=='object')return;for(const [key,child] of Object.entries(value)){if(key==='materials'){for(const code of Object.keys(child))if(!['D','J','Q'].includes(code))materials.add(code);}else collect(child);}}
     collect(BLACKSMITH.saddles);collect(BLACKSMITH.equipment);collect(BLACKSMITH.cursed);
     materials.delete('MB');materials.delete('PM');
