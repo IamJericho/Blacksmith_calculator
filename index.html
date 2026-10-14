@@ -34,6 +34,7 @@ select.form-select{
 @media(forced-colors:active){select.form-select{appearance:auto;background-image:none}}
 textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .remaining-item{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}@media(max-width:600px){.remaining-item{grid-template-columns:1fr 80px}.remaining-item span{grid-column:1/-1}}
+.masthead{flex-wrap:wrap}.internal-page-nav{display:flex;gap:10px;flex-wrap:wrap}.internal-page-nav a{text-decoration:none}
 </style>
 </head>
 
@@ -705,6 +706,7 @@ Ideal CC: ${result.CC.ideal}`;
   const masthead = document.createElement("header");
   masthead.className = "masthead";
   masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Build & manage orders" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="mode-tag">${internal ? "Internal workspace" : "Customer calculator"}</span>`;
+  const pageNav=document.createElement('nav');pageNav.className='internal-page-nav';pageNav.setAttribute('aria-label','Blacksmith pages');pageNav.innerHTML='<a class="btn btn-secondary" href="client.html">Client page</a><a class="btn btn-secondary" href="auction.html">Auction page</a>';masthead.append(pageNav);
   heading.replaceWith(masthead);
   const workspace = document.createElement("main"); workspace.className = "workspace";workspace.id="calculatorWorkspace";workspace.tabIndex=-1;
   const skip=document.createElement("a");skip.className="skip-link";skip.href="#calculatorWorkspace";skip.textContent="Skip to calculator";body.prepend(skip);
