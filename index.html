@@ -928,7 +928,7 @@ window.formatBlacksmithItemList=function(entries){
   });
   let storageWorks=true;
   function save(){
-    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]))}));status.textContent='Saved in this browser.';}
+    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]))}));status.textContent='';}
     catch(_){storageWorks=false;status.textContent='Browser storage is unavailable. These items will not survive a refresh.';}
   }
   function render(){
@@ -946,7 +946,6 @@ window.formatBlacksmithItemList=function(entries){
       button.addEventListener('click',()=>{const completed=input.valueAsNumber,current=Number(select.value);if(!Number.isInteger(completed)||completed<1||completed>current)return;select.value=String(current-completed);select.dispatchEvent(new Event('change',{bubbles:true}));});
       row.append(name,input,button);list.append(row);
     }
-    if(!list.children.length){const empty=document.createElement('p');empty.className='note';empty.textContent='No remaining items.';list.append(empty);}
   }
   try{
     const saved=JSON.parse(localStorage.getItem(key)||'null');
