@@ -967,7 +967,7 @@ window.formatBlacksmithItemList=function(entries){
   window.parsePastedBlacksmithOrders=parseOrders;
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const box=document.createElement('div');box.className='output order-import';
-  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
+  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order. Named orders also create a separate customer message in Ready Orders.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
   tools.querySelector('h2').after(box);
   document.getElementById('importOrders').addEventListener('click',()=>{
     const text=document.getElementById('pastedOrders').value.trim(),status=document.getElementById('importOrderStatus');
@@ -978,9 +978,10 @@ window.formatBlacksmithItemList=function(entries){
     if(result.errors.length){status.textContent='Nothing added. Check these unrecognized or ambiguous items:\n'+result.errors.join('\n');return;}
     if(!result.totals.size){status.textContent='No order items found.';return;}
     for(const [key,quantity] of result.totals){const select=selects[key],max=Number(select.options[select.options.length-1].value);if(Number(select.value)+quantity>max){status.textContent=`Nothing added. ${select.dataset.name.split('|').pop()} exceeds the ${max}-item limit including your current order.`;return;}}
+    const ready=window.prepareBlacksmithReadyOrders(text);if(ready.error){status.textContent=ready.error;return;}
     let count=0;const lines=[];
     for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push({select,quantity});}
-    status.textContent=`Added ${count} items.`;document.getElementById('pastedOrders').value='';
+    status.textContent=`Added ${count} items.`+(ready.count?` Created ${ready.count} Ready Order${ready.count===1?'':'s'}.`:'');document.getElementById('pastedOrders').value='';
   });
 })();
 
@@ -1067,14 +1068,15 @@ window.formatBlacksmithItemList=function(entries){
     const copy=document.createElement('button');copy.type='button';copy.className='btn btn-primary';copy.textContent='Copy message';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(window.readyOrderMessage(order));get('readyOrdersStatus').textContent='Copied message for '+order.name;}catch(_){get('readyOrdersStatus').textContent='Copy unavailable. Select and copy the message.';}});
     const remove=document.createElement('button');remove.type='button';remove.className='btn btn-secondary';remove.textContent='Remove ready order';remove.addEventListener('click',()=>{orders=orders.filter(o=>o.id!==order.id);save();render();});card.append(copy,remove);get('readyOrderCards').append(card);
   }}
-  get('addReadyOrders').addEventListener('click',()=>{
-    const blocks=window.parseReadyOrderBlocks(get('readyOrdersPaste').value);if(!blocks.length){get('readyOrdersStatus').textContent='Paste orders containing Name: and Order: fields.';return;}
+  window.prepareBlacksmithReadyOrders=function(text){
+    const blocks=window.parseReadyOrderBlocks(text);if(!blocks.length)return {count:0};
     const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
     const items=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));const prepared=[];
-    for(const block of blocks){const parsed=window.parsePastedBlacksmithOrders(block.body,items);if(!block.name||!parsed.totals.size||parsed.errors.length){get('readyOrdersStatus').textContent='Nothing prepared. Check '+(block.name||'the customer name')+': '+(parsed.errors.join(', ')||'No order items found.');return;}
+    for(const block of blocks){const parsed=window.parsePastedBlacksmithOrders(block.body,items);if(!block.name||!parsed.totals.size||parsed.errors.length){return {error:'Nothing prepared. Check '+(block.name||'the customer name')+': '+(parsed.errors.join(', ')||'No order items found.')};}
       prepared.push({...block,id:crypto.randomUUID(),items:window.formatBlacksmithItemList([...parsed.totals].map(([key,quantity])=>({select:selects[key],quantity}))),count:[...parsed.totals.values()].reduce((a,b)=>a+b,0),room:get('roomSelect').value,vault:get('vaultSelect').value,pin:String(Math.floor(1000+Math.random()*9000))});}
-    orders.push(...prepared);save();render();get('readyOrdersPaste').value='';get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;
-  });render();
+    orders.push(...prepared);save();render();get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;return {count:prepared.length};
+  };
+  get('addReadyOrders').addEventListener('click',()=>{const result=window.prepareBlacksmithReadyOrders(get('readyOrdersPaste').value);if(result.error||!result.count){get('readyOrdersStatus').textContent=result.error||'Paste orders containing Name: and Order: fields.';return;}get('readyOrdersPaste').value='';});render();
 })();
 
 </script>
