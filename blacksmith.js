@@ -109,7 +109,7 @@ window.BLACKSMITH = {
       "Gallimimus": { materials: { F: 1364, M: 213, H: 2046, W: 1023 } },
       "Gasbags": { materials: { K: 1312, H: 3062, F: 1618 } },
       "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 } },
-      "Giganotosaurus": { materials: { F: 2929, M: 1004, H: 5690 } },
+      "Giganotosaurus": { materials: { H: 5492, F: 2827, M: 969 } },
       "Gigantoraptor": { materials: { F: 1495, M: 514, H: 2663, W: 1121 } },
 
       "Helicoprion": { materials: { F: 2220, M: 666, H: 3552 } },
