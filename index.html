@@ -37,6 +37,7 @@ textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outlin
 .masthead{flex-wrap:wrap}.internal-page-nav{display:flex;gap:10px;flex-wrap:wrap}.internal-page-nav a{text-decoration:none}
 .pasted-item-actions{display:inline-flex;gap:8px;flex-wrap:wrap;margin-left:8px}
 .inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:20px}.inventory-material{display:flex;flex-direction:column;gap:6px}.inventory-material span{font-size:13px}
+.inventory-material{border:1px solid var(--line);border-radius:10px;padding:16px;gap:12px}.inventory-material h3{margin:0;font-size:15px}.inventory-material label{display:flex;flex-direction:column;gap:6px;font-size:12px}.dedi-counter{display:grid;grid-template-columns:44px minmax(40px,1fr) 44px;align-items:center;gap:8px}.dedi-counter output{text-align:center;font-variant-numeric:tabular-nums}.dedi-counter button{font-size:22px;padding:0}
 </style>
 </head>
 
@@ -772,7 +773,7 @@ Ideal CC: ${result.CC.ideal}`;
   let inventory=null;
   if(internal){
     inventory=document.createElement('section');inventory.className='internal-tools';inventory.hidden=true;
-    inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the materials you have in stock. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
+    inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the amount in your partial dedi and count your full dedis. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
     catalog.append(inventory);
     const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='inventory';tab.textContent='Inventory materials';tab.setAttribute('aria-pressed','false');tabs.append(tab);
     const storageKey='blacksmith-material-inventory-v1';let quantities={};
@@ -783,14 +784,23 @@ Ideal CC: ${result.CC.ideal}`;
     collect(BLACKSMITH.saddles);collect(BLACKSMITH.equipment);collect(BLACKSMITH.cursed);
     for(const code of [...materials].sort((a,b)=>(BLACKSMITH.materialsKey[a]||a).localeCompare(BLACKSMITH.materialsKey[b]||b))){
       const name=BLACKSMITH.materialsKey[code]||code;
-      const row=document.createElement('label');row.className='inventory-material';row.dataset.material=name.toLowerCase();
-      const label=document.createElement('span');label.textContent=name;
-      const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.inputMode='numeric';input.className='form-control';input.value=String(Number.isSafeInteger(quantities[code])&&quantities[code]>=0?quantities[code]:0);input.setAttribute('aria-label','Inventory quantity for '+name);
-      input.addEventListener('input',()=>{
-        const quantity=input.valueAsNumber;if(!Number.isSafeInteger(quantity)||quantity<0){input.setCustomValidity('Enter a whole number of 0 or more.');input.reportValidity();return;}input.setCustomValidity('');quantities[code]=quantity;
-        try{localStorage.setItem(storageKey,JSON.stringify(quantities));status.textContent='';}catch(_){status.textContent='Browser storage is unavailable. Inventory will not survive a refresh.';}
-      });
-      row.append(label,input);inventory.querySelector('#inventoryMaterials').append(row);
+      const row=document.createElement('div');row.className='inventory-material';row.dataset.material=(name+' '+code).toLowerCase();
+      const title=document.createElement('h3');title.textContent=name;
+      const stored=quantities[code];const safe=value=>Number.isSafeInteger(value)&&value>=0?value:0;
+      const stock={partial:safe(typeof stored==='number'?stored:stored?.partial),dedis:safe(stored?.dedis)};quantities[code]=stock;
+      function saveStock(){try{localStorage.setItem(storageKey,JSON.stringify(quantities));status.textContent='';}catch(_){status.textContent='Browser storage is unavailable. Inventory will not survive a refresh.';}}
+      const partialLabel=document.createElement('label');partialLabel.textContent='Partial dedi amount';
+      const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.inputMode='numeric';input.className='form-control';input.value=String(stock.partial);input.setAttribute('aria-label','Partial dedi amount for '+name);partialLabel.append(input);
+      input.addEventListener('input',()=>{const quantity=input.valueAsNumber;if(!Number.isSafeInteger(quantity)||quantity<0){input.setCustomValidity('Enter a whole number of 0 or more.');input.reportValidity();return;}input.setCustomValidity('');stock.partial=quantity;saveStock();});
+      const counterLabel=document.createElement('span');counterLabel.textContent='Full dedis';
+      const counter=document.createElement('div');counter.className='dedi-counter';
+      const minus=document.createElement('button');minus.type='button';minus.className='btn btn-secondary';minus.textContent='−';minus.setAttribute('aria-label','Remove a full dedi of '+name);
+      const count=document.createElement('output');count.setAttribute('aria-label','Full dedis of '+name);count.setAttribute('aria-live','polite');
+      const plus=document.createElement('button');plus.type='button';plus.className='btn btn-secondary';plus.textContent='+';plus.setAttribute('aria-label','Add a full dedi of '+name);
+      function sync(){count.textContent=String(stock.dedis);minus.disabled=stock.dedis===0;plus.disabled=stock.dedis===Number.MAX_SAFE_INTEGER;}
+      minus.addEventListener('click',()=>{if(stock.dedis>0){stock.dedis--;sync();saveStock();}});plus.addEventListener('click',()=>{if(stock.dedis<Number.MAX_SAFE_INTEGER){stock.dedis++;sync();saveStock();}});sync();
+      counter.append(minus,count,plus);row.append(title,partialLabel,counterLabel,counter);inventory.querySelector('#inventoryMaterials').append(row);
+
     }
     inventory.querySelector('#inventorySearch').addEventListener('input',event=>{const query=event.target.value.trim().toLowerCase();for(const row of inventory.querySelectorAll('.inventory-material'))row.hidden=!row.dataset.material.includes(query);});
   }
