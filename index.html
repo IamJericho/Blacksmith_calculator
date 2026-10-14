@@ -35,6 +35,7 @@ select.form-select{
 textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
 .remaining-item{display:grid;grid-template-columns:minmax(0,1fr) 90px auto;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}@media(max-width:600px){.remaining-item{grid-template-columns:1fr 80px}.remaining-item span{grid-column:1/-1}}
 .masthead{flex-wrap:wrap}.internal-page-nav{display:flex;gap:10px;flex-wrap:wrap}.internal-page-nav a{text-decoration:none}
+.pasted-item-actions{display:inline-flex;gap:8px;flex-wrap:wrap;margin-left:8px}
 </style>
 </head>
 
@@ -904,7 +905,7 @@ window.formatBlacksmithItemList=function(entries){
     for(const [key,quantity] of result.totals){const select=selects[key],max=Number(select.options[select.options.length-1].value);if(Number(select.value)+quantity>max){status.textContent=`Nothing added. ${select.dataset.name.split('|').pop()} exceeds the ${max}-item limit including your current order.`;return;}}
     let count=0;const lines=[];
     for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push({select,quantity});}
-    status.textContent=`Added ${count} items:\n\n`+window.formatBlacksmithItemList(lines);document.getElementById('pastedOrders').value='';
+    status.textContent=`Added ${count} items.`;document.getElementById('pastedOrders').value='';
   });
 })();
 
@@ -915,8 +916,10 @@ window.formatBlacksmithItemList=function(entries){
   const selects=[...document.querySelectorAll('select[data-group]')];
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const id=select=>select.dataset.group+'|'+select.dataset.name;
-  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy remaining items</button><button type="button" class="btn btn-secondary" id="completeAllItems">Complete all</button><pre id="remainingItemList"></pre><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
-  document.querySelector('.order-import').after(section);
+  const section=document.querySelector('.order-import');
+  const actions=document.createElement('div');actions.className='pasted-item-actions';actions.innerHTML='<button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy items</button><button type="button" class="btn btn-secondary" id="completeAllItems">Complete all</button>';
+  document.getElementById('importOrders').after(actions);
+  const content=document.createElement('div');content.innerHTML='<pre id="remainingItemList"></pre><details><summary>Complete individual items</summary><div id="remainingItems"></div></details><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';section.append(content);
   const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
   document.getElementById('copyRemainingItems').addEventListener('click',async()=>{
     const text=document.getElementById('remainingItemList').textContent;
