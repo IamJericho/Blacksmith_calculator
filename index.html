@@ -772,7 +772,7 @@ Ideal CC: ${result.CC.ideal}`;
   for(const label of document.querySelectorAll('label')){const container=label.parentElement;const control=container.querySelector('select[id],input[id]');if(control)label.htmlFor=control.id;}
   for(const control of document.querySelectorAll('select,input')){if(!control.getAttribute('aria-label')&&!control.labels?.length){const heading=control.parentElement.querySelector('h2,h3');if(heading)control.setAttribute('aria-label',heading.textContent);}}
   if(!internal){const cost=document.createElement('div');cost.className='order-cost';cost.setAttribute('aria-live','polite');aside.querySelector('.order-heading').after(cost);}
-  let inventory=null,restock=null,readyOrders=null;
+  let inventory=null,restock=null,readyOrders=null,dataStorage=null;
   if(internal){
     inventory=document.createElement('section');inventory.className='internal-tools';inventory.hidden=true;
     inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the amount in your partial dedi and count your full dedis. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
@@ -832,7 +832,8 @@ Ideal CC: ${result.CC.ideal}`;
   }
 
   if(internal){readyOrders=document.createElement('section');readyOrders.id='readyOrdersPanel';readyOrders.className='internal-tools';readyOrders.hidden=true;catalog.append(readyOrders);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='ready-orders';tab.textContent='Ready Orders';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
-  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders'};
+  if(internal){dataStorage=document.createElement('section');dataStorage.id='dataStoragePanel';dataStorage.className='internal-tools';dataStorage.hidden=true;catalog.append(dataStorage);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='data-storage';tab.textContent='Data storage';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
+  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders','data-storage':'data-storage'};
   const availableTabs=[...tabs.querySelectorAll('button[data-group]')];
   function groupFromHash(){const hash=window.location.hash.slice(1);return availableTabs.find(tab=>tabHashes[tab.dataset.group]===hash)?.dataset.group;}
   let active=groupFromHash()||panels[0]?.dataset.group;let selectedOnly=false;
@@ -858,8 +859,9 @@ Ideal CC: ${result.CC.ideal}`;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
     const restockActive=active === "restock";if(restock)restock.hidden=!restockActive;
     const readyActive=active==='ready-orders';if(readyOrders)readyOrders.hidden=!readyActive;
-    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive||readyActive;
-    empty.hidden=toolsActive || inventoryActive || restockActive || readyActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
+    const dataActive=active==='data-storage';if(dataStorage)dataStorage.hidden=!dataActive;
+    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive||readyActive||dataActive;
+    empty.hidden=toolsActive || inventoryActive || restockActive || readyActive || dataActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
     if(count===0){const p=document.createElement("p");p.className="empty-basket";p.textContent="Select an item to start your order.";basket.append(p);}
   }
   function activateTab(group){active=group;search.value='';selectedOnly=false;selectedButton.setAttribute('aria-pressed','false');syncTabSelection();refresh();}
@@ -1097,6 +1099,41 @@ window.formatBlacksmithItemList=function(entries){
     orders.push(...prepared);save();render();get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;return {count:prepared.length};
   };
   get('addReadyOrders').addEventListener('click',()=>{const result=window.prepareBlacksmithReadyOrders(get('readyOrdersPaste').value);if(result.error||!result.count){get('readyOrdersStatus').textContent=result.error||'Paste orders containing Name: and Order: fields.';return;}get('readyOrdersPaste').value='';});render();
+})();
+
+</script>
+<script>
+(function setupDataStorage(){
+  const panel=document.getElementById('dataStoragePanel');if(!panel)return;
+  const keys=['blacksmith-material-inventory-v1','blacksmith-internal-items-v1','blacksmith-ready-orders-v1','blacksmith-occupied-pickup-locations-v1','blacksmith-restock-total-minimums-v2'];
+  const get=id=>document.getElementById(id);let handle=null,timer=null,writing=Promise.resolve(),restoring=false;
+  panel.innerHTML='<h2>Data storage</h2><p class="note">Keep a JSON backup file outside browser site data. It includes inventory, crafting items, Ready Orders, occupied locations, and restock settings. Clearing site data does not delete a file you saved to your computer.</p><div class="row"><button class="btn btn-primary" id="createDataFile" type="button">Create connected file</button><button class="btn btn-secondary" id="openDataFile" type="button">Connect / restore existing file</button><button class="btn btn-secondary" id="saveDataFile" type="button">Save file now</button><button class="btn btn-secondary" id="disconnectDataFile" type="button">Disconnect file</button></div><p class="note">Connected files update automatically after changes. After clearing site data, connect your existing file again to restore it. File access must be supported by your browser.</p><div class="row"><button class="btn btn-secondary" id="downloadDataBackup" type="button">Download backup</button><label class="btn btn-secondary">Restore backup<input id="restoreDataBackup" type="file" accept=".json,application/json" hidden></label></div><p class="note">Downloaded backups are snapshots; download a new one after changes. Restoring a file replaces current saved data.</p><p id="dataFileConnection" role="status"></p><p id="dataFileStatus" role="status" aria-live="polite"></p>';
+  const status=get('dataFileStatus');
+  function snapshot(){const data={};for(const key of keys){const raw=localStorage.getItem(key);if(raw!==null)data[key]=JSON.parse(raw);}return {format:'blacksmith-data',version:1,savedAt:new Date().toISOString(),data};}
+  window.validateBlacksmithBackup=function(value){
+    if(!value||value.format!=='blacksmith-data'||value.version!==1||!value.data||typeof value.data!=='object'||Array.isArray(value.data))throw new Error('This is not a supported Blacksmith backup.');
+    for(const [key,data] of Object.entries(value.data)){if(!keys.includes(key))throw new Error('Backup contains an unknown data section.');const arrayKey=key==='blacksmith-ready-orders-v1'||key==='blacksmith-occupied-pickup-locations-v1';if(!data||typeof data!=='object'||Array.isArray(data)!==arrayKey)throw new Error('Invalid data in '+key);}
+    return value;
+  };
+  function connection(){get('dataFileConnection').textContent=handle?'Connected: '+handle.name+' · automatic file saving enabled':'No file connected. Browser storage alone can be erased by clearing site data.';get('saveDataFile').disabled=!handle;get('disconnectDataFile').disabled=!handle;}
+  function rememberHandle(value){return new Promise((resolve,reject)=>{const request=indexedDB.open('blacksmith-data-file',1);request.onupgradeneeded=()=>request.result.createObjectStore('handles');request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,tx=db.transaction('handles','readwrite');if(value)tx.objectStore('handles').put(value,'active');else tx.objectStore('handles').delete('active');tx.oncomplete=()=>{db.close();resolve();};tx.onerror=()=>{db.close();reject(tx.error);};};});}
+  function readHandle(){return new Promise((resolve,reject)=>{const request=indexedDB.open('blacksmith-data-file',1);request.onupgradeneeded=()=>request.result.createObjectStore('handles');request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,tx=db.transaction('handles','readonly'),result=tx.objectStore('handles').get('active');result.onsuccess=()=>resolve(result.result||null);result.onerror=()=>reject(result.error);tx.oncomplete=()=>db.close();};});}
+  function writeFile(){const target=handle;if(!target)return Promise.resolve();writing=writing.catch(()=>{}).then(async()=>{if(target!==handle)return;const contents=JSON.stringify(snapshot(),null,2);const stream=await target.createWritable();try{await stream.write(contents);await stream.close();status.textContent='File saved at '+new Date().toLocaleTimeString();}catch(error){try{await stream.abort();}catch(_){}throw error;}}).catch(error=>{status.textContent='File was not saved: '+error.message+'. Reconnect the file or download a backup.';});return writing;}
+  function schedule(){if(restoring||!handle)return;clearTimeout(timer);status.textContent='Saving file…';timer=setTimeout(writeFile,300);}
+  const originalSet=Storage.prototype.setItem,originalRemove=Storage.prototype.removeItem;
+  Storage.prototype.setItem=function(key,value){originalSet.call(this,key,value);if(this===localStorage&&keys.includes(key))schedule();};
+  Storage.prototype.removeItem=function(key){originalRemove.call(this,key);if(this===localStorage&&keys.includes(key))schedule();};
+  window.addEventListener('storage',event=>{if(keys.includes(event.key))schedule();});
+  async function restore(contents){const backup=window.validateBlacksmithBackup(JSON.parse(contents));const previous=new Map(keys.map(key=>[key,localStorage.getItem(key)]));restoring=true;try{for(const key of keys){if(Object.hasOwn(backup.data,key))originalSet.call(localStorage,key,JSON.stringify(backup.data[key]));else originalRemove.call(localStorage,key);}}catch(error){for(const [key,value] of previous){if(value===null)originalRemove.call(localStorage,key);else originalSet.call(localStorage,key,value);}restoring=false;throw error;}location.reload();}
+  get('createDataFile').addEventListener('click',async()=>{try{const chosen=await window.showSaveFilePicker({suggestedName:'blacksmith-data.json',types:[{description:'Blacksmith JSON backup',accept:{'application/json':['.json']}}]});handle=chosen;connection();try{await rememberHandle(handle);}catch(_){}await writeFile();}catch(error){if(error.name!=='AbortError')status.textContent=error.message;}});
+  get('openDataFile').addEventListener('click',async()=>{try{const [chosen]=await window.showOpenFilePicker({multiple:false,types:[{description:'Blacksmith JSON backup',accept:{'application/json':['.json']}}]});const contents=await (await chosen.getFile()).text();window.validateBlacksmithBackup(JSON.parse(contents));if(await chosen.requestPermission({mode:'readwrite'})!=='granted')throw new Error('Write access is needed for automatic updates. Use Restore backup for read-only restoration.');await rememberHandle(chosen);handle=chosen;await restore(contents);}catch(error){if(error.name!=='AbortError')status.textContent='Could not connect: '+error.message;}});
+  get('saveDataFile').addEventListener('click',()=>{clearTimeout(timer);writeFile();});
+  get('disconnectDataFile').addEventListener('click',async()=>{clearTimeout(timer);await writeFile();handle=null;try{await rememberHandle(null);}catch(_){}connection();});
+  get('downloadDataBackup').addEventListener('click',()=>{try{const blob=new Blob([JSON.stringify(snapshot(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob),link=document.createElement('a');link.href=url;link.download='blacksmith-data-'+new Date().toISOString().replace(/[:.]/g,'-')+'.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);status.textContent='Backup downloaded. Keep it somewhere safe and download updated copies after changes.';}catch(error){status.textContent=error.message;}});
+  get('restoreDataBackup').addEventListener('change',async event=>{const file=event.target.files[0];if(!file)return;try{if(handle){await rememberHandle(null);handle=null;}await restore(await file.text());}catch(error){restoring=false;status.textContent='Could not restore: '+error.message;}event.target.value='';});
+  if(!window.showSaveFilePicker||!window.showOpenFilePicker){get('createDataFile').disabled=true;get('openDataFile').disabled=true;status.textContent='This browser does not support connected files. Use Download backup and Restore backup, or open production in a browser with file access support.';}
+  connection();
+  readHandle().then(async saved=>{if(!saved)return;if(await saved.queryPermission({mode:'readwrite'})==='granted'){handle=saved;connection();status.textContent='Connected file restored. Future changes will save automatically.';}else status.textContent='Reconnect your saved file to restore write access.';}).catch(()=>{});
 })();
 
 </script>
