@@ -772,7 +772,7 @@ Ideal CC: ${result.CC.ideal}`;
   for(const label of document.querySelectorAll('label')){const container=label.parentElement;const control=container.querySelector('select[id],input[id]');if(control)label.htmlFor=control.id;}
   for(const control of document.querySelectorAll('select,input')){if(!control.getAttribute('aria-label')&&!control.labels?.length){const heading=control.parentElement.querySelector('h2,h3');if(heading)control.setAttribute('aria-label',heading.textContent);}}
   if(!internal){const cost=document.createElement('div');cost.className='order-cost';cost.setAttribute('aria-live','polite');aside.querySelector('.order-heading').after(cost);}
-  let inventory=null,restock=null;
+  let inventory=null,restock=null,readyOrders=null;
   if(internal){
     inventory=document.createElement('section');inventory.className='internal-tools';inventory.hidden=true;
     inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the amount in your partial dedi and count your full dedis. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
@@ -831,7 +831,8 @@ Ideal CC: ${result.CC.ideal}`;
     inventory.querySelector('#inventorySearch').addEventListener('input',event=>{const query=event.target.value.trim().toLowerCase();for(const row of inventory.querySelectorAll('.inventory-material'))row.hidden=!row.dataset.material.includes(query);});
   }
 
-  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock'};
+  if(internal){readyOrders=document.createElement('section');readyOrders.id='readyOrdersPanel';readyOrders.className='internal-tools';readyOrders.hidden=true;catalog.append(readyOrders);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='ready-orders';tab.textContent='Ready Orders';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
+  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders'};
   const availableTabs=[...tabs.querySelectorAll('button[data-group]')];
   function groupFromHash(){const hash=window.location.hash.slice(1);return availableTabs.find(tab=>tabHashes[tab.dataset.group]===hash)?.dataset.group;}
   let active=groupFromHash()||panels[0]?.dataset.group;let selectedOnly=false;
@@ -856,8 +857,9 @@ Ideal CC: ${result.CC.ideal}`;
     if(tools) tools.hidden = !toolsActive;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
     const restockActive=active === "restock";if(restock)restock.hidden=!restockActive;
-    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive;
-    empty.hidden=toolsActive || inventoryActive || restockActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
+    const readyActive=active==='ready-orders';if(readyOrders)readyOrders.hidden=!readyActive;
+    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive||readyActive;
+    empty.hidden=toolsActive || inventoryActive || restockActive || readyActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
     if(count===0){const p=document.createElement("p");p.className="empty-basket";p.textContent="Select an item to start your order.";basket.append(p);}
   }
   function activateTab(group){active=group;search.value='';selectedOnly=false;selectedButton.setAttribute('aria-pressed','false');syncTabSelection();refresh();}
@@ -1035,6 +1037,44 @@ window.formatBlacksmithItemList=function(entries){
   document.getElementById('importOrders').addEventListener('click',save);
   const originalReset=window.resetAll;window.resetAll=function(){originalReset();document.getElementById('pastedOrders').value='';document.getElementById('importOrderStatus').textContent='';save();render();};
   render();if(storageWorks)save();
+})();
+
+</script>
+<script>
+(function setupReadyOrders(){
+  const section=document.getElementById('readyOrdersPanel');if(!section)return;
+  section.innerHTML='<h2>Ready Orders</h2><p class="note">Paste named orders to prepare individual customer messages. Delivery orders receive delivery instructions. Set pickup details before copying.</p><label class="form-label" for="readyOrdersPaste">Paste one or multiple customer orders</label><textarea id="readyOrdersPaste" class="form-control" rows="5"></textarea><button type="button" class="btn btn-primary" id="addReadyOrders">Prepare messages</button><p id="readyOrdersStatus" role="status" aria-live="polite"></p><div id="readyOrderCards"></div>';
+  const get=id=>document.getElementById(id),storageKey='blacksmith-ready-orders-v1';let orders=[];
+  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))orders=saved.filter(o=>o&&typeof o.name==='string'&&typeof o.items==='string'&&typeof o.id==='string');}catch(_){get('readyOrdersStatus').textContent='Could not load saved ready orders.';}
+  function save(){try{localStorage.setItem(storageKey,JSON.stringify(orders));}catch(_){get('readyOrdersStatus').textContent='Ready orders could not be saved in this browser.';}}
+  window.parseReadyOrderBlocks=function(text){
+    const clean=text.replace(/\*\*|`/g,'');const blocks=clean.split(/(?=\bName\s*:)/i).filter(block=>/^\s*Name\s*:/i.test(block));
+    return blocks.map(block=>({name:block.match(/^\s*Name\s*:\s*([\s\S]*?)(?=\bOrder\s*:|$)/i)?.[1].trim(),body:block,payment:block.match(/\bPayment\s*:?\s*([\s\S]*?)(?=\b(?:Total Items|Trader|Name)\s*:|\n|$)/i)?.[1].trim()||'',delivery:/\bDelivery\s*:\s*Yes\b/i.test(block),reinforced:/\bReinforced?\s*:\s*Yes\b/i.test(block)}));
+  };
+  window.readyOrderMessage=function(order){
+    let message=`${order.name}\nYour order is complete:\n\n${order.items}\n\n`;
+    if(order.reinforced)message+='Reinforce Gear: Yes\n';
+    if(order.delivery)message+='Delivery: Yes\n\nPlease provide the following:\nServer:\nSpawn:\nCoords:\nTribe Name:\nPin (Vault, Dedi, Fridge):\n\n';
+    else message+=`Bring Flyer, unless you can use TP\nServer: 5986\nSpawn: Lemonkis East\nShop Coords: 18.9 - 89.8\nTribe: Department of War\nRoom: ${order.room}\nVault: ${order.room}${order.vault}\nPin: ${order.pin}\n`;
+    if(order.payment)message+=`Payment: ${order.payment}\n`;
+    message+=`Total Items: ${order.count}\n\n`;
+    return message+(order.delivery?'Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.':'If you’re able to use a teleporter:\nSpawn: Korinthos East\nWorld TP: Korinthos East > E\nCoords: 41.1 - 33.4\nCoords: 44.4 - 36.8\nTP: DoW Trade\nLook for the Red, White, Blue buildings');
+  };
+  function render(){get('readyOrderCards').replaceChildren();for(const order of orders){
+    const card=document.createElement('div');card.className='output ready-order-card';const title=document.createElement('h3');title.textContent=order.name+(order.delivery?' · Delivery':' · Pickup');card.append(title);
+    if(!order.delivery){const fields=document.createElement('div');fields.className='row';for(const [field,label] of [['room','Room'],['vault','Vault number'],['pin','Pin']]){const wrapper=document.createElement('label');wrapper.className='col-auto';wrapper.textContent=label;const input=document.createElement('input');input.className='form-control';input.value=order[field]||'';input.setAttribute('aria-label',label+' for '+order.name);input.addEventListener('input',()=>{order[field]=input.value;preview.textContent=window.readyOrderMessage(order);save();});wrapper.append(input);fields.append(wrapper);}card.append(fields);}
+    const preview=document.createElement('pre');preview.textContent=window.readyOrderMessage(order);card.append(preview);
+    const copy=document.createElement('button');copy.type='button';copy.className='btn btn-primary';copy.textContent='Copy message';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(window.readyOrderMessage(order));get('readyOrdersStatus').textContent='Copied message for '+order.name;}catch(_){get('readyOrdersStatus').textContent='Copy unavailable. Select and copy the message.';}});
+    const remove=document.createElement('button');remove.type='button';remove.className='btn btn-secondary';remove.textContent='Remove ready order';remove.addEventListener('click',()=>{orders=orders.filter(o=>o.id!==order.id);save();render();});card.append(copy,remove);get('readyOrderCards').append(card);
+  }}
+  get('addReadyOrders').addEventListener('click',()=>{
+    const blocks=window.parseReadyOrderBlocks(get('readyOrdersPaste').value);if(!blocks.length){get('readyOrdersStatus').textContent='Paste orders containing Name: and Order: fields.';return;}
+    const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
+    const items=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));const prepared=[];
+    for(const block of blocks){const parsed=window.parsePastedBlacksmithOrders(block.body,items);if(!block.name||!parsed.totals.size||parsed.errors.length){get('readyOrdersStatus').textContent='Nothing prepared. Check '+(block.name||'the customer name')+': '+(parsed.errors.join(', ')||'No order items found.');return;}
+      prepared.push({...block,id:crypto.randomUUID(),items:window.formatBlacksmithItemList([...parsed.totals].map(([key,quantity])=>({select:selects[key],quantity}))),count:[...parsed.totals.values()].reduce((a,b)=>a+b,0),room:get('roomSelect').value,vault:get('vaultSelect').value,pin:String(Math.floor(1000+Math.random()*9000))});}
+    orders.push(...prepared);save();render();get('readyOrdersPaste').value='';get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;
+  });render();
 })();
 
 </script>
