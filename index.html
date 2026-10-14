@@ -841,9 +841,18 @@ Ideal CC: ${result.CC.ideal}`;
 <script>
 window.formatBlacksmithItemList=function(entries){
   const groups={regular:'Saddles',platform:'Saddles',teksaddles:'Saddles',tier1:'Equipment',tier2:'Tier 2',cursed1:'Cursed Tier 1',cursed2:'Cursed Tier 2'};
+  const headings=['Saddles','Equipment','Tier 2','Cursed Tier 1','Cursed Tier 2'];
+  const categories=['weapons','tools','armor','tek'];
   const sections=new Map();
-  for(const {select,quantity} of entries){const heading=groups[select.dataset.group];if(!sections.has(heading))sections.set(heading,[]);sections.get(heading).push(`${quantity} ${select.dataset.name.replace('|',' – ')}`);}
-  return [...sections].map(([heading,lines])=>heading+'\n'+lines.join('\n')).join('\n\n');
+  for(const {select,quantity} of entries){const heading=groups[select.dataset.group];if(!sections.has(heading))sections.set(heading,[]);sections.get(heading).push({name:select.dataset.name,quantity});}
+  return headings.filter(heading=>sections.has(heading)).map(heading=>{
+    const rows=sections.get(heading).sort((a,b)=>{
+      const partsA=a.name.split('|'),partsB=b.name.split('|');
+      const rank=parts=>parts.length>1?(categories.includes(parts[0])?categories.indexOf(parts[0]):categories.length):-1;
+      return rank(partsA)-rank(partsB)||partsA.at(-1).localeCompare(partsB.at(-1));
+    });
+    return heading+'\n'+rows.map(row=>`${row.quantity} ${row.name.replace('|',' – ')}`).join('\n');
+  }).join('\n\n');
 };
 </script>
 <script>
