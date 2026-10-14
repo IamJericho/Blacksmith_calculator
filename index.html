@@ -38,6 +38,7 @@ textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outlin
 .pasted-item-actions{display:inline-flex;gap:8px;flex-wrap:wrap;margin-left:8px}
 .inventory-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px;margin-top:20px}.inventory-material{display:flex;flex-direction:column;gap:6px}.inventory-material span{font-size:13px}
 .inventory-material{border:1px solid var(--line);border-radius:10px;padding:16px;gap:12px}.inventory-material h3{margin:0;font-size:15px}.inventory-material label{display:flex;flex-direction:column;gap:6px;font-size:12px}.dedi-counter{display:grid;grid-template-columns:44px minmax(40px,1fr) 44px;align-items:center;gap:8px}.dedi-counter output{text-align:center;font-variant-numeric:tabular-nums}.dedi-counter button{font-size:22px;padding:0}
+.restock-low{border-color:var(--accent);background:var(--panel)}.restock-low .restock-state{color:var(--accent)}.inventory-material .check{flex-direction:row;margin:0}
 </style>
 </head>
 
@@ -770,7 +771,7 @@ Ideal CC: ${result.CC.ideal}`;
   for(const label of document.querySelectorAll('label')){const container=label.parentElement;const control=container.querySelector('select[id],input[id]');if(control)label.htmlFor=control.id;}
   for(const control of document.querySelectorAll('select,input')){if(!control.getAttribute('aria-label')&&!control.labels?.length){const heading=control.parentElement.querySelector('h2,h3');if(heading)control.setAttribute('aria-label',heading.textContent);}}
   if(!internal){const cost=document.createElement('div');cost.className='order-cost';cost.setAttribute('aria-live','polite');aside.querySelector('.order-heading').after(cost);}
-  let inventory=null;
+  let inventory=null,restock=null;
   if(internal){
     inventory=document.createElement('section');inventory.className='internal-tools';inventory.hidden=true;
     inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the amount in your partial dedi and count your full dedis. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
@@ -790,7 +791,7 @@ Ideal CC: ${result.CC.ideal}`;
       const title=document.createElement('h3');title.textContent=name;
       const stored=quantities[code];const safe=value=>Number.isSafeInteger(value)&&value>=0?value:0;
       const stock={partial:safe(typeof stored==='number'?stored:stored?.partial),dedis:safe(stored?.dedis)};quantities[code]=stock;
-      function saveStock(){try{localStorage.setItem(storageKey,JSON.stringify(quantities));status.textContent='';}catch(_){status.textContent='Browser storage is unavailable. Inventory will not survive a refresh.';}}
+      function saveStock(){refreshRestock();try{localStorage.setItem(storageKey,JSON.stringify(quantities));status.textContent='';}catch(_){status.textContent='Browser storage is unavailable. Inventory will not survive a refresh.';}}
       const partialLabel=document.createElement('label');partialLabel.textContent='Partial dedi amount';
       const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.inputMode='numeric';input.className='form-control';input.value=String(stock.partial);input.setAttribute('aria-label','Partial dedi amount for '+name);partialLabel.append(input);
       input.addEventListener('input',()=>{const quantity=input.valueAsNumber;if(!Number.isSafeInteger(quantity)||quantity<0){input.setCustomValidity('Enter a whole number of 0 or more.');input.reportValidity();return;}input.setCustomValidity('');stock.partial=quantity;saveStock();});
@@ -804,6 +805,26 @@ Ideal CC: ${result.CC.ideal}`;
       counter.append(minus,count,plus);row.append(title,partialLabel,counterLabel,counter);inventory.querySelector('#inventoryMaterials').append(row);
 
     }
+    restock=document.createElement('section');restock.className='internal-tools';restock.hidden=true;
+    restock.innerHTML='<h2>Restock</h2><p class="note">Set a minimum for each material you want to track. Order more when stock falls below that many full dedis, or when the full-dedi count matches and the partial amount is below the minimum. For partial-only materials like Red Element, set full dedis to 0.</p><p id="restockSummary" role="status" aria-live="polite"></p><label class="check"><input type="checkbox" id="restockOnly">Show only materials to order</label><div class="inventory-grid" id="restockMaterials"></div><p class="note" id="restockSaveStatus" role="status"></p>';
+    catalog.append(restock);
+    const restockTab=document.createElement('button');restockTab.type='button';restockTab.className='catalog-tab';restockTab.dataset.group='restock';restockTab.textContent='Restock';restockTab.setAttribute('aria-pressed','false');tabs.append(restockTab);
+    const thresholdKey='blacksmith-restock-minimums-v1';let thresholds={};
+    try{const saved=JSON.parse(localStorage.getItem(thresholdKey)||'{}');if(saved&&typeof saved==='object'&&!Array.isArray(saved))thresholds=saved;}catch(_){restock.querySelector('#restockSaveStatus').textContent='Could not load restock settings.';}
+    const restockRows=[];
+    window.blacksmithNeedsRestock=(stock,minimum)=>stock.dedis<minimum.dedis||(stock.dedis===minimum.dedis&&stock.partial<minimum.partial);
+    function refreshRestock(){let low=0,tracked=0;for(const entry of restockRows){const {code,row,label,current,minimum}=entry;const stock=quantities[code];const needed=minimum.enabled&&window.blacksmithNeedsRestock(stock,minimum);if(minimum.enabled)tracked++;if(needed)low++;current.textContent=`In stock: ${stock.dedis.toLocaleString()} full dedis + ${stock.partial.toLocaleString()} partial`;label.textContent=!minimum.enabled?'Not tracked':needed?'Order more':'Stock OK';row.classList.toggle('restock-low',needed);row.hidden=restock.querySelector('#restockOnly').checked&&!needed;}restock.querySelector('#restockSummary').textContent=tracked?`${low} material${low===1?'':'s'} to order · ${tracked} tracked`:'Set minimums below to start tracking restock.';restockTab.textContent=low?`Restock (${low})`:'Restock';}
+    function saveThresholds(){try{localStorage.setItem(thresholdKey,JSON.stringify(thresholds));restock.querySelector('#restockSaveStatus').textContent='';}catch(_){restock.querySelector('#restockSaveStatus').textContent='Restock settings could not be saved in this browser.';}refreshRestock();}
+    for(const code of [...materials].sort((a,b)=>(inventoryNames[a]||a).localeCompare(inventoryNames[b]||b))){
+      const name=inventoryNames[code]||code,stored=thresholds[code];const safe=v=>Number.isSafeInteger(v)&&v>=0?v:0;const minimum={enabled:stored?.enabled===true,dedis:safe(stored?.dedis),partial:safe(stored?.partial)};thresholds[code]=minimum;
+      const row=document.createElement('div');row.className='inventory-material';const title=document.createElement('h3');title.textContent=name;const current=document.createElement('p');current.className='note';const label=document.createElement('strong');label.className='restock-state';
+      const trackLabel=document.createElement('label');trackLabel.className='check';const enabled=document.createElement('input');enabled.type='checkbox';enabled.checked=minimum.enabled;trackLabel.append(enabled,document.createTextNode('Track restock'));enabled.addEventListener('change',()=>{minimum.enabled=enabled.checked;saveThresholds();});
+      row.append(title,current,label,trackLabel);
+      for(const [field,text] of [['dedis','Minimum full dedis'],['partial','Minimum partial amount']]){const wrapper=document.createElement('label');wrapper.textContent=text;const input=document.createElement('input');input.type='number';input.min='0';input.step='1';input.className='form-control';input.value=String(minimum[field]);input.setAttribute('aria-label',text+' for '+name);input.addEventListener('input',()=>{const value=input.valueAsNumber;if(!Number.isSafeInteger(value)||value<0){input.setCustomValidity('Enter a whole number of 0 or more.');input.reportValidity();return;}input.setCustomValidity('');minimum[field]=value;minimum.enabled=true;enabled.checked=true;saveThresholds();});wrapper.append(input);row.append(wrapper);}
+      restock.querySelector('#restockMaterials').append(row);restockRows.push({code,row,label,current,minimum});
+    }
+    restock.querySelector('#restockOnly').addEventListener('change',refreshRestock);refreshRestock();
+
     inventory.querySelector('#inventorySearch').addEventListener('input',event=>{const query=event.target.value.trim().toLowerCase();for(const row of inventory.querySelectorAll('.inventory-material'))row.hidden=!row.dataset.material.includes(query);});
   }
 
@@ -826,8 +847,9 @@ Ideal CC: ${result.CC.ideal}`;
     const toolsActive = active === "tools";
     if(tools) tools.hidden = !toolsActive;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
-    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive;
-    empty.hidden=toolsActive || inventoryActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
+    const restockActive=active === "restock";if(restock)restock.hidden=!restockActive;
+    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive;
+    empty.hidden=toolsActive || inventoryActive || restockActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
     if(count===0){const p=document.createElement("p");p.className="empty-basket";p.textContent="Select an item to start your order.";basket.append(p);}
   }
   tabs.addEventListener("click",event=>{const b=event.target.closest("button");if(!b)return;active=b.dataset.group;search.value="";selectedOnly=false;selectedButton.setAttribute("aria-pressed","false");for(const tab of tabs.children)tab.setAttribute("aria-pressed",tab===b?"true":"false");refresh();});
