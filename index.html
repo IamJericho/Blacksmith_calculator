@@ -904,7 +904,7 @@ window.formatBlacksmithItemList=function(entries){
   const selects=[...document.querySelectorAll('select[data-group]')];
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const id=select=>select.dataset.group+'|'+select.dataset.name;
-  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy remaining items</button><pre id="remainingItemList"></pre><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
+  const section=document.createElement('div');section.className='output';section.innerHTML='<h3>Remaining items</h3><p class="note">Items are saved in this browser. Enter how many you completed, then click Complete to subtract them. New pasted orders add to these quantities.</p><button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy remaining items</button><button type="button" class="btn btn-secondary" id="completeAllItems">Complete all</button><pre id="remainingItemList"></pre><div id="remainingItems"></div><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';
   document.querySelector('.order-import').after(section);
   const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
   document.getElementById('copyRemainingItems').addEventListener('click',async()=>{
@@ -912,12 +912,18 @@ window.formatBlacksmithItemList=function(entries){
     if(!text){status.textContent='No remaining items to copy.';return;}
     try{await navigator.clipboard.writeText(text);status.textContent='Copied remaining items with categories.';}catch(_){status.textContent='Copy unavailable. Select and copy the list above.';}
   });
+  document.getElementById('completeAllItems').addEventListener('click',()=>{
+    for(const select of selects){select.value='0';select.dispatchEvent(new Event('change',{bubbles:true}));}
+    document.getElementById('importOrderStatus').textContent='';
+    save();render();
+  });
   let storageWorks=true;
   function save(){
-    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)])),draft:document.getElementById('pastedOrders').value}));status.textContent='Saved in this browser.';}
+    try{localStorage.setItem(key,JSON.stringify({items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]))}));status.textContent='Saved in this browser.';}
     catch(_){storageWorks=false;status.textContent='Browser storage is unavailable. These items will not survive a refresh.';}
   }
   function render(){
+    document.getElementById('completeAllItems').disabled=!selects.some(select=>Number(select.value)>0);
     document.getElementById('remainingItemList').textContent=window.formatBlacksmithItemList(selects.filter(select=>Number(select.value)>0).map(select=>({select,quantity:Number(select.value)})));
     list.replaceChildren();
     for(const select of selects){
@@ -937,11 +943,9 @@ window.formatBlacksmithItemList=function(entries){
     const saved=JSON.parse(localStorage.getItem(key)||'null');
     if(saved&&saved.items&&typeof saved.items==='object'){
       for(const select of selects){const quantity=saved.items[id(select)],max=Number(select.options[select.options.length-1].value);if(Number.isInteger(quantity)&&quantity>=0&&quantity<=max){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}}
-      if(typeof saved.draft==='string')document.getElementById('pastedOrders').value=saved.draft;
     }
   }catch(_){storageWorks=false;status.textContent='Could not restore saved items. Browser storage may be unavailable.';}
   document.addEventListener('change',event=>{if(event.target.matches('select[data-group]')){save();render();}});
-  document.getElementById('pastedOrders').addEventListener('input',save);
   document.getElementById('importOrders').addEventListener('click',save);
   const originalReset=window.resetAll;window.resetAll=function(){originalReset();document.getElementById('pastedOrders').value='';document.getElementById('importOrderStatus').textContent='';save();render();};
   render();if(storageWorks)save();
