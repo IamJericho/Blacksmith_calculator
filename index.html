@@ -261,7 +261,7 @@ textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outlin
     <pre id="orderSummary"></pre>
   </div>
 
-  <script src="pricingEngine.js"></script>
+  <script src="pricingEngine.js?v=20261014-delivery1000"></script>
   <script src="blacksmith.js"></script>
 
   <script>
@@ -969,7 +969,7 @@ window.formatBlacksmithItemList=function(entries){
   window.parsePastedBlacksmithOrders=parseOrders;
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const box=document.createElement('div');box.className='output order-import';
-  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. Repeated items are combined and added to your current order. Named orders also create a separate customer message in Ready Orders.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
+  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. The calculator uses current pricing. Existing Ready Orders retain their locked customer payment. Repeated items are combined and added to your current order. Named orders also create a separate customer message in Ready Orders.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
   tools.querySelector('h2').after(box);
   document.getElementById('importOrders').addEventListener('click',()=>{
     const text=document.getElementById('pastedOrders').value.trim(),status=document.getElementById('importOrderStatus');
@@ -1079,15 +1079,33 @@ window.formatBlacksmithItemList=function(entries){
     return message+(order.delivery?'Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.':'If you’re able to use a teleporter:\nSpawn: Korinthos East\nWorld TP: Korinthos East > E\nCoords: 41.1 - 33.4\nCoords: 44.4 - 36.8\nTP: DoW Trade\nLook for the Red, White, Blue buildings');
   };
   function render(){const tab=document.querySelector('.catalog-tab[data-group="ready-orders"]');if(tab)tab.textContent=orders.length?`Ready Orders (${orders.length})`:'Ready Orders';const used=new Set([...occupied,...orders.filter(order=>!order.delivery&&order.room&&order.vault).map(slotKey)]);get('readyRoomStatus').textContent=`Pickup locations: ${used.size} assigned · ${pickupSlots.length-used.size} available. Removing a Ready Order frees its location.`;get('readyOrderCards').replaceChildren();for(const order of orders){
-    const card=document.createElement('div');card.className='output ready-order-card';const title=document.createElement('h3');title.textContent=order.name+(order.delivery?' · Delivery':' · Pickup');card.append(title);
+    const card=document.createElement('div');card.className='output ready-order-card';const title=document.createElement('h3');title.textContent=order.name+(order.delivery?' · Delivery':' · Pickup');card.append(title);const quoteNote=document.createElement('p');quoteNote.className='note';quoteNote.textContent=order.priceWarning||('Locked payment: '+(order.payment||'not recorded'));card.append(quoteNote);
     if(!order.delivery){const f2fLabel=document.createElement('label');f2fLabel.className='check';const f2f=document.createElement('input');f2f.type='checkbox';f2f.checked=order.faceToFace===true;f2f.setAttribute('aria-label','Face to Face for '+order.name);f2fLabel.append(f2f,document.createTextNode('Face to Face'));f2f.addEventListener('change',()=>{order.faceToFace=f2f.checked;preview.textContent=window.readyOrderMessage(order);save();});card.append(f2fLabel);}
     if(!order.delivery){const fields=document.createElement('div');fields.className='row';for(const [field,label] of (order.delivery?[['pin','Dedi PIN']]:[['room','Room'],['vault','Vault number'],['pin','Pin']])){const wrapper=document.createElement('label');wrapper.className='col-auto';wrapper.textContent=field==='pin'?'PIN / Dedi PIN':label;const input=document.createElement('input');input.className='form-control';input.value=order[field]||'';if(field==='room'||field==='vault')input.readOnly=true;input.setAttribute('aria-label',label+' for '+order.name);input.addEventListener('input',()=>{order[field]=input.value;preview.textContent=window.readyOrderMessage(order);save();});wrapper.append(input);fields.append(wrapper);}card.append(fields);}
     const preview=document.createElement('pre');preview.textContent=window.readyOrderMessage(order);card.append(preview);
-    const copy=document.createElement('button');copy.type='button';copy.className='btn btn-primary';copy.textContent='Copy message';copy.disabled=!order.delivery&&(!order.room||!order.vault);if(copy.disabled){const warning=document.createElement('p');warning.className='payment-error';warning.textContent='No pickup location available. Remove a completed Ready Order, then reload to assign this order.';card.append(warning);}copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(window.readyOrderMessage(order));get('readyOrdersStatus').textContent='Copied message for '+order.name;}catch(_){get('readyOrdersStatus').textContent='Copy unavailable. Select and copy the message.';}});
+    const copy=document.createElement('button');copy.type='button';copy.className='btn btn-primary';copy.textContent='Copy message';copy.disabled=!!order.priceWarning||(!order.delivery&&(!order.room||!order.vault));if(copy.disabled){const warning=document.createElement('p');warning.className='payment-error';warning.textContent='No pickup location available. Remove a completed Ready Order, then reload to assign this order.';card.append(warning);}copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(window.readyOrderMessage(order));get('readyOrdersStatus').textContent='Copied message for '+order.name;}catch(_){get('readyOrdersStatus').textContent='Copy unavailable. Select and copy the message.';}});
     const remove=document.createElement('button');remove.type='button';remove.className='btn btn-secondary';remove.textContent='Remove ready order';remove.addEventListener('click',()=>{orders=orders.filter(o=>o.id!==order.id);save();render();});card.append(copy,remove);
     if(!order.delivery){const reassign=document.createElement('button');reassign.type='button';reassign.className='btn btn-secondary';reassign.textContent='Assign another location';reassign.addEventListener('click',()=>{try{readLatestOrders();}catch(error){get('readyOrdersStatus').textContent=error.message;return;}const current=orders.find(o=>o.id===order.id);if(!current)return;const reserved=new Set([...occupied,...orders.filter(o=>!o.delivery&&o.room&&o.vault).map(slotKey)]);const slot=window.allocateBlacksmithPickupSlot(pickupSlots,reserved);if(!slot){get('readyOrdersStatus').textContent='No unused pickup locations available.';return;}current.room=slot.room;current.vault=slot.vault;save();render();get('readyOrdersStatus').textContent='Assigned '+slot.room+slot.vault+' to '+current.name;});card.append(reassign);}
     get('readyOrderCards').append(card);
   }}
+  function lockReadyOrderPrice(order,legacy){
+    if(order.priceLocked)return;
+    if(!order.payment){
+      const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
+      const entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));
+      const parsed=window.parsePastedBlacksmithOrders(order.items,entries);
+      if(parsed.errors.length||!parsed.totals.size){order.priceWarning='Original quote is missing. Check payment before sending.';return;}
+      let total=0,reinforcement=0;
+      for(const [key,quantity] of parsed.totals){const select=selects[key],group=select.dataset.group,[category,name]=select.dataset.name.split('|');let item;
+        if(['regular','platform','teksaddles'].includes(group))item=BLACKSMITH.saddles[group][category];else{const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const tier=group.endsWith('2')?'tier2':'tier1';item=collection[tier][category][name];}
+        const price=legacy?(group==='teksaddles'?item.tek:DTJ_PRICING.priceLegacyItem(item.materials).CC.ideal+(item.additionalTek||0)):item.tek;
+        total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=Math.ceil(price*quantity*0.30);
+      }
+      if(order.reinforced)total+=reinforcement;if(order.delivery)total+=Math.max(100,Math.ceil(total*0.25));order.payment=total+' Tek Ceilings';
+    }
+    order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
+  }
+  let quotesChanged=false;for(const order of orders){if(!order.priceLocked){lockReadyOrderPrice(order,true);quotesChanged=true;}}if(quotesChanged)save();
   window.prepareBlacksmithReadyOrders=function(text){
     try{readLatestOrders();}catch(error){return {error:error.message};}
     const blocks=window.parseReadyOrderBlocks(text);if(!blocks.length)return {count:0};
@@ -1096,6 +1114,7 @@ window.formatBlacksmithItemList=function(entries){
     for(const block of blocks){const parsed=window.parsePastedBlacksmithOrders(block.body,items);if(!block.name||!parsed.totals.size||parsed.errors.length){return {error:'Nothing prepared. Check '+(block.name||'the customer name')+': '+(parsed.errors.join(', ')||'No order items found.')};}
       const slot=block.delivery?null:window.allocateBlacksmithPickupSlot(pickupSlots,reserved);if(!block.delivery&&!slot)return {error:'Nothing added. There are not enough free pickup locations for this batch. Remove completed Ready Orders to free locations.'};if(slot)reserved.add(slotKey(slot));
       prepared.push({...block,id:crypto.randomUUID(),items:window.formatBlacksmithItemList([...parsed.totals].map(([key,quantity])=>({select:selects[key],quantity}))),count:[...parsed.totals.values()].reduce((a,b)=>a+b,0),room:slot?.room||'',vault:slot?.vault||'',pin:String(Math.floor(1000+Math.random()*9000))});}
+    for(const order of prepared)lockReadyOrderPrice(order,false);
     orders.push(...prepared);save();render();get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;return {count:prepared.length};
   };
   get('addReadyOrders').addEventListener('click',()=>{const result=window.prepareBlacksmithReadyOrders(get('readyOrdersPaste').value);if(result.error||!result.count){get('readyOrdersStatus').textContent=result.error||'Paste orders containing Name: and Order: fields.';return;}get('readyOrdersPaste').value='';});render();
