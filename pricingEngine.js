@@ -67,22 +67,28 @@ DEDI_PRICE.SP = (
     2 * DEDI_PRICE.N / STACK_SIZE.N
 ) * STACK_SIZE.SP;
 
+// Preserve the previous schedule for orders accepted before this increase.
+const LEGACY_DEDI_PRICE = { ...DEDI_PRICE };
+const MATERIAL_DELIVERY_PER_DEDI = 1000;
+for (const key of Object.keys(DEDI_PRICE)) DEDI_PRICE[key] += MATERIAL_DELIVERY_PER_DEDI;
+const PRICING_VERSION = '2026-10-14-delivery-1000';
+
 // -----------------------------
 // Red Element Conversion
 // -----------------------------
 
-// 1 Dust Dedi = 1800 Tek
+// Dust pricing includes the per-dedi delivery cost.
 // 1 Dedi = 1800 stacks
 // 1 Element = 1 Dust stack
 // 1 RE = 2 Dust stacks
-const TEK_PER_RE = (1800 / 1800) * 2; // 2 TEK
+const TEK_PER_RE = (DEDI_PRICE.ED / 1800) * 2;
 
 // -----------------------------
 // Helpers
 // -----------------------------
 
-function getTekPerStack(materialKey) {
-    const dediPrice = DEDI_PRICE[materialKey];
+function getTekPerStack(materialKey, prices = DEDI_PRICE) {
+    const dediPrice = prices[materialKey];
     if (!dediPrice) return 0;
     return dediPrice / 1800;
 }
@@ -95,7 +101,7 @@ function getStackSize(materialKey) {
 // TC Calculation
 // -----------------------------
 
-function calculateTC(materials) {
+function calculateTC(materials, prices = DEDI_PRICE, redElementCost = TEK_PER_RE) {
 
     let totalTC = 0;
     let totalStacks = 0;
@@ -107,7 +113,7 @@ function calculateTC(materials) {
 
         // Handle Red Element
         if (key === "RE") {
-            const reTC = qty * TEK_PER_RE;
+            const reTC = qty * redElementCost;
             const reStacks = qty * 2; // 1 RE = 2 dust stacks
             const reDediFraction = reStacks / 1800;
 
@@ -119,7 +125,7 @@ function calculateTC(materials) {
         }
 
         const stackSize = getStackSize(key);
-        const tekPerStack = getTekPerStack(key);
+        const tekPerStack = getTekPerStack(key, prices);
 
         if (!tekPerStack) throw new Error(`Missing DEDI price for material: ${key}`);
 
@@ -157,9 +163,9 @@ function calculateCC(tc) {
 // Public API
 // -----------------------------
 
-function priceItem(materials) {
+function priceItem(materials, legacy = false) {
 
-    const result = calculateTC(materials);
+    const result = legacy ? calculateTC(materials, LEGACY_DEDI_PRICE, 2) : calculateTC(materials);
     const cc = calculateCC(result.TC);
 
     return {
@@ -178,7 +184,9 @@ function priceItem(materials) {
 window.DTJ_PRICING = {
     calculateTC,
     calculateCC,
-    priceItem
+    priceItem,
+    priceLegacyItem: materials => priceItem(materials, true),
+    pricingVersion: PRICING_VERSION
 };
 
 
