@@ -1100,12 +1100,12 @@ window.formatBlacksmithItemList=function(entries){
     message+=`Total Items: ${order.count}\n\n`;
     return message+(order.delivery?'Note: Delivery will need to be in an outside location. No TP will be taken, No entering buildings.':'If you’re able to use a teleporter:\nSpawn: Korinthos East\nWorld TP: Korinthos East > E\nCoords: 41.1 - 33.4\nCoords: 44.4 - 36.8\nTP: DoW Trade\nLook for the Red, White, Blue buildings');
   };
-  function render(){assignWaitingRooms();const pendingCount=orders.filter(order=>!order.delivery&&(!order.room||!order.vault)).length;const tab=document.querySelector('.catalog-tab[data-group="ready-orders"]');if(tab)tab.textContent=orders.length?`Ready Orders (${orders.length})`:'Ready Orders';const used=new Set([...occupied,...orders.filter(order=>!order.delivery&&order.room&&order.vault).map(slotKey)]);get('readyRoomStatus').textContent=`Pickup locations: ${used.size} assigned · ${pickupSlots.length-used.size} available · ${pendingCount} pending room. Clearing a Ready Order automatically assigns its room to the oldest waiting pickup order.`;get('readyOrderCards').replaceChildren();for(const order of orders){
+  function render(){let reinforcementChanged=false;for(const order of orders){if(syncOrderReinforcement(order))reinforcementChanged=true;}if(reinforcementChanged)save();assignWaitingRooms();const pendingCount=orders.filter(order=>!order.delivery&&(!order.room||!order.vault)).length;const tab=document.querySelector('.catalog-tab[data-group="ready-orders"]');if(tab)tab.textContent=orders.length?`Ready Orders (${orders.length})`:'Ready Orders';const used=new Set([...occupied,...orders.filter(order=>!order.delivery&&order.room&&order.vault).map(slotKey)]);get('readyRoomStatus').textContent=`Pickup locations: ${used.size} assigned · ${pickupSlots.length-used.size} available · ${pendingCount} pending room. Clearing a Ready Order automatically assigns its room to the oldest waiting pickup order.`;get('readyOrderCards').replaceChildren();for(const order of orders){
     const card=document.createElement('div');card.className='output ready-order-card'+(order.workStatus==='processing'?' order-processing':order.workStatus==='complete'?' order-complete':'');const title=document.createElement('h3');title.textContent=order.name+(order.delivery?' · Delivery':' · Pickup');card.append(title);const quoteNote=document.createElement('p');quoteNote.className='note';quoteNote.textContent=order.priceWarning||('Locked payment: '+(order.payment||'not recorded'));card.append(quoteNote);
     const state=document.createElement('p');state.className='order-work-state';state.textContent=order.workStatus==='processing'?'Processing order':order.workStatus==='complete'?(order.delivery?'Complete · Awaiting delivery completion':'Complete · Awaiting pickup/payment'):'Not started';card.append(state);
     const statusControls=document.createElement('div');statusControls.className='row';
     for(const [value,text] of [['processing','Processing order'],['complete',order.delivery?'Order complete · Awaiting delivery completion':'Order complete · Awaiting pickup/payment']]){const label=document.createElement('label');label.className='check';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=order.workStatus===value;checkbox.setAttribute('aria-label',text+' for '+order.name);label.append(checkbox,document.createTextNode(text));checkbox.addEventListener('change',()=>{order.workStatus=checkbox.checked?value:'new';save();render();});statusControls.append(label);}card.append(statusControls);
-    const reinforcedLabel=document.createElement('label');reinforcedLabel.className='check';const reinforcedInput=document.createElement('input');reinforcedInput.type='checkbox';reinforcedInput.checked=order.reinforced===true;reinforcedInput.setAttribute('aria-label','Reinforced for '+order.name);reinforcedLabel.append(reinforcedInput,document.createTextNode('Reinforced'));reinforcedInput.addEventListener('change',()=>{try{window.adjustBlacksmithReinforcement(order,reinforcedInput.checked,readyOrderCosts(order,order.pricingVersion==='legacy-quoted'));save();render();}catch(error){reinforcedInput.checked=order.reinforced===true;get('readyOrdersStatus').textContent=error.message;}});card.append(reinforcedLabel);
+
     if(!order.delivery&&order.pendingRoom){const pending=document.createElement('p');pending.className='pending-room-note';pending.textContent='Pending room · automatically assigned when a pickup location becomes available.';card.append(pending);}
     if(!order.delivery){const f2fLabel=document.createElement('label');f2fLabel.className='check';const f2f=document.createElement('input');f2f.type='checkbox';f2f.checked=order.faceToFace===true;f2f.setAttribute('aria-label','Face to Face for '+order.name);f2fLabel.append(f2f,document.createTextNode('Face to Face'));f2f.addEventListener('change',()=>{order.faceToFace=f2f.checked;preview.textContent=window.readyOrderMessage(order);save();});card.append(f2fLabel);}
     if(!order.delivery){
@@ -1132,30 +1132,28 @@ window.formatBlacksmithItemList=function(entries){
       }
       return {total,reinforcement};
   }
-  window.adjustBlacksmithReinforcement=function(order,checked,costs){
-    const included=typeof order.reinforcementCharged==='boolean'?order.reinforcementCharged:(order.reinforcedReviewed?window.isBlacksmithReinforced(order.body):order.reinforced===true);
-    if(checked===included){order.reinforced=checked;order.reinforcedReviewed=true;order.reinforcementCharged=checked;return;}
-    const match=(order.payment||'').trim().match(/^([\d,]+)\s+Tek(?:\s+Ceilings?)?$/i);
-    if(!match)throw new Error('Payment must be recorded in Tek Ceilings before changing reinforcement.');
-    const original=Number(match[1].replace(/,/g,'')),fee=amount=>order.delivery?Math.max(100,Math.ceil(amount*0.25)):0;
-    let subtotal=original;
-    if(order.delivery){
-      let low=0,high=original;while(low<high){const mid=Math.floor((low+high)/2);if(mid+fee(mid)<original)low=mid+1;else high=mid;}
-      subtotal=low;if(subtotal+fee(subtotal)!==original)throw new Error('Check the delivery payment before changing reinforcement.');
-    }
-    const updated=subtotal+(checked?1:-1)*costs.reinforcement;
-    if(updated<0)throw new Error('Reinforcement exceeds the recorded payment. Check the original quote.');
-    order.payment=(updated+fee(updated))+' Tek Ceilings';order.reinforced=checked;order.reinforcedReviewed=true;order.reinforcementCharged=checked;
+  window.applyBlacksmithOrderReinforcement=function(order,costs){
+    const subtotal=costs.total+costs.reinforcement;
+    if(order.originalPastedPayment===undefined)order.originalPastedPayment=order.payment||'';
+    order.payment=(subtotal+(order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0))+' Tek Ceilings';
+    order.reinforced=true;order.reinforcementCharged=true;order.reinforcementPricingApplied=1;
+    delete order.priceWarning;
   };
+  function syncOrderReinforcement(order){
+    const reinforced=typeof order.body==='string'?window.isBlacksmithReinforced(order.body):order.reinforced===true;
+    if(!reinforced||order.reinforcementPricingApplied===1)return false;
+    try{window.applyBlacksmithOrderReinforcement(order,readyOrderCosts(order,!order.pricingVersion||order.pricingVersion==='legacy-quoted'));}
+    catch(error){order.reinforced=true;order.priceWarning=error.message;}
+    return true;
+  }
   function lockReadyOrderPrice(order,legacy){
     if(order.priceLocked)return;
-    if(!order.payment){
+    if(order.reinforced||!order.payment){
       const {total:base,reinforcement}=readyOrderCosts(order,legacy);let total=base;
       if(order.reinforced)total+=reinforcement;if(order.delivery)total+=Math.max(100,Math.ceil(total*0.25));order.payment=total+' Tek Ceilings';
     }
-    order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
+    if(order.reinforced)order.reinforcementPricingApplied=1;order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
   }
-  let reinforcedChanged=false;for(const order of orders){if(!order.reinforcedReviewed&&(order.reinforced==null||order.reinforced===false)){if(window.isBlacksmithReinforced(order.body)){order.reinforced=true;reinforcedChanged=true;}}}if(reinforcedChanged)save();
   let quotesChanged=false;for(const order of orders){if(!order.priceLocked){lockReadyOrderPrice(order,true);quotesChanged=true;}}if(quotesChanged)save();
   window.prepareBlacksmithReadyOrders=function(text){
     try{readLatestOrders();}catch(error){return {error:error.message};}
