@@ -1064,7 +1064,7 @@ window.formatBlacksmithItemList=function(entries){
 <script>
 (function setupReadyOrders(){
   const section=document.getElementById('readyOrdersPanel');if(!section)return;
-  section.innerHTML='<h2>Ready Orders</h2><p class="note">Paste named orders to prepare individual customer messages. Delivery orders receive delivery instructions. Set pickup details before copying.</p><label class="form-label" for="readyOrdersPaste">Paste one or multiple customer orders</label><textarea id="readyOrdersPaste" class="form-control" rows="5"></textarea><button type="button" class="btn btn-primary" id="addReadyOrders">Prepare messages</button><p id="readyOrdersStatus" role="status" aria-live="polite"></p><p id="readyRoomStatus" class="note" role="status"></p><details><summary>Locations occupied outside Ready Orders</summary><div class="row" id="occupiedPickupSlots"></div></details><div id="readyOrderCards"></div>';
+  section.innerHTML='<h2>Ready Orders</h2><p id="readyOrdersStatus" role="status" aria-live="polite"></p><p id="readyRoomStatus" class="note" role="status"></p><details><summary>Locations occupied outside Ready Orders</summary><div class="row" id="occupiedPickupSlots"></div></details><div id="readyOrderCards"></div>';
   const get=id=>document.getElementById(id),storageKey='blacksmith-ready-orders-v1';let orders=[];
   try{const saved=JSON.parse(localStorage.getItem(storageKey)||'[]');if(Array.isArray(saved))orders=saved.filter(o=>o&&typeof o.name==='string'&&typeof o.items==='string'&&typeof o.id==='string');}catch(_){get('readyOrdersStatus').textContent='Could not load saved ready orders.';}
   function save(){try{localStorage.setItem(storageKey,JSON.stringify(orders));}catch(_){get('readyOrdersStatus').textContent='Ready orders could not be saved in this browser.';}}
@@ -1184,7 +1184,7 @@ window.formatBlacksmithItemList=function(entries){
     for(const order of prepared)lockReadyOrderPrice(order,false);
     orders.push(...prepared);save();render();get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;return {count:prepared.length};
   };
-  get('addReadyOrders').addEventListener('click',()=>{const result=window.prepareBlacksmithReadyOrders(get('readyOrdersPaste').value);if(result.error||!result.count){get('readyOrdersStatus').textContent=result.error||'Paste orders containing Name: and Order: fields.';return;}get('readyOrdersPaste').value='';});render();
+  render();
 })();
 
 </script>
