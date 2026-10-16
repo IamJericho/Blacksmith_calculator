@@ -1105,7 +1105,7 @@ window.formatBlacksmithItemList=function(entries){
     const state=document.createElement('p');state.className='order-work-state';state.textContent=order.workStatus==='processing'?'Processing order':order.workStatus==='complete'?(order.delivery?'Complete · Awaiting delivery completion':'Complete · Awaiting pickup/payment'):'Not started';card.append(state);
     const statusControls=document.createElement('div');statusControls.className='row';
     for(const [value,text] of [['processing','Processing order'],['complete',order.delivery?'Order complete · Awaiting delivery completion':'Order complete · Awaiting pickup/payment']]){const label=document.createElement('label');label.className='check';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=order.workStatus===value;checkbox.setAttribute('aria-label',text+' for '+order.name);label.append(checkbox,document.createTextNode(text));checkbox.addEventListener('change',()=>{order.workStatus=checkbox.checked?value:'new';save();render();});statusControls.append(label);}card.append(statusControls);
-    const reinforcedLabel=document.createElement('label');reinforcedLabel.className='check';const reinforcedInput=document.createElement('input');reinforcedInput.type='checkbox';reinforcedInput.checked=order.reinforced===true;reinforcedInput.setAttribute('aria-label','Reinforced for '+order.name);reinforcedLabel.append(reinforcedInput,document.createTextNode('Reinforced'));reinforcedInput.addEventListener('change',()=>{order.reinforced=reinforcedInput.checked;order.reinforcedReviewed=true;save();render();});card.append(reinforcedLabel);
+    const reinforcedLabel=document.createElement('label');reinforcedLabel.className='check';const reinforcedInput=document.createElement('input');reinforcedInput.type='checkbox';reinforcedInput.checked=order.reinforced===true;reinforcedInput.setAttribute('aria-label','Reinforced for '+order.name);reinforcedLabel.append(reinforcedInput,document.createTextNode('Reinforced'));reinforcedInput.addEventListener('change',()=>{try{window.adjustBlacksmithReinforcement(order,reinforcedInput.checked,readyOrderCosts(order,order.pricingVersion==='legacy-quoted'));save();render();}catch(error){reinforcedInput.checked=order.reinforced===true;get('readyOrdersStatus').textContent=error.message;}});card.append(reinforcedLabel);
     if(!order.delivery&&order.pendingRoom){const pending=document.createElement('p');pending.className='pending-room-note';pending.textContent='Pending room · automatically assigned when a pickup location becomes available.';card.append(pending);}
     if(!order.delivery){const f2fLabel=document.createElement('label');f2fLabel.className='check';const f2f=document.createElement('input');f2f.type='checkbox';f2f.checked=order.faceToFace===true;f2f.setAttribute('aria-label','Face to Face for '+order.name);f2fLabel.append(f2f,document.createTextNode('Face to Face'));f2f.addEventListener('change',()=>{order.faceToFace=f2f.checked;preview.textContent=window.readyOrderMessage(order);save();});card.append(f2fLabel);}
     if(!order.delivery){
@@ -1119,22 +1119,41 @@ window.formatBlacksmithItemList=function(entries){
     if(!order.delivery){const reassign=document.createElement('button');reassign.type='button';reassign.className='btn btn-secondary';reassign.textContent='Assign another location';reassign.addEventListener('click',()=>{try{readLatestOrders();}catch(error){get('readyOrdersStatus').textContent=error.message;return;}const current=orders.find(o=>o.id===order.id);if(!current)return;const reserved=new Set([...occupied,...orders.filter(o=>!o.delivery&&o.room&&o.vault).map(slotKey)]);const slot=window.allocateBlacksmithPickupSlot(pickupSlots,reserved);if(!slot){get('readyOrdersStatus').textContent='No unused pickup locations available.';return;}current.room=slot.room;current.vault=slot.vault;current.manualLocation=false;save();render();get('readyOrdersStatus').textContent='Assigned '+slot.room+slot.vault+' to '+current.name;});card.append(reassign);}
     get('readyOrderCards').append(card);
   }}
-  function lockReadyOrderPrice(order,legacy){
-    if(order.priceLocked)return;
-    if(!order.payment){
+  function readyOrderCosts(order,legacy){
       const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
       const entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));
       const parsed=window.parsePastedBlacksmithOrders(order.items,entries);
-      if(parsed.errors.length||!parsed.totals.size){order.priceWarning='Original quote is missing. Check payment before sending.';return;}
+      if(parsed.errors.length||!parsed.totals.size){throw new Error('Cannot calculate reinforcement: check the order items first.');}
       let total=0,reinforcement=0;
       for(const [key,quantity] of parsed.totals){const select=selects[key],group=select.dataset.group,[category,name]=select.dataset.name.split('|');let item;
         if(['regular','platform','teksaddles'].includes(group))item=BLACKSMITH.saddles[group][category];else{const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const tier=group.endsWith('2')?'tier2':'tier1';item=collection[tier][category][name];}
         const price=legacy?(group==='teksaddles'?item.tek:DTJ_PRICING.priceLegacyItem(item.materials).CC.ideal+(item.additionalTek||0)):item.tek;
         total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=Math.ceil(price*quantity*0.30);
       }
+      return {total,reinforcement};
+  }
+  window.adjustBlacksmithReinforcement=function(order,checked,costs){
+    const included=typeof order.reinforcementCharged==='boolean'?order.reinforcementCharged:(order.reinforcedReviewed?window.isBlacksmithReinforced(order.body):order.reinforced===true);
+    if(checked===included){order.reinforced=checked;order.reinforcedReviewed=true;order.reinforcementCharged=checked;return;}
+    const match=(order.payment||'').trim().match(/^([\d,]+)\s+Tek(?:\s+Ceilings?)?$/i);
+    if(!match)throw new Error('Payment must be recorded in Tek Ceilings before changing reinforcement.');
+    const original=Number(match[1].replace(/,/g,'')),fee=amount=>order.delivery?Math.max(100,Math.ceil(amount*0.25)):0;
+    let subtotal=original;
+    if(order.delivery){
+      let low=0,high=original;while(low<high){const mid=Math.floor((low+high)/2);if(mid+fee(mid)<original)low=mid+1;else high=mid;}
+      subtotal=low;if(subtotal+fee(subtotal)!==original)throw new Error('Check the delivery payment before changing reinforcement.');
+    }
+    const updated=subtotal+(checked?1:-1)*costs.reinforcement;
+    if(updated<0)throw new Error('Reinforcement exceeds the recorded payment. Check the original quote.');
+    order.payment=(updated+fee(updated))+' Tek Ceilings';order.reinforced=checked;order.reinforcedReviewed=true;order.reinforcementCharged=checked;
+  };
+  function lockReadyOrderPrice(order,legacy){
+    if(order.priceLocked)return;
+    if(!order.payment){
+      const {total:base,reinforcement}=readyOrderCosts(order,legacy);let total=base;
       if(order.reinforced)total+=reinforcement;if(order.delivery)total+=Math.max(100,Math.ceil(total*0.25));order.payment=total+' Tek Ceilings';
     }
-    order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
+    order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
   }
   let reinforcedChanged=false;for(const order of orders){if(!order.reinforcedReviewed&&(order.reinforced==null||order.reinforced===false)){if(window.isBlacksmithReinforced(order.body)){order.reinforced=true;reinforcedChanged=true;}}}if(reinforcedChanged)save();
   let quotesChanged=false;for(const order of orders){if(!order.priceLocked){lockReadyOrderPrice(order,true);quotesChanged=true;}}if(quotesChanged)save();
