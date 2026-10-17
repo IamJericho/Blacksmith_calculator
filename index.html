@@ -45,6 +45,8 @@ textarea.form-control{font:inherit;resize:vertical}textarea:focus-visible{outlin
 .action-feedback{position:fixed;right:24px;bottom:24px;z-index:1000;display:flex;align-items:center;gap:18px;max-width:min(440px,calc(100vw - 32px));padding:14px 18px;border-radius:12px;background:#175f36;color:#fff;box-shadow:0 6px 24px #0003;font-weight:600}.action-feedback[data-kind=error]{background:#932a23}.action-feedback button{background:transparent;border:1px solid #ffffff88;border-radius:6px;color:inherit;padding:4px 9px;cursor:pointer}.action-feedback[hidden]{display:none}.copy-confirmed{box-shadow:0 0 0 2px #248044}
 
 .ready-order-card.order-f2f{border-left:6px solid #8746b2}.ready-order-card.order-f2f:not(.order-processing):not(.order-complete){background:#f7effd}.f2f-badge{display:inline-block;background:#eee0f7;color:#61278a;border:1px solid #ba91d5;border-radius:20px;padding:3px 10px;margin:8px 0;font-size:12px;font-weight:600}:root[data-theme=dark] .ready-order-card.order-f2f{border-left-color:#c395e8}:root[data-theme=dark] .ready-order-card.order-f2f:not(.order-processing):not(.order-complete){background:#2d1e3a}:root[data-theme=dark] .f2f-badge{background:#422955;color:#eed8ff;border-color:#aa7bce}
+
+#previewResults pre{max-height:none}#costPreviewPanel .form-control,#costPreviewPanel .form-select{width:100%;margin-bottom:12px}#costPreviewPanel .btn{margin:8px 0}#costPreviewPanel details{margin:18px 0}.preview-item{align-items:center;justify-content:space-between;margin:8px 0}
 </style>
 </head>
 
@@ -792,7 +794,7 @@ Ideal CC: ${result.CC.ideal}`;
   for(const label of document.querySelectorAll('label')){const container=label.parentElement;const control=container.querySelector('select[id],input[id]');if(control)label.htmlFor=control.id;}
   for(const control of document.querySelectorAll('select,input')){if(!control.getAttribute('aria-label')&&!control.labels?.length){const heading=control.parentElement.querySelector('h2,h3');if(heading)control.setAttribute('aria-label',heading.textContent);}}
   if(!internal){const cost=document.createElement('div');cost.className='order-cost';cost.setAttribute('aria-live','polite');aside.querySelector('.order-heading').after(cost);}
-  let inventory=null,restock=null,readyOrders=null,dataStorage=null;
+  let inventory=null,restock=null,readyOrders=null,dataStorage=null,costPreview=null;
   if(internal){
     inventory=document.createElement('section');inventory.className='internal-tools';inventory.hidden=true;
     inventory.innerHTML='<h2>Inventory materials</h2><p class="note">Enter the amount in your partial dedi and count your full dedis. Inventory is saved in this browser.</p><label class="form-label" for="inventorySearch">Find a material</label><input id="inventorySearch" type="search" class="form-control" placeholder="Search materials…"><div class="inventory-grid" id="inventoryMaterials"></div><p class="note" id="inventoryStatus" role="status" aria-live="polite"></p>';
@@ -853,7 +855,8 @@ Ideal CC: ${result.CC.ideal}`;
 
   if(internal){readyOrders=document.createElement('section');readyOrders.id='readyOrdersPanel';readyOrders.className='internal-tools';readyOrders.hidden=true;catalog.append(readyOrders);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='ready-orders';tab.textContent='Ready Orders';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
   if(internal){dataStorage=document.createElement('section');dataStorage.id='dataStoragePanel';dataStorage.className='internal-tools';dataStorage.hidden=true;catalog.append(dataStorage);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='data-storage';tab.textContent='Data storage';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
-  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders','data-storage':'data-storage'};
+  if(internal){costPreview=document.createElement('section');costPreview.id='costPreviewPanel';costPreview.className='internal-tools';costPreview.hidden=true;catalog.append(costPreview);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='cost-preview';tab.textContent='Cost preview';tab.setAttribute('aria-pressed','false');tabs.append(tab);const link=document.createElement('a');link.className='btn btn-secondary';link.href='#cost-preview';link.textContent='Preview a separate crafting cost';tools.querySelector('h2').after(link);}
+  const tabHashes={regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders','data-storage':'data-storage','cost-preview':'cost-preview'};
   const availableTabs=[...tabs.querySelectorAll('button[data-group]')];
   function groupFromHash(){const hash=window.location.hash.slice(1);return availableTabs.find(tab=>tabHashes[tab.dataset.group]===hash)?.dataset.group;}
   let active=groupFromHash()||panels[0]?.dataset.group;let selectedOnly=false;
@@ -874,14 +877,15 @@ Ideal CC: ${result.CC.ideal}`;
       panel.hidden=visible===0||(!query&&!selectedOnly&&panel.dataset.group!==active);if(!panel.hidden)shown+=visible;
     }
     if(!internal){const paymentLine=document.getElementById('orderSummary').textContent.split('\n').find(line=>line.startsWith('Payment:'));aside.querySelector('.order-cost').textContent=count>0?(paymentLine||'Select a payment resource'):'Payment: 0 Tek Ceilings';}
+    const previewActive=active==='cost-preview';if(costPreview)costPreview.hidden=!previewActive;aside.hidden=previewActive;workspace.style.gridTemplateColumns=previewActive?'minmax(0,1fr)':'';
     const toolsActive = active === "tools";
     if(tools) tools.hidden = !toolsActive;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
     const restockActive=active === "restock";if(restock)restock.hidden=!restockActive;
     const readyActive=active==='ready-orders';if(readyOrders)readyOrders.hidden=!readyActive;
     const dataActive=active==='data-storage';if(dataStorage)dataStorage.hidden=!dataActive;
-    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive||readyActive||dataActive;
-    empty.hidden=toolsActive || inventoryActive || restockActive || readyActive || dataActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
+    catalog.querySelector(".catalog-toolbar").hidden = toolsActive||inventoryActive||restockActive||readyActive||dataActive||previewActive;
+    empty.hidden=previewActive || toolsActive || inventoryActive || restockActive || readyActive || dataActive || shown>0;aside.querySelector(".order-count").textContent=count+" item"+(count===1?"":"s");
     if(count===0){const p=document.createElement("p");p.className="empty-basket";p.textContent="Select an item to start your order.";basket.append(p);}
   }
   function activateTab(group){active=group;search.value='';selectedOnly=false;selectedButton.setAttribute('aria-pressed','false');syncTabSelection();refresh();}
@@ -1196,6 +1200,45 @@ window.formatBlacksmithItemList=function(entries){
     orders.push(...prepared);save();render();get('readyOrdersStatus').textContent=`Prepared ${prepared.length} customer message${prepared.length===1?'':'s'}.`;return {count:prepared.length};
   };
   render();
+})();
+
+</script>
+<script>
+window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
+  const materials={},eligibleMaterials={},missing=[];let price=0,reinforcement=0;
+  for(const row of rows){price+=row.item.tek*row.quantity;if(reinforced&&row.eligible)reinforcement+=Math.ceil(row.item.tek*row.quantity*0.30);
+    if(!row.item.materials||!Object.keys(row.item.materials).length){missing.push(row.label);continue;}
+    for(const [code,units]of Object.entries(row.item.materials)){if(['D','J','Q'].includes(code))continue;materials[code]=(materials[code]||0)+units*row.quantity;if(row.eligible)eligibleMaterials[code]=(eligibleMaterials[code]||0)+units*row.quantity;}
+  }
+  if(reinforced)for(const [code,units]of Object.entries(eligibleMaterials))materials[code]+=Math.ceil(units*0.285);
+  const cost=Object.keys(materials).length?DTJ_PRICING.calculateTC(materials).TC:0;
+  const fee=delivery&&rows.length?Math.max(100,Math.ceil((price+reinforcement)*0.25)):0;
+  return {materials,missing,cost,price,reinforcement,delivery:fee,total:price+reinforcement+fee};
+};
+(function setupCostPreview(){
+  const panel=document.getElementById('costPreviewPanel');if(!panel)return;
+  panel.innerHTML=`<h2>Crafting cost preview</h2><p class="note">Try an item, paste a list, or view one existing order. This temporary preview never adds items to your crafting queue or Ready Orders. Estimates use current material pricing.</p><label class="form-label" for="previewExisting">View an individual Ready Order</label><select id="previewExisting" class="form-select"><option value="">Choose an order…</option></select><button type="button" class="btn btn-secondary" id="previewLoadOrder">View order</button><hr><label class="form-label" for="previewSearch">Find an item</label><input id="previewSearch" class="form-control" type="search" placeholder="Search saddles, gear, tools…"><label class="form-label" for="previewItem">Item and category</label><select id="previewItem" class="form-select"></select><div class="row"><label class="col-auto" for="previewQuantity">Quantity<input id="previewQuantity" class="form-control" type="number" min="1" step="1" value="1"></label><button type="button" class="btn btn-primary" id="previewAdd">Add to preview</button></div><details><summary>Or paste an order or item list</summary><label class="form-label" for="previewPaste">Keep category headings so tiers are recognized</label><textarea id="previewPaste" class="form-control" rows="5" placeholder="Equipment&#10;2 armor – Hazmat Boots"></textarea><button type="button" class="btn btn-secondary" id="previewParse">Preview pasted list</button></details><label class="check"><input id="previewReinforced" type="checkbox"> Reinforced</label><label class="check"><input id="previewDelivery" type="checkbox"> Include delivery fee</label><p id="previewStatus" role="status" aria-live="polite"></p><div id="previewResults"></div><button type="button" class="btn btn-secondary" id="previewCopy">Copy estimate</button><button type="button" class="btn btn-secondary" id="previewClear">Clear preview</button>`;
+  const get=id=>document.getElementById(id),selects=[...document.querySelectorAll('select[data-group]')];
+  const labels={regular:'Saddles',platform:'Platform saddles',teksaddles:'Tek saddles',tier1:'Equipment',tier2:'Tier 2',cursed1:'Cursed Tier 1',cursed2:'Cursed Tier 2'};
+  const entries=selects.map((select,key)=>{const [category,name]=select.dataset.name.split('|'),group=select.dataset.group;const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const item=['regular','platform','teksaddles'].includes(group)?BLACKSMITH.saddles[group][category]:collection[group.endsWith('2')?'tier2':'tier1'][category][name];return {key,select,item,label:labels[group]+' · '+(name?category+' – ':'')+(name||category),eligible:!!name&&['weapons','tools','armor','tek'].includes(category)};});
+  let quantities=new Map(),viewed=null,copyText='';
+  const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
+  const parseEntries=entries.map(e=>({key:e.key,group:e.select.dataset.group,aliases:[normalize(e.select.dataset.name),normalize(e.select.dataset.name.split('|').pop())]}));
+  function error(message){get('previewStatus').textContent=message;window.blacksmithNotify(message,'error');}
+  function picker(){const query=get('previewSearch').value.toLowerCase();get('previewItem').replaceChildren();for(const e of entries.filter(e=>e.label.toLowerCase().includes(query))){const o=document.createElement('option');o.value=String(e.key);o.textContent=e.label;get('previewItem').append(o);}get('previewAdd').disabled=!get('previewItem').options.length;}
+  function loadOrders(){const previous=get('previewExisting').value;get('previewExisting').replaceChildren(new Option('Choose an order…',''));try{for(const order of JSON.parse(localStorage.getItem('blacksmith-ready-orders-v1')||'[]')){const option=new Option(order.name+' · '+(order.delivery?'Delivery':'Pickup'),order.id);get('previewExisting').append(option);}}catch(_){error('Saved orders could not be read.');}get('previewExisting').value=previous;}
+  function render(){const result=window.calculateBlacksmithPreview([...quantities].map(([key,quantity])=>({...entries[key],quantity})),get('previewReinforced').checked,get('previewDelivery').checked);const root=get('previewResults');root.replaceChildren();get('previewCopy').disabled=!quantities.size;get('previewClear').disabled=!quantities.size;if(!quantities.size){const p=document.createElement('p');p.className='note';p.textContent='Your preview is empty.';root.append(p);copyText='';return;}
+    const list=window.formatBlacksmithItemList([...quantities].map(([key,quantity])=>({select:selects[key],quantity})));const money=value=>Number(value.toFixed(2)).toLocaleString();
+    const lines=[list,'',...(viewed?['Viewing: '+viewed.name,'Original locked payment: '+(viewed.payment||'not recorded'),'']:[]),'Current material cost: '+money(result.cost)+' Tek Ceilings','Current item price: '+money(result.price)+' Tek Ceilings','Reinforcement charge: '+money(result.reinforcement)+' Tek Ceilings','Delivery fee: '+money(result.delivery)+' Tek Ceilings','Current estimated customer total: '+money(result.total)+' Tek Ceilings',...(result.missing.length?['','No crafting recipe available for: '+result.missing.join(', ')+'. Material cost excludes those items; their fixed customer price is included.']:[]),'','Materials needed:',...Object.entries(result.materials).sort(([a],[b])=>(BLACKSMITH.materialsKey[a]||a).localeCompare(BLACKSMITH.materialsKey[b]||b)).map(([code,quantity])=>quantity.toLocaleString()+' '+(BLACKSMITH.materialsKey[code]||code))];copyText=lines.join('\n');const pre=document.createElement('pre');pre.textContent=copyText;root.append(pre);
+    const heading=document.createElement('h3');heading.textContent='Preview items';root.append(heading);for(const [key,quantity]of quantities){const row=document.createElement('div');row.className='row preview-item';const label=document.createElement('span');label.textContent=quantity+' × '+entries[key].label;const remove=document.createElement('button');remove.type='button';remove.className='btn btn-secondary';remove.textContent='Remove';remove.setAttribute('aria-label','Remove '+entries[key].label+' from preview');remove.addEventListener('click',()=>{quantities.delete(key);viewed=null;render();});row.append(label,remove);root.append(row);}}
+  function setList(text){const parsed=window.parsePastedBlacksmithOrders(text,parseEntries);if(parsed.errors.length||!parsed.totals.size){error(parsed.errors.length?'Check these items: '+parsed.errors.join(', '):'No items found. Include category headings for equipment tiers.');return false;}quantities=new Map(parsed.totals);return true;}
+  get('previewSearch').addEventListener('input',picker);
+  get('previewAdd').addEventListener('click',()=>{const quantity=get('previewQuantity').valueAsNumber,key=Number(get('previewItem').value);if(!Number.isSafeInteger(quantity)||quantity<1||!entries[key]){error('Enter a whole quantity of at least 1.');return;}quantities.set(key,(quantities.get(key)||0)+quantity);viewed=null;get('previewStatus').textContent='Added to preview only.';render();});
+  get('previewParse').addEventListener('click',()=>{const text=get('previewPaste').value;if(!setList(text))return;viewed=null;get('previewReinforced').checked=window.isBlacksmithReinforced(text);get('previewDelivery').checked=/\bDelivery\s*:\s*Yes\b/i.test(text);get('previewStatus').textContent='Pasted list loaded into preview only.';render();});
+  get('previewExisting').addEventListener('focus',loadOrders);get('previewLoadOrder').addEventListener('click',()=>{let orders;try{orders=JSON.parse(localStorage.getItem('blacksmith-ready-orders-v1')||'[]');}catch(_){error('Saved orders could not be read.');return;}const order=orders.find(o=>o.id===get('previewExisting').value);if(!order){error('Choose an existing order to view.');return;}if(!setList(order.items))return;viewed=order;get('previewReinforced').checked=order.reinforced===true;get('previewDelivery').checked=order.delivery===true;get('previewStatus').textContent='Viewing this order only. Its locked payment and items are unchanged.';render();});
+  for(const id of ['previewReinforced','previewDelivery'])get(id).addEventListener('change',render);
+  get('previewCopy').addEventListener('click',()=>window.blacksmithCopy(copyText,get('previewCopy'),'Estimate copied!'));
+  get('previewClear').addEventListener('click',()=>{quantities.clear();viewed=null;get('previewPaste').value='';get('previewReinforced').checked=false;get('previewDelivery').checked=false;get('previewStatus').textContent='Preview cleared.';render();});picker();loadOrders();render();
 })();
 
 </script>
