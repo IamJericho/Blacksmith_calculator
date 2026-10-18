@@ -77,6 +77,7 @@ window.BLACKSMITH = {
       "Carcharodontosaurus": { materials: { F: 3187, H: 4554, M: 1639, A: 182 } },
       "Carnotaurus": { materials: { F: 1486, M: 262, H: 2797 } },
       "Castoroides": { materials: { A: 1113, H: 2306, T: 1431, F: 1590, M: 795 } },
+      "Cerberax": { materials: { H: 6751, F: 4296, M: 3682 }, saddleCategory: "Land" },
       "Ceratosaurus": { materials: { F: 2107, M: 156, H: 1014 } },
       "Chalicotherium": { materials: { F: 1481, M: 370, H: 2180 } },
       "Concavenator": { materials: { F: 1545, M: 193, H: 2705, C: 386 }, additionalTek: 20 },     
@@ -107,6 +108,7 @@ window.BLACKSMITH = {
 
       "Gacha": { materials: { K: 1399, H: 3264, F: 1725 } },
       "Gallimimus": { materials: { F: 1364, M: 213, H: 2046, W: 1023 } },
+      "Gargantar": { materials: { H: 3091, T: 1194, F: 6323, M: 1194, W: 1756 }, saddleCategory: "Flying" },
       "Gasbags": { materials: { K: 1312, H: 3062, F: 1618 } },
       "Gigadesmodus (Primitive)": { materials: { A: 160, H: 550, B: 220, F: 600, M: 225 } },
       "Giganotosaurus": { materials: { H: 5492, F: 2827, M: 969 } },
