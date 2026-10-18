@@ -897,7 +897,7 @@ Ideal CC: ${result.CC.ideal}`;
     if(!internal){const paymentLine=document.getElementById('orderSummary').textContent.split('\n').find(line=>line.startsWith('Payment:'));aside.querySelector('.order-cost').textContent=count>0?(paymentLine||'Select a payment resource'):'Payment: 0 Tek Ceilings';}
     const analyticsActive=active==='material-analytics';if(materialAnalyticsPanel)materialAnalyticsPanel.hidden=!analyticsActive;
     const historyActive=active==='order-history';if(orderHistoryPanel)orderHistoryPanel.hidden=!historyActive;
-    const previewActive=active==='cost-preview';if(costPreview)costPreview.hidden=!previewActive;aside.hidden=previewActive||historyActive||analyticsActive;workspace.style.gridTemplateColumns=previewActive||historyActive||analyticsActive?'minmax(0,1fr)':'';
+    const previewActive=active==='cost-preview';if(costPreview)costPreview.hidden=!previewActive;aside.hidden=previewActive||historyActive||analyticsActive||active==='ready-orders';workspace.style.gridTemplateColumns=previewActive||historyActive||analyticsActive||active==='ready-orders'?'minmax(0,1fr)':'';
     const toolsActive = active === "tools";
     if(tools) tools.hidden = !toolsActive;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
