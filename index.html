@@ -1070,20 +1070,13 @@ window.formatBlacksmithItemList=function(entries){
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const id=select=>select.dataset.group+'|'+select.dataset.name;
   const section=document.querySelector('.order-import');
-  const actions=document.createElement('div');actions.className='pasted-item-actions';actions.innerHTML='<button type="button" class="btn btn-secondary" id="completeAllItems">Complete all</button><button type="button" class="btn btn-secondary" id="undoCompleteAllItems" hidden>Undo complete all</button>';
+  const actions=document.createElement('div');actions.className='pasted-item-actions';actions.innerHTML='<button type="button" class="btn btn-secondary" id="undoCompleteAllItems" hidden>Undo complete all</button>';
   document.getElementById('importOrders').after(actions);
   const content=document.createElement('div');content.innerHTML='<pre id="remainingItemList" hidden></pre><details><summary>Complete individual items</summary><div id="remainingItems"></div></details><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';section.append(content);
   const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
-  document.getElementById('completeAllItems').addEventListener('click',()=>{
-    try{const data=JSON.parse(localStorage.getItem(key)||'{}');data.craftingCompletionUndo=Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]));localStorage.setItem(key,JSON.stringify(data));}catch(error){window.blacksmithNotify('Items were not cleared because a recovery copy could not be saved.','error');return;}
-    for(const select of selects){select.value='0';select.dispatchEvent(new Event('change',{bubbles:true}));}
-    document.getElementById('undoCompleteAllItems').focus();
-    document.getElementById('importOrderStatus').textContent='';
-    save();render();window.blacksmithNotify('All crafting items completed. Undo complete all is available beside Complete all.');
-  });
   document.getElementById('undoCompleteAllItems').addEventListener('click',()=>{
     try{const data=JSON.parse(localStorage.getItem(key)||'{}'),undo=data.craftingCompletionUndo;if(!undo)return;const changes=selects.map(select=>({select,quantity:Number(select.value)+(Number(undo[id(select)])||0)}));for(const {select,quantity}of changes){if(!Number.isSafeInteger(quantity)||quantity<0)throw Error('Invalid recovery quantity.');if(![...select.options].some(o=>Number(o.value)===quantity)){const option=new Option(String(quantity),String(quantity));select.append(option);}}
-      data.items=Object.fromEntries(changes.filter(c=>c.quantity>0).map(c=>[id(c.select),c.quantity]));delete data.craftingCompletionUndo;localStorage.setItem(key,JSON.stringify(data));for(const {select,quantity}of changes){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}render();document.getElementById('completeAllItems').focus();window.blacksmithNotify('Crafting items restored. Items added since completion were kept.');
+      data.items=Object.fromEntries(changes.filter(c=>c.quantity>0).map(c=>[id(c.select),c.quantity]));delete data.craftingCompletionUndo;localStorage.setItem(key,JSON.stringify(data));for(const {select,quantity}of changes){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}render();document.getElementById('importOrders').focus();window.blacksmithNotify('Crafting items restored. Items added since completion were kept.');
     }catch(error){window.blacksmithNotify('Could not restore crafting items: '+error.message,'error');}
   });
   let storageWorks=true;
@@ -1093,7 +1086,6 @@ window.formatBlacksmithItemList=function(entries){
   }
   function render(){
     try{document.getElementById('undoCompleteAllItems').hidden=!Object.keys(JSON.parse(localStorage.getItem(key)||'{}').craftingCompletionUndo||{}).length;}catch(_){}
-    document.getElementById('completeAllItems').disabled=!selects.some(select=>Number(select.value)>0);
     document.getElementById('remainingItemList').textContent=window.formatBlacksmithItemList(selects.filter(select=>Number(select.value)>0).map(select=>({select,quantity:Number(select.value)})));
     list.replaceChildren();
     for(const select of selects){
