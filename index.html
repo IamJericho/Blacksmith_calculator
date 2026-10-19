@@ -1073,12 +1073,12 @@ window.formatBlacksmithItemList=function(entries){
   const section=document.querySelector('.order-import');
   const actions=document.createElement('div');actions.className='pasted-item-actions';actions.innerHTML='<button type="button" class="btn btn-secondary" id="copyRemainingItems">Copy items</button><button type="button" class="btn btn-secondary" id="completeAllItems">Complete all</button><button type="button" class="btn btn-secondary" id="undoCompleteAllItems" hidden>Undo complete all</button>';
   document.getElementById('importOrders').after(actions);
-  const content=document.createElement('div');content.innerHTML='<pre id="remainingItemList"></pre><details><summary>Complete individual items</summary><div id="remainingItems"></div></details><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';section.append(content);
+  const content=document.createElement('div');content.innerHTML='<pre id="remainingItemList" hidden></pre><details><summary>Complete individual items</summary><div id="remainingItems"></div></details><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';section.append(content);
   const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
   document.getElementById('copyRemainingItems').addEventListener('click',async()=>{
     const text=document.getElementById('remainingItemList').textContent;
     if(!text){status.textContent='No remaining items to copy.';window.blacksmithNotify(status.textContent,'error');return;}
-    const copied=await window.blacksmithCopy(text,document.getElementById('copyRemainingItems'),'Items copied with categories!');status.textContent=copied?'Items copied with categories.':'Copy unavailable. Select and copy the list above.';
+    const copied=await window.blacksmithCopy(text,document.getElementById('copyRemainingItems'),'Items copied with categories!');status.textContent=copied?'Items copied with categories.':'Copy unavailable. Try Copy items again.';
   });
   document.getElementById('completeAllItems').addEventListener('click',()=>{
     try{const data=JSON.parse(localStorage.getItem(key)||'{}');data.craftingCompletionUndo=Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]));localStorage.setItem(key,JSON.stringify(data));}catch(error){window.blacksmithNotify('Items were not cleared because a recovery copy could not be saved.','error');return;}
