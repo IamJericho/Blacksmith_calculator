@@ -54,5 +54,11 @@
   window.addEventListener('storage',event=>{if(keys.includes(event.key)){connected=false;paused=true;status.textContent='Data changed in another tab. Reload before editing to avoid overwriting it.';}});
   setInterval(async()=>{if(!connected||paused||busy||document.hidden)return;if(meta.base!==canonical(snapshot().data)){schedule();return;}busy=true;try{const latest=await request();if(latest.revision!==meta.revision){remote=latest;paused=true;status.textContent='New cloud data is available. Your current view and drafts are unchanged. Choose Load latest cloud data when ready.';}}catch(error){paused=true;status.textContent=error.message;}finally{busy=false;updateBadge();}},60000);
   get('cloudSyncKey').addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();get('connectCloudSync').click();}});
+  window.blacksmithCourierImageRequest=async function(path,payload){
+    if(location.origin!=='https://iamjericho.github.io'||token.length<32)throw Error('Connect cloud on the production site before uploading or opening images.');
+    if(!/^\/attachments(?:\/[a-f0-9-]+\.(?:png|jpg|webp))?$/.test(path))throw Error('Invalid image request.');
+    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),30000);
+    try{const response=await fetch(endpoint+path,{method:payload?'POST':'GET',signal:controller.signal,cache:'no-store',headers:{Authorization:'Bearer '+token,...(payload?{'Content-Type':'application/json'}:{})},...(payload?{body:JSON.stringify(payload)}:{})});if(!response.ok){const error=await response.json().catch(()=>({}));throw Error(error.error||'Image request failed.');}return await (payload?response.json():response.blob());}catch(error){if(error.name==='AbortError')throw Error('Image request timed out. Try again.');throw error;}finally{clearTimeout(timeout);}
+  };
   updateBadge();if(token)connect({automatic:true});else status.textContent='Cloud sync is not connected. Your local data has not been changed.';
 })();
