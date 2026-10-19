@@ -71,6 +71,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 .skip-link{position:absolute;top:-200px;left:12px;padding:12px;z-index:100;background:#745610;color:#fff}.skip-link:focus{top:12px}
 @media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight}.ready-order-card,.inventory-material{border:2px solid CanvasText}}
 </style>
+<style>.courier-details{border:1px solid #87764e;border-radius:8px;margin:20px 0;padding:16px;min-width:0}.courier-details legend{font-weight:600;padding:0 6px}.courier-details label{display:block;margin:12px 0}.courier-access .form-control{max-width:100%}</style>
 </head>
 
 <body class="container-fluid">
@@ -1135,7 +1136,7 @@ window.formatBlacksmithItemList=function(entries){
   const readyFilterLabels={pickup:'Pick Up Only',delivery:'Delivery Only',processing:'Processing Orders','not-processing':'Not Processing','waiting-pickup':'Waiting for Pickup','waiting-delivery':'Waiting for Delivery'};
   window.filterBlacksmithReadyOrders=function(list,filter){return list.filter(order=>filter==='all'||(filter==='pickup'?!order.delivery:filter==='delivery'?!!order.delivery:filter==='processing'?order.workStatus==='processing':filter==='not-processing'?(!order.workStatus||order.workStatus==='new')&&!order.fulfilled&&!order.craftingCompletedAt&&!order.processingStartedAt:filter==='waiting-pickup'?order.workStatus==='complete'&&!order.delivery&&!order.fulfilled:filter==='waiting-delivery'?order.workStatus==='complete'&&!!order.delivery&&!order.fulfilled:false));};
   get('readyOrderFilters').addEventListener('click',event=>{const button=event.target.closest('[data-ready-filter]');if(!button)return;readyFilter=readyFilter===button.dataset.readyFilter?'all':button.dataset.readyFilter;render();});
-  function save(){try{localStorage.setItem(storageKey,JSON.stringify(orders));}catch(_){get('readyOrdersStatus').textContent='Ready orders could not be saved in this browser.';}}
+  function save(){try{localStorage.setItem(storageKey,JSON.stringify(orders));return true;}catch(_){get('readyOrdersStatus').textContent='Ready orders could not be saved in this browser.';return false;}}
   const pickupSlots=[...get('roomSelect').options].flatMap(room=>[...get('vaultSelect').options].map(vault=>({room:room.value,vault:vault.value})));
   window.allocateBlacksmithPickupSlot=function(slots,reserved){return slots.find(slot=>!reserved.has(slot.room+'|'+slot.vault))||null;};
   function slotKey(order){return order.room+'|'+order.vault;}
@@ -1208,6 +1209,12 @@ window.formatBlacksmithItemList=function(entries){
     const fulfillment=document.createElement('div');fulfillment.className='row';
     for(const [field,text]of [['paid','Payment received'],['fulfilled',order.delivery?'Delivered':'Picked up']]){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=order[field]===true;input.setAttribute('aria-label',text+' for '+order.name);input.addEventListener('change',()=>{const checked=input.checked;try{readLatestOrders();const current=orders.find(o=>o.id===order.id);if(!current)throw Error('This order is no longer active.');current[field]=checked;current[field+'At']=checked?new Date().toISOString():null;localStorage.setItem(storageKey,JSON.stringify(orders));render();}catch(error){input.checked=!checked;window.blacksmithNotify('Order could not be updated: '+error.message,'error');}});label.append(input,document.createTextNode(text));fulfillment.append(label);}card.append(fulfillment);const fulfillmentHint=document.createElement('p');fulfillmentHint.className='note';fulfillmentHint.textContent='When both are checked, this order moves to History automatically. Undo is available here.';card.append(fulfillmentHint);
     const notesLabel=document.createElement('label');notesLabel.textContent='Private notes (never copied or publicly shared)';const notes=document.createElement('textarea');notes.className='form-control';notes.rows=2;notes.value=order.privateNotes||'';notes.setAttribute('aria-label','Private notes for '+order.name);notes.addEventListener('input',()=>{order.privateNotes=notes.value;save();});notesLabel.append(notes);card.append(notesLabel);
+    if(order.delivery){
+      const courier=document.createElement('fieldset');courier.className='courier-details';const legend=document.createElement('legend');legend.textContent='Courier information · private';courier.append(legend);const explanation=document.createElement('p');explanation.className='note';explanation.textContent='Available in your key-protected, read-only Courier page. Not included in customer messages or public views. Payout records the courier’s share; it does not change the customer’s locked payment.';courier.append(explanation);
+      const deliveryStatus=document.createElement('p');deliveryStatus.className='note';deliveryStatus.setAttribute('role','status');
+      for(const [field,text]of [['deliveryDetails','Delivery details (server, spawn, coordinates, tribe, delivery PIN)'],['courierNotes','Notes for the courier']]){const label=document.createElement('label');label.textContent=text;const input=document.createElement('textarea');input.className='form-control';input.rows=field==='deliveryDetails'?5:2;input.value=order[field]||'';input.setAttribute('aria-label',text+' for '+order.name);if(field==='deliveryDetails')input.placeholder='Server:\nSpawn:\nCoords:\nTribe:\nDelivery PIN:';input.addEventListener('input',()=>{order[field]=input.value;deliveryStatus.textContent=save()?'Saved on this device. Share the latest details after cloud saving finishes.':'Could not save. Your draft is still in this field; download a backup before leaving.';});label.append(input);courier.append(label);}
+      const payoutLabel=document.createElement('label');payoutLabel.textContent='Courier payout (Tek Ceilings)';const payout=document.createElement('input');payout.type='number';payout.min='0';payout.step='1';payout.className='form-control';payout.value=Number.isSafeInteger(order.courierPayout)?String(order.courierPayout):'';payout.placeholder='Enter the delivery fee';payout.setAttribute('aria-label','Courier payout (Tek Ceilings) for '+order.name);payout.addEventListener('input',()=>{if(payout.value===''){delete order.courierPayout;payout.removeAttribute('aria-invalid');}else if(!Number.isSafeInteger(payout.valueAsNumber)||payout.valueAsNumber<0){payout.setAttribute('aria-invalid','true');deliveryStatus.textContent='Enter a whole number of Tek Ceilings, 0 or more.';return;}else{order.courierPayout=payout.valueAsNumber;payout.removeAttribute('aria-invalid');}deliveryStatus.textContent=save()?'Courier payout saved on this device. The customer’s payment is unchanged.':'Could not save the courier payout. Keep this page open and try again.';});payoutLabel.append(payout);courier.append(payoutLabel,deliveryStatus);card.append(courier);
+    }
     if(order.delivery){const label=document.createElement('label');label.className='check';const checkbox=document.createElement('input');checkbox.type='checkbox';checkbox.checked=order.deliveryNote===true;checkbox.setAttribute('aria-label','Include outside-location delivery note for '+order.name);checkbox.addEventListener('change',()=>{order.deliveryNote=checkbox.checked;save();render();});label.append(checkbox,document.createTextNode('Include outside-location delivery note'));card.append(label);}
     const state=document.createElement('p');state.className='order-work-state';state.textContent=order.fulfilled?(order.delivery?'Delivered':'Picked up')+(order.paid?' · Paid':' · Awaiting payment'):order.workStatus==='processing'?'Processing order':order.workStatus==='complete'?(order.delivery?(order.paid?'Complete · Awaiting Delivery':'Complete · Awaiting Delivery/Payment'):(order.paid?'Complete · Awaiting Pickup':'Complete · Awaiting Pickup/Payment')):'Not started';card.append(state);
     const statusControls=document.createElement('div');statusControls.className='row';
@@ -1247,7 +1254,7 @@ window.formatBlacksmithItemList=function(entries){
   window.applyBlacksmithOrderReinforcement=function(order,costs){
     const subtotal=costs.total+costs.reinforcement;
     if(order.originalPastedPayment===undefined)order.originalPastedPayment=order.payment||'';
-    order.payment=(subtotal+(order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0))+' Tek Ceilings';
+    const deliveryFee=order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0;order.payment=(subtotal+deliveryFee)+' Tek Ceilings';if(order.delivery&&order.courierPayout===undefined)order.courierPayout=deliveryFee;
     order.reinforced=true;order.reinforcementCharged=true;order.reinforcementPricingApplied=1;
     delete order.priceWarning;
   };
@@ -1262,7 +1269,7 @@ window.formatBlacksmithItemList=function(entries){
     if(order.priceLocked)return;
     if(order.reinforced||!order.payment){
       const {total:base,reinforcement}=readyOrderCosts(order,legacy);let total=base;
-      if(order.reinforced)total+=reinforcement;if(order.delivery)total+=Math.max(100,Math.ceil(total*0.25));order.payment=total+' Tek Ceilings';
+      if(order.reinforced)total+=reinforcement;if(order.delivery){const deliveryFee=Math.max(100,Math.ceil(total*0.25));total+=deliveryFee;if(order.courierPayout===undefined)order.courierPayout=deliveryFee;}order.payment=total+' Tek Ceilings';
     }
     if(order.reinforced)order.reinforcementPricingApplied=1;order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
   }
@@ -1328,7 +1335,7 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 })();
 
 </script>
-<script src="material-analytics.js?v=20261017-pie-touch"></script>
+<script src="material-analytics.js?v=20261019-chart-cleanup"></script>
 <script>
 (function setupDataStorage(){
   const panel=document.getElementById('dataStoragePanel');if(!panel)return;
@@ -1366,6 +1373,7 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 
 </script>
 <script src="cloud-sync.js?v=20261019-accessibility"></script>
+<script src="courier-admin.js?v=20261019-courier"></script>
 </body>
 
 </html>
