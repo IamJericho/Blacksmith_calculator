@@ -925,11 +925,11 @@ Ideal CC: ${result.CC.ideal}`;
   if(internal){costPreview=document.createElement('section');costPreview.id='costPreviewPanel';costPreview.className='internal-tools';costPreview.hidden=true;catalog.append(costPreview);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='cost-preview';tab.textContent='Cost preview';tab.setAttribute('aria-pressed','false');tabs.append(tab);const link=document.createElement('a');link.className='btn btn-secondary';link.href='#cost-preview';link.textContent='Preview a separate crafting cost';tools.querySelector('h2').after(link);}
   if(internal){orderHistoryPanel=document.createElement('section');orderHistoryPanel.id='orderHistoryPanel';orderHistoryPanel.className='internal-tools';orderHistoryPanel.hidden=true;catalog.append(orderHistoryPanel);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='order-history';tab.textContent='Order History';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
   if(internal){materialAnalyticsPanel=document.createElement('section');materialAnalyticsPanel.id='materialAnalyticsPanel';materialAnalyticsPanel.className='internal-tools';materialAnalyticsPanel.hidden=true;catalog.append(materialAnalyticsPanel);const tab=document.createElement('button');tab.type='button';tab.className='catalog-tab';tab.dataset.group='material-analytics';tab.textContent='Material Analytics';tab.setAttribute('aria-pressed','false');tabs.append(tab);}
-  const blueprintLibrary=document.createElement('section');blueprintLibrary.className='internal-tools';blueprintLibrary.id='blueprintLibraryPanel';blueprintLibrary.hidden=true;catalog.append(blueprintLibrary);const blueprintTab=document.createElement('button');blueprintTab.type='button';blueprintTab.className='catalog-tab';blueprintTab.dataset.group='blueprint-library';blueprintTab.textContent='Blueprint Library';blueprintTab.setAttribute('aria-pressed','false');tabs.append(blueprintTab);
+  const blueprintLibrary=document.createElement('section');blueprintLibrary.className='internal-tools';blueprintLibrary.id='blueprintLibraryPanel';blueprintLibrary.hidden=true;catalog.append(blueprintLibrary);const blueprintTab=document.createElement('button');blueprintTab.type='button';blueprintTab.className='catalog-tab';blueprintTab.dataset.group='blueprint-library';blueprintTab.textContent='Blueprint Library';blueprintTab.setAttribute('aria-pressed','false');delete blueprintTab.dataset.group;blueprintTab.dataset.recipe='blueprint-library';recipeFilters.append(blueprintTab);
   const tabHashes={'blueprint-library':'blueprint-library','material-payments':'material-pricing-payments',recipes:'recipes',cursed:'cursed-gear',regular:'saddles',platform:'platform-saddles',teksaddles:'tek-saddles',tier1:'equipment',tier2:'tier-2',cursed1:'cursed-tier-1',cursed2:'cursed-tier-2',tools:'crafting-pricing',inventory:'inventory',restock:'restock','ready-orders':'ready-orders','data-storage':'data-storage','cost-preview':'cost-preview','order-history':'order-history','material-analytics':'material-analytics'};
-  if(internal){for(const group of ['recipes','blueprint-library','tools','cost-preview','ready-orders','order-history','inventory','material-payments','restock','material-analytics','data-storage']){const tab=tabs.querySelector('button[data-group="'+group+'"]');if(tab)tabs.append(tab);}}
+  if(internal){for(const group of ['recipes','tools','cost-preview','ready-orders','order-history','inventory','material-payments','restock','material-analytics','data-storage']){const tab=tabs.querySelector('button[data-group="'+group+'"]');if(tab)tabs.append(tab);}}
   const availableTabs=[...tabs.querySelectorAll('button[data-group]')];
-  function groupFromHash(){const hash=window.location.hash.slice(1);if(internal){const legacy=Object.keys(tabHashes).find(group=>recipeGroups.has(group)&&tabHashes[group]===hash);if(legacy){recipeFilter=legacy;return 'recipes';}}return availableTabs.find(tab=>tabHashes[tab.dataset.group]===hash)?.dataset.group;}
+  function groupFromHash(){const hash=window.location.hash.slice(1);if(hash==='blueprint-library'){recipeFilter='blueprint-library';return 'recipes';}if(internal){const legacy=Object.keys(tabHashes).find(group=>recipeGroups.has(group)&&tabHashes[group]===hash);if(legacy){recipeFilter=legacy;return 'recipes';}}return availableTabs.find(tab=>tabHashes[tab.dataset.group]===hash)?.dataset.group;}
   let active=groupFromHash()||(internal?'recipes':panels[0]?.dataset.group);let selectedOnly=false;
   function syncTabSelection(){for(const tab of availableTabs)tab.setAttribute('aria-pressed',String(tab.dataset.group===active));}
   syncTabSelection();
@@ -954,7 +954,7 @@ Ideal CC: ${result.CC.ideal}`;
     const previewActive=active==='cost-preview';if(costPreview)costPreview.hidden=!previewActive;aside.hidden=internal||previewActive||historyActive||analyticsActive||active==='ready-orders';workspace.style.gridTemplateColumns=internal||previewActive||historyActive||analyticsActive||active==='ready-orders'?'minmax(0,1fr)':'';
     const toolsActive = active === "tools";
     if(tools) tools.hidden = !toolsActive;
-    const libraryActive=active==='blueprint-library';blueprintLibrary.hidden=!libraryActive;
+    const libraryActive=active==='recipes'&&recipeFilter==='blueprint-library';blueprintLibrary.hidden=!libraryActive;
     const paymentsActive=active==='material-payments';if(materialPayments)materialPayments.hidden=!paymentsActive;
     const inventoryActive=active === "inventory";if(inventory)inventory.hidden=!inventoryActive;
     const restockActive=active === "restock";if(restock)restock.hidden=!restockActive;
@@ -968,7 +968,7 @@ Ideal CC: ${result.CC.ideal}`;
   tabs.addEventListener('click',event=>{const button=event.target.closest('button[data-group]');if(!button)return;activateTab(button.dataset.group);window.location.hash=tabHashes[active];});
   window.addEventListener('hashchange',()=>{const group=groupFromHash();if(group)activateTab(group);});
 
-  recipeFilters.addEventListener('click',event=>{const button=event.target.closest('button[data-recipe]');if(!button)return;recipeFilter=button.dataset.recipe;refresh();});
+  recipeFilters.addEventListener('click',event=>{const button=event.target.closest('button[data-recipe]');if(!button)return;recipeFilter=button.dataset.recipe;if(recipeFilter==='blueprint-library')window.location.hash='blueprint-library';else if(window.location.hash==='#blueprint-library')window.location.hash='recipes';refresh();});
   search.addEventListener("input",refresh);
   selectedButton.addEventListener("click",()=>{selectedOnly=!selectedOnly;selectedButton.setAttribute("aria-pressed",String(selectedOnly));refresh();});
   document.addEventListener("change",refresh);
@@ -1355,6 +1355,6 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 </script>
 <script src="courier-delivery-sync.js?v=20261019-delivered-paid"></script><script src="cloud-sync.js?v=20261019-delivered"></script>
 <script src="courier-admin.js?v=20261019-courier"></script>
-<script src="blueprint-library.js?v=20261020-recipes"></script></body>
+<script src="blueprint-library.js?v=20261020-copy"></script></body>
 
 </html>
