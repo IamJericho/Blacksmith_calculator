@@ -621,6 +621,7 @@ ${f2f ? "# Face to Face Trade. Message before you transfer to ensure I am online
       internalText += `Total Items: ${totalItems}`;
 
       document.getElementById("orderSummaryInternal").textContent = internalText;
+      window.refreshBlacksmithCraftingOrders?.();
 
     }
 
@@ -1065,7 +1066,7 @@ window.formatBlacksmithItemList=function(entries){
   window.parsePastedBlacksmithOrders=parseOrders;
   const tools=document.querySelector('.internal-tools');if(!tools)return;
   const box=document.createElement('div');box.className='output order-import';
-  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. The calculator uses current pricing. Existing Orders retain their locked customer payment. Repeated items are combined and added to your current order. Named orders also create a separate customer message in Orders.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
+  box.innerHTML='<h3>Paste orders</h3><label class="form-label" for="pastedOrders">Paste one or multiple orders</label><textarea id="pastedOrders" class="form-control" rows="5" placeholder="Name: … Order: Saddle: 10 Megachelon Platform Payment: …"></textarea><p class="note">Paste full orders or item lists with category headings such as Saddles, Equipment, or Cursed Tier 2. Categories are kept when copying remaining items.</p><p class="note">Only items and quantities are imported. Name, Payment, Total Items, and Trader are ignored. The calculator uses current pricing. Existing Orders retain their locked customer payment. Named orders create customer orders. Crafting totals include only Not Processing and Processing orders.</p><button type="button" class="btn btn-primary" id="importOrders">Add pasted orders</button><pre id="importOrderStatus" role="status" aria-live="polite"></pre>';
   tools.querySelector('h2').after(box);
   document.getElementById('importOrders').addEventListener('click',()=>{
     const text=document.getElementById('pastedOrders').value.trim(),status=document.getElementById('importOrderStatus');
@@ -1075,63 +1076,19 @@ window.formatBlacksmithItemList=function(entries){
     const result=parseOrders(text,items);
     if(result.errors.length){status.textContent='Nothing added. Check these unrecognized or ambiguous items:\n'+result.errors.join('\n');return;}
     if(!result.totals.size){status.textContent='No order items found.';return;}
-    for(const [key,quantity] of result.totals){const select=selects[key],max=Number(select.options[select.options.length-1].value);if(Number(select.value)+quantity>max){status.textContent=`Nothing added. ${select.dataset.name.split('|').pop()} exceeds the ${max}-item limit including your current order.`;return;}}
     const ready=window.prepareBlacksmithReadyOrders(text);if(ready.error){status.textContent=ready.error;return;}
-    let count=0;const lines=[];
-    for(const [key,quantity] of result.totals){const select=selects[key];select.value=String(Number(select.value)+quantity);select.dispatchEvent(new Event('change',{bubbles:true}));count+=quantity;lines.push({select,quantity});}
+    const count=[...result.totals.values()].reduce((a,b)=>a+b,0);window.refreshBlacksmithCraftingOrders?.();
     status.textContent=`Added ${count} items.`+(ready.count?` Created ${ready.count} Order${ready.count===1?'':'s'}.`:'');document.getElementById('pastedOrders').value='';
   });
 })();
 
 </script>
 <script>
-(function rememberInternalItems(){
-  const key='blacksmith-internal-items-v1';
-  const selects=[...document.querySelectorAll('select[data-group]')];
-  const tools=document.querySelector('.internal-tools');if(!tools)return;
-  const id=select=>select.dataset.group+'|'+select.dataset.name;
-  const section=document.querySelector('.order-import');
-  const actions=document.createElement('div');actions.className='pasted-item-actions';actions.innerHTML='<button type="button" class="btn btn-secondary" id="undoCompleteAllItems" hidden>Undo complete all</button>';
-  document.getElementById('importOrders').after(actions);
-  const content=document.createElement('div');content.innerHTML='<pre id="remainingItemList" hidden></pre><details><summary>Complete individual items</summary><div id="remainingItems"></div></details><p id="itemSaveStatus" class="note" role="status" aria-live="polite"></p>';section.append(content);
-  const list=section.querySelector('#remainingItems'),status=section.querySelector('#itemSaveStatus');
-  document.getElementById('undoCompleteAllItems').addEventListener('click',()=>{
-    try{const data=JSON.parse(localStorage.getItem(key)||'{}'),undo=data.craftingCompletionUndo;if(!undo)return;const changes=selects.map(select=>({select,quantity:Number(select.value)+(Number(undo[id(select)])||0)}));for(const {select,quantity}of changes){if(!Number.isSafeInteger(quantity)||quantity<0)throw Error('Invalid recovery quantity.');if(![...select.options].some(o=>Number(o.value)===quantity)){const option=new Option(String(quantity),String(quantity));select.append(option);}}
-      data.items=Object.fromEntries(changes.filter(c=>c.quantity>0).map(c=>[id(c.select),c.quantity]));delete data.craftingCompletionUndo;localStorage.setItem(key,JSON.stringify(data));for(const {select,quantity}of changes){select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}render();document.getElementById('importOrders').focus();window.blacksmithNotify('Crafting items restored. Items added since completion were kept.');
-    }catch(error){window.blacksmithNotify('Could not restore crafting items: '+error.message,'error');}
-  });
-  let storageWorks=true;
-  function save(){
-    try{localStorage.setItem(key,JSON.stringify({...JSON.parse(localStorage.getItem(key)||'{}'),items:Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]))}));status.textContent='';}
-    catch(_){storageWorks=false;status.textContent='Browser storage is unavailable. These items will not survive a refresh.';}
-  }
-  function render(){
-    try{document.getElementById('undoCompleteAllItems').hidden=!Object.keys(JSON.parse(localStorage.getItem(key)||'{}').craftingCompletionUndo||{}).length;}catch(_){}
-    document.getElementById('remainingItemList').textContent=window.formatBlacksmithItemList(selects.filter(select=>Number(select.value)>0).map(select=>({select,quantity:Number(select.value)})));
-    list.replaceChildren();
-    for(const select of selects){
-      const quantity=Number(select.value);if(!quantity)continue;
-      const row=document.createElement('div');row.className='remaining-item';
-      const name=document.createElement('span');const groupLabels={regular:'Saddle',platform:'Platform saddle',teksaddles:'Tek saddle',tier1:'Equipment',tier2:'Tier 2',cursed1:'Cursed Tier 1',cursed2:'Cursed Tier 2'};
-      name.textContent=`${select.dataset.name.split('|').pop()} · ${groupLabels[select.dataset.group]} · ${quantity} remaining`;
-      const input=document.createElement('input');input.type='number';input.min='1';input.max=String(quantity);input.step='1';input.value=String(quantity);input.className='form-control';input.setAttribute('aria-label','Completed quantity for '+name.textContent);
-      const button=document.createElement('button');button.type='button';button.className='btn btn-secondary';button.textContent='Complete';
-      input.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();button.click();}});
-      input.addEventListener('input',()=>{button.disabled=!Number.isInteger(input.valueAsNumber)||input.valueAsNumber<1||input.valueAsNumber>Number(select.value);});
-      button.addEventListener('click',()=>{const completed=input.valueAsNumber,current=Number(select.value);if(!Number.isInteger(completed)||completed<1||completed>current)return;select.value=String(current-completed);select.dispatchEvent(new Event('change',{bubbles:true}));window.blacksmithNotify(completed+' '+select.dataset.name.split('|').pop()+' completed.');});
-      row.append(name,input,button);list.append(row);
-    }
-  }
-  try{
-    const saved=JSON.parse(localStorage.getItem(key)||'null');
-    if(saved&&saved.items&&typeof saved.items==='object'){
-      for(const select of selects){const quantity=saved.items[id(select)],max=Number(select.options[select.options.length-1].value);if(Number.isSafeInteger(quantity)&&quantity>=0){if(quantity>max)select.append(new Option(String(quantity),String(quantity)));select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}}
-    }
-  }catch(_){storageWorks=false;status.textContent='Could not restore saved items. Browser storage may be unavailable.';}
-  document.addEventListener('change',event=>{if(event.target.matches('select[data-group]')){save();render();}});
-  document.getElementById('importOrders').addEventListener('click',save);
-  const originalReset=window.resetAll;window.resetAll=function(){originalReset();document.getElementById('pastedOrders').value='';document.getElementById('importOrderStatus').textContent='';save();render();};
-  render();if(storageWorks)save();
+(function rememberRecipeSelections(){
+  const key='blacksmith-internal-items-v1',selects=[...document.querySelectorAll('select[data-group]')],id=select=>select.dataset.group+'|'+select.dataset.name;
+  function save(){try{const prefs=JSON.parse(localStorage.getItem(key)||'{}');prefs.manualItems=Object.fromEntries(selects.filter(s=>Number(s.value)>0).map(s=>[id(s),Number(s.value)]));localStorage.setItem(key,JSON.stringify(prefs));}catch(error){window.blacksmithNotify('Recipe selections could not be saved.','error');}}
+  try{const saved=JSON.parse(localStorage.getItem(key)||'{}').manualItems||{};for(const select of selects){const quantity=saved[id(select)];if(Number.isSafeInteger(quantity)&&quantity>=0){if(![...select.options].some(o=>Number(o.value)===quantity))select.append(new Option(String(quantity),String(quantity)));select.value=String(quantity);select.dispatchEvent(new Event('change',{bubbles:true}));}}}catch(_){}
+  document.addEventListener('change',event=>{if(event.target.matches('select[data-group]'))save();});
 })();
 
 </script>
@@ -1245,7 +1202,7 @@ window.formatBlacksmithItemList=function(entries){
     const preview=document.createElement('pre');preview.textContent=window.readyOrderMessage(order);card.append(preview);
     const copy=document.createElement('button');copy.type='button';copy.className='btn btn-primary';copy.textContent='Copy message';copy.disabled=!!order.priceWarning||(!order.delivery&&(!order.room||!order.vault));if(copy.disabled){const warning=document.createElement('p');warning.className='payment-error';warning.textContent=order.priceWarning||'Pending room assignment. Pickup message can be copied after a room is assigned automatically.';card.append(warning);}copy.addEventListener('click',async()=>{const copied=await window.blacksmithCopy(window.readyOrderMessage(order),copy,'Message copied for '+order.name+'!');get('readyOrdersStatus').textContent=copied?'Copied message for '+order.name:'Copy unavailable. Select and copy the message.';});
     card.append(copy);
-    const deleteOrder=document.createElement('button');deleteOrder.type='button';deleteOrder.className='btn btn-secondary delete-order';deleteOrder.textContent='Delete order';deleteOrder.setAttribute('aria-label','Delete order for '+order.name);deleteOrder.addEventListener('click',()=>{if(!window.confirm('Delete this order for '+order.name+'? This removes it from Orders without adding it to completed history. Crafting quantities are unchanged.'))return;try{readLatestOrders();const remaining=orders.filter(o=>o.id!==order.id);localStorage.setItem(storageKey,JSON.stringify(remaining));orders=remaining;window.blacksmithForgetMaterialUsage?.(order.id);render();window.dispatchEvent(new Event('blacksmith-order-updated'));window.blacksmithNotify('Order deleted. Any assigned pickup location has been released.');}catch(error){window.blacksmithNotify('Order could not be deleted: '+error.message,'error');}});
+    const deleteOrder=document.createElement('button');deleteOrder.type='button';deleteOrder.className='btn btn-secondary delete-order';deleteOrder.textContent='Delete order';deleteOrder.setAttribute('aria-label','Delete order for '+order.name);deleteOrder.addEventListener('click',()=>{if(!window.confirm('Delete this order for '+order.name+'? This removes it from Orders without adding it to completed history. Its items will also leave the active crafting totals.'))return;try{readLatestOrders();const remaining=orders.filter(o=>o.id!==order.id);localStorage.setItem(storageKey,JSON.stringify(remaining));orders=remaining;window.blacksmithForgetMaterialUsage?.(order.id);render();window.dispatchEvent(new Event('blacksmith-order-updated'));window.blacksmithNotify('Order deleted. Any assigned pickup location has been released.');}catch(error){window.blacksmithNotify('Order could not be deleted: '+error.message,'error');}});
     const finish=document.createElement('button');finish.type='button';finish.className='btn btn-primary';finish.textContent=order.delivery?'Delivered & Paid':'Picked up & Paid';finish.setAttribute('aria-label',finish.textContent+' for '+order.name);finish.addEventListener('click',()=>{try{readLatestOrders();const current=orders.find(o=>o.id===order.id);if(!current)throw Error('This order is no longer active.');const now=new Date().toISOString();current.paid=true;current.paidAt=current.paidAt||now;current.fulfilled=true;current.fulfilledAt=current.fulfilledAt||now;localStorage.setItem(storageKey,JSON.stringify(orders));render();window.dispatchEvent(new Event('blacksmith-order-updated'));}catch(error){window.blacksmithNotify('Order could not be completed: '+error.message,'error');}});
     const finishActions=document.createElement('div');finishActions.className='order-finish-actions';finishActions.append(finish,deleteOrder);
 
@@ -1253,7 +1210,7 @@ window.formatBlacksmithItemList=function(entries){
     if(!order.delivery){const reassign=document.createElement('button');reassign.type='button';reassign.className='btn btn-secondary';reassign.textContent='Assign another location';reassign.addEventListener('click',()=>{try{readLatestOrders();}catch(error){get('readyOrdersStatus').textContent=error.message;return;}const current=orders.find(o=>o.id===order.id);if(!current)return;const reserved=new Set([...occupied,...orders.filter(o=>!o.delivery&&o.room&&o.vault).map(slotKey)]);const slot=window.allocateBlacksmithPickupSlot(onlinePickupSlots(),reserved);if(!slot){get('readyOrdersStatus').textContent='No unused pickup locations available.';return;}current.room=slot.room;current.vault=slot.vault;current.manualLocation=false;save();render();get('readyOrdersStatus').textContent='Assigned '+slot.room+slot.vault+' to '+current.name;});card.append(reassign);}
     card.append(finishActions);
     get('readyOrderCards').append(card);
-  }restoreOrderFocus(savedFocus);}
+  }restoreOrderFocus(savedFocus);window.refreshBlacksmithCraftingOrders?.();}
   window.addEventListener('blacksmith-courier-delivery-updated',()=>{readLatestOrders();render();});
   function renderHistory(){const query=get('historySearch').value.trim().toLowerCase();const root=get('orderHistoryList');root.replaceChildren();let history;try{history=window.blacksmithOrderHistory();}catch(error){root.textContent=error.message;return;}get('orderHistoryHeading').textContent='Order History ('+history.length+')';const historyTab=document.querySelector('.catalog-tab[data-group="order-history"]');if(historyTab)historyTab.textContent='Order History'+(history.length?' ('+history.length+')':'');for(const order of history.filter(o=>[o.name,o.items,o.privateNotes||''].join(' ').toLowerCase().includes(query))){const card=document.createElement('div');card.className='history-card';const title=document.createElement('h3');title.textContent=order.name+' · '+(order.delivery?'Delivered':'Picked up');const detail=document.createElement('pre');detail.textContent=order.items+'\nPayment: '+(order.payment||'not recorded')+'\nCompleted: '+new Date(order.completedAt).toLocaleString()+(order.privateNotes?'\nPrivate notes: '+order.privateNotes:'');const undo=document.createElement('button');undo.className='btn btn-secondary';undo.type='button';undo.textContent='Undo / reopen order';undo.addEventListener('click',()=>{try{window.blacksmithRestoreOrder(order.id);readLatestOrders();get('orderSearch').value='';readyFilter='all';render();window.location.hash='ready-orders';window.blacksmithNotify('Order reopened. A free pickup location is assigned automatically.');}catch(error){window.blacksmithNotify(error.message,'error');}});card.append(title,detail,undo);root.append(card);}if(!root.children.length)root.textContent=history.length?'No completed orders match your search.':'Completed orders will appear here when archived.';}
   function readyOrderCosts(order,legacy){
@@ -1295,7 +1252,7 @@ window.formatBlacksmithItemList=function(entries){
   window.prepareBlacksmithReadyOrders=function(text){
     try{readLatestOrders();}catch(error){return {error:error.message};}
     assignWaitingRooms();
-    const blocks=window.parseReadyOrderBlocks(text);if(!blocks.length)return {count:0};
+    const blocks=window.parseReadyOrderBlocks(text);if(!blocks.length)blocks.push({name:'Unassigned order',body:text,delivery:false,reinforced:false});
     const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
     const items=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));const prepared=[];const reserved=new Set([...occupied,...orders.filter(order=>!order.delivery&&order.room&&order.vault).map(slotKey)]);
     for(const block of blocks){const parsed=window.parsePastedBlacksmithOrders(block.body,items);if(!block.name||!parsed.totals.size||parsed.errors.length){return {error:'Nothing prepared. Check '+(block.name||'the customer name')+': '+(parsed.errors.join(', ')||'No order items found.')};}
@@ -1308,6 +1265,7 @@ window.formatBlacksmithItemList=function(entries){
 })();
 
 </script>
+<script src="crafting-orders.js?v=20261020-active-orders"></script>
 <script>
 window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
   const materials={},eligibleMaterials={},missing=[];let price=0,reinforcement=0;
