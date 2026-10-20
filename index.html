@@ -1235,6 +1235,7 @@ window.formatBlacksmithItemList=function(entries){
     card.append(finishActions);
     get('readyOrderCards').append(card);
   }restoreOrderFocus(savedFocus);}
+  window.addEventListener('blacksmith-courier-delivery-updated',()=>{readLatestOrders();render();});
   function renderHistory(){const query=get('historySearch').value.trim().toLowerCase();const root=get('orderHistoryList');root.replaceChildren();let history;try{history=window.blacksmithOrderHistory();}catch(error){root.textContent=error.message;return;}get('orderHistoryHeading').textContent='Order History ('+history.length+')';const historyTab=document.querySelector('.catalog-tab[data-group="order-history"]');if(historyTab)historyTab.textContent='Order History'+(history.length?' ('+history.length+')':'');for(const order of history.filter(o=>[o.name,o.items,o.privateNotes||''].join(' ').toLowerCase().includes(query))){const card=document.createElement('div');card.className='history-card';const title=document.createElement('h3');title.textContent=order.name+' · '+(order.delivery?'Delivered':'Picked up');const detail=document.createElement('pre');detail.textContent=order.items+'\nPayment: '+(order.payment||'not recorded')+'\nCompleted: '+new Date(order.completedAt).toLocaleString()+(order.privateNotes?'\nPrivate notes: '+order.privateNotes:'');const undo=document.createElement('button');undo.className='btn btn-secondary';undo.type='button';undo.textContent='Undo / reopen order';undo.addEventListener('click',()=>{try{window.blacksmithRestoreOrder(order.id);readLatestOrders();get('orderSearch').value='';readyFilter='all';render();window.location.hash='ready-orders';window.blacksmithNotify('Order reopened. A free pickup location is assigned automatically.');}catch(error){window.blacksmithNotify(error.message,'error');}});card.append(title,detail,undo);root.append(card);}if(!root.children.length)root.textContent=history.length?'No completed orders match your search.':'Completed orders will appear here when archived.';}
   function readyOrderCosts(order,legacy){
       const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
@@ -1370,7 +1371,7 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 })();
 
 </script>
-<script src="cloud-sync.js?v=20261019-images"></script>
+<script src="courier-delivery-sync.js?v=20261019-delivered"></script><script src="cloud-sync.js?v=20261019-delivered"></script>
 <script src="courier-admin.js?v=20261019-courier"></script>
 </body>
 
