@@ -8,13 +8,13 @@
     const cleaned=structuredClone(cloud),changed=[];
     for(let i=0;i<after.length;i++){
       const a=before[i],b=after[i];if(a.id!==b.id)return null;if(canonical(a)===canonical(b))continue;
-      if(b.delivery!==true||b.fulfilled!==true||!b.courierDeliveredAt||b.courierDeliveredAt===a.courierDeliveredAt||isNaN(Date.parse(b.courierDeliveredAt)))return null;
-      for(const field of ['fulfilled','fulfilledAt','courierDeliveredAt']){if(Object.hasOwn(a,field))cleaned[key][i][field]=a[field];else delete cleaned[key][i][field];}
+      if(b.delivery!==true||b.fulfilled!==true||b.paid!==true||!b.courierDeliveredAt||b.courierDeliveredAt===a.courierDeliveredAt||isNaN(Date.parse(b.courierDeliveredAt)))return null;
+      for(const field of ['fulfilled','fulfilledAt','paid','paidAt','courierDeliveredAt']){if(Object.hasOwn(a,field))cleaned[key][i][field]=a[field];else delete cleaned[key][i][field];}
       changed.push(b);
     }
     if(!changed.length||canonical(cleaned)!==canonical(base))return null;
     const result=structuredClone(local);
-    for(const incoming of changed){const order=(result[key]||[]).find(o=>o.id===incoming.id);if(!order)continue;if(order.delivery!==true)return null;const original=before.find(o=>o.id===order.id);if(order.fulfilled!==original.fulfilled&&order.fulfilled!==true)return null;order.fulfilled=true;order.fulfilledAt=incoming.fulfilledAt;order.courierDeliveredAt=incoming.courierDeliveredAt;}
+    for(const incoming of changed){const order=(result[key]||[]).find(o=>o.id===incoming.id);if(!order)continue;if(order.delivery!==true)return null;const original=before.find(o=>o.id===order.id);if(order.fulfilled!==original.fulfilled&&order.fulfilled!==true)return null;order.fulfilled=true;order.fulfilledAt=incoming.fulfilledAt;order.paid=true;order.paidAt=incoming.paidAt;order.courierDeliveredAt=incoming.courierDeliveredAt;}
     return result;
   };
 })();
