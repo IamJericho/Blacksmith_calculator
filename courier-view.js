@@ -6,7 +6,7 @@
   function table(headers,rows){const wrap=document.createElement('div');wrap.className='table-wrap';const t=document.createElement('table'),thead=document.createElement('thead'),tr=document.createElement('tr');for(const h of headers){const th=text('th',h,tr);th.scope='col';}thead.append(tr);t.append(thead);const tbody=document.createElement('tbody');for(const row of rows){const tr=document.createElement('tr');for(const value of row)text('td',String(value??''),tr);tbody.append(tr);}t.append(tbody);wrap.append(t);root.append(wrap);}
   function orderStatus(order){
     if(order.delivered)return order.delivery?'Delivered':'Picked up';
-    if(order.workStatus==='complete')return (order.delivery?'Ready for delivery':'Ready for pickup')+(order.paid?' · Paid':order.faceToFace&&!order.delivery?' · Awaiting payment':' · Payment due on '+(order.delivery?'delivery':'pickup'));
+    if(order.workStatus==='complete')return (order.delivery?'Ready for delivery':'Ready for pickup')+(order.paid?' · Paid':order.delivery?'':order.faceToFace?' · Awaiting payment':' · Payment due on pickup');
     return (order.workStatus==='processing'?'Crafting in progress':'Queued for crafting')+(order.paid?' · Paid':'');
   }
   function card(order,history=false){
