@@ -821,7 +821,7 @@ Ideal CC: ${result.CC.ideal}`;
   workspace.append(catalog,aside);masthead.after(workspace);
   let tools = null;
   if(internal){
-    tools=document.createElement("section");tools.className="internal-tools";tools.hidden=true;tools.innerHTML='<h2>Crafting materials & manual pricing</h2>';
+    tools=document.createElement("section");tools.className="internal-tools";tools.hidden=true;tools.innerHTML='<h2>Crafting Materials</h2>';
     for(const id of ["materialSummary","orderSummaryInternal","manualResult"]){tools.append(document.getElementById(id).closest(".output"));}
     catalog.append(tools);
     const toolsTab=document.createElement("button");toolsTab.type="button";toolsTab.className="catalog-tab";toolsTab.dataset.group="tools";toolsTab.textContent="Crafting & pricing";toolsTab.setAttribute("aria-pressed","false");tabs.append(toolsTab);
