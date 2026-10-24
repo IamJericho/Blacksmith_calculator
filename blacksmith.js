@@ -240,7 +240,7 @@ window.BLACKSMITH = {
         "Cart": { materials: { A: 243, M: 487, F: 7312, W: 7312, D: 263 } },
         "Chainsaw": { materials: { A: 790, M: 790, E: 395, P: 1185, D: 602 } },
         "Climbing Pick": { materials: { F: 145, G: 58, FW: 29, M: 116, D: 325 } },
-        "Drake Claw": { materials: { C: 54, M: 273, F: 1094, A: 91, D: 81 } },       
+        "Drake Claw": { materials: { C: 25, M: 126, F: 506, A: 42, D: 79 } },       
         "Hatchet": { materials: { H: 787, W: 78, M: 630, D: 525 } },
         "Pick": { materials: { H: 1275, W: 127, M: 127, D: 627 } },
         "Shield": { materials: { A: 142, M: 570, H: 107, D: 7735 } },
