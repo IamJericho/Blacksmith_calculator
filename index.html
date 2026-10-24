@@ -1156,12 +1156,17 @@ window.formatBlacksmithItemList=function(entries){
     // Reserve every valid existing assignment before considering queued orders.
     for(const order of [...list].sort((a,b)=>Number(b.manualLocation===true)-Number(a.manualLocation===true))){if(order.delivery)continue;const key=order.room+'|'+order.vault;const valid=slots.some(slot=>slot.room+'|'+slot.vault===key);
       if(valid&&!assigned.has(key)){reserved.add(key);assigned.add(key);}else if(order.room||order.vault){order.room='';order.vault='';changed=true;}}
+    // Keep existing completed/manual locations; use empty slots before reclaiming unfinished automatic reservations.
+    for(const order of list){if(order.delivery||order.fulfilled||order.workStatus!=='complete'||(order.room&&order.vault))continue;let slot=window.allocateBlacksmithPickupSlot(slots,reserved);
+      if(!slot){const candidates=list.filter(other=>!other.delivery&&!other.fulfilled&&other.workStatus!=='complete'&&!other.manualLocation&&other.room&&other.vault&&!external.has(other.room+'|'+other.vault)).sort((a,b)=>Number(a.workStatus==='processing')-Number(b.workStatus==='processing'));const displaced=candidates[0];if(displaced){slot=slots.find(s=>s.room===displaced.room&&s.vault===displaced.vault);if(slot){reserved.delete(displaced.room+'|'+displaced.vault);displaced.room='';displaced.vault='';displaced.pendingRoom=true;changed=true;}}}
+      if(slot){order.room=slot.room;order.vault=slot.vault;reserved.add(slot.room+'|'+slot.vault);changed=true;}
+    }
     // Array order is the original acceptance order: oldest waiting order gets priority.
     for(const order of list){if(order.delivery)continue;if(!order.room||!order.vault){const slot=window.allocateBlacksmithPickupSlot(slots,reserved);if(slot){order.room=slot.room;order.vault=slot.vault;reserved.add(slot.room+'|'+slot.vault);changed=true;}}
       const pending=!order.room||!order.vault;if(order.pendingRoom!==pending){order.pendingRoom=pending;changed=true;}}
     return changed;
   };
-  function assignWaitingRooms(){if(window.reconcileBlacksmithRooms(orders,onlinePickupSlots(),occupied))save();}
+  function assignWaitingRooms(){const before=new Map(orders.map(o=>[o.id,{room:o.room||'',vault:o.vault||''}]));if(window.reconcileBlacksmithRooms(orders,onlinePickupSlots(),occupied)){for(const order of orders){const draft=locationDrafts.get(order.id),old=before.get(order.id);if(draft&&old&&draft.room===old.room&&draft.vault===old.vault){draft.room=order.room||'';draft.vault=order.vault||'';}}save();}}
   assignWaitingRooms();
 
   window.parseReadyOrderBlocks=function(text){
