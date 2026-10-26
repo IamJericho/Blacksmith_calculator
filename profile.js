@@ -1,4 +1,5 @@
 (()=>{
+ const themeSelect=document.getElementById('themePreference');const syncTheme=()=>{themeSelect.value=window.BLACKSMITH_THEME.preference||'system';};themeSelect.addEventListener('change',()=>{window.BLACKSMITH_THEME.set(themeSelect.value==='system'?null:themeSelect.value);document.getElementById('themeSaveStatus').textContent='Theme saved.';});window.addEventListener('blacksmith-theme-change',syncTheme);syncTheme();
  const A=window.BAuth,get=id=>document.getElementById(id),status=get('profileStatus');let data=null,selectedId=null,busy=false;
  const text=(tag,value,parent)=>{const e=document.createElement(tag);e.textContent=value;parent.append(e);return e;};
  const label=event=>event.split('-').map(s=>s[0]?.toUpperCase()+s.slice(1)).join(' ');

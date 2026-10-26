@@ -1,32 +1,12 @@
 <!doctype html>
 <html lang="en">
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cwQ2qidpA1GkK2diiG46kQSNp23PRVjxbIgd3TZbLPM=' 'sha256-bxgI7W4yeWO0uAx9SyhCNTKfJzEGfZCoOo/NKk+KBno=' 'sha256-FHMkP9sS/10susiOqoP2Shho6BbfsovFsaA8JlkBMNo=' 'sha256-6osSt28WGfkuaB0xWq96juJhHdodHM5CLdd6mybAW/s=' 'sha256-yyFoeh0Tca+yzOgoP94d2arui9+NohvBdw4jIe3kYpU=' 'sha256-bFG5R1WQEUFBCy28n3hUlpqEvZBQYDZoymzUBKUCytE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer">
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-bxgI7W4yeWO0uAx9SyhCNTKfJzEGfZCoOo/NKk+KBno=' 'sha256-FHMkP9sS/10susiOqoP2Shho6BbfsovFsaA8JlkBMNo=' 'sha256-6osSt28WGfkuaB0xWq96juJhHdodHM5CLdd6mybAW/s=' 'sha256-yyFoeh0Tca+yzOgoP94d2arui9+NohvBdw4jIe3kYpU=' 'sha256-bFG5R1WQEUFBCy28n3hUlpqEvZBQYDZoymzUBKUCytE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Starfall moderator auction timing calculator for 6, 12, and 24-hour rooms.">
   <title>Starfall Auction Calculator</title>
-  <script>
-(function () {
-  const system = window.matchMedia('(prefers-color-scheme: dark)');
-  let preference = null;
-  try { const stored = localStorage.getItem('blacksmith-theme'); if (['light', 'dark'].includes(stored)) preference = stored; } catch (_) {}
-  function apply() {
-    document.documentElement.dataset.theme = preference || (system.matches ? 'dark' : 'light');
-    window.dispatchEvent(new Event('blacksmith-theme-change'));
-  }
-  window.BLACKSMITH_THEME = {
-    set(value) {
-      preference = ['light', 'dark'].includes(value) ? value : null;
-      try { if (preference) localStorage.setItem('blacksmith-theme', preference); else localStorage.removeItem('blacksmith-theme'); } catch (_) {}
-      apply();
-    },
-    get preference() { return preference; }
-  };
-  system.addEventListener('change', () => { if (!preference) apply(); });
-  apply();
-})();
-</script>
+  
 <style>:root{color-scheme:light;--bg:#f5f6fa;--text:#182033;--muted:#526077;--border:#d7dde7;--accent:#354ac9;--panel:#fff}*{box-sizing:border-box}body{margin:0;padding:40px 28px;color:var(--text);background:var(--bg);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;max-width:1280px;margin:auto}h1,h2,p{margin:0}h1{font-size:42px;letter-spacing:-1.5px;line-height:1.2}h2{font-size:20px}button,input{font:inherit}button{cursor:pointer;border:1px solid #8995aa;border-radius:9px;padding:10px 16px;min-height:44px;background:#fff;color:var(--text)}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--accent);outline-offset:3px}.page-header{display:flex;justify-content:space-between;align-items:center;gap:24px;margin-bottom:32px}.eyebrow{font-size:11px;font-weight:700;letter-spacing:1.6px;color:var(--muted);margin-bottom:10px}.subtitle{color:var(--muted);margin-top:12px}.badge{border:1px solid var(--border);padding:8px 14px;border-radius:24px;font-size:12px;color:var(--muted);white-space:nowrap}.workspace{display:grid;grid-template-columns:360px minmax(0,1fr);gap:24px;align-items:start}.card{border:1px solid var(--border);border-radius:16px;background:var(--panel);padding:24px}.section-heading{display:flex;align-items:center;gap:12px;margin-bottom:24px}.step{font:12px ui-monospace,monospace;background:#eef0fd;color:#293ca6;border-radius:7px;padding:7px 9px}fieldset{border:0;padding:0;margin:0 0 24px;min-width:0}legend,label{font-size:13px;font-weight:600;margin-bottom:8px}.segmented{display:flex;gap:6px}.segmented button{flex:1;padding:9px 5px}.segmented button[aria-pressed=true],.duration-presets button[aria-pressed=true]{background:#e8ecff;color:#263ca8;border:2px solid #354ac9}.duration-presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}.duration-presets button{font-size:12px;padding:6px 10px}.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}label{display:block}input:not([type=checkbox]){width:100%;min-width:0;border:1px solid #8995aa;border-radius:9px;padding:10px;color:var(--text);background:#fff;min-height:44px;margin-top:6px}input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent)}.hint{font-size:12px;font-weight:400;color:var(--muted);margin-top:8px}.field{margin-top:22px}.check{display:flex;align-items:center;gap:8px;margin-top:24px;margin-bottom:0}.actions{margin-top:24px}.secondary{background:#fff}.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}.deadline-card{background:#182348;color:#fff;border-radius:16px;padding:32px}.deadline-card .eyebrow{color:#bac8ed}.big-time{font-size:clamp(30px,4vw,48px);font-weight:650;letter-spacing:-1px;line-height:1.2}.close-date{color:#d0dbf4;margin-top:12px}.deadline-meta{border-top:1px solid #6677a2;margin-top:24px;padding-top:16px;display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#d0dbf4}.milestones{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}.milestones h2{font-size:24px;font-variant-numeric:tabular-nums}.status{font-size:12px;margin-top:16px;color:#236443;font-weight:600}.status.unavailable{color:#7a3915}.summary-bar{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:20px}.summary-bar p{font-size:13px;color:var(--muted)}.bid-section,.rules{grid-column:1/-1}.bid-form{display:flex;align-items:end;gap:12px}.bid-form label{flex:1;margin:0;max-width:420px}.bid-list{margin-top:24px}.bid-entry{display:grid;grid-template-columns:1fr auto;gap:12px;padding:16px 0;border-top:1px solid var(--border)}.bid-entry strong{font-size:14px}.bid-entry p{font-size:12px;color:var(--muted);margin-top:4px}.bid-entry .invalid{color:#a32626}.bid-entry button{font-size:12px}.empty{font-size:13px;color:var(--muted);padding:16px;background:#f7f8fc;border-radius:10px}.error{color:#a32626;background:#fff0f0;border:1px solid #d48686;border-radius:9px;padding:12px;margin-bottom:14px;font-size:13px}.rules summary{font-weight:600;cursor:pointer}.rules ul{padding-left:20px;color:var(--muted);font-size:13px}.rules p{font-size:13px;color:var(--muted)}footer{font-size:12px;color:var(--muted);margin-top:24px}.skip-link{position:absolute;top:-100px;background:#fff;padding:10px;color:var(--accent)}.skip-link:focus{top:10px}[hidden]{display:none!important}
 @media(max-width:850px){.workspace{grid-template-columns:1fr}.setup{grid-row:1}.results{grid-row:2}.badge{display:none}.bid-section,.rules{grid-column:1}.summary-bar{flex-wrap:wrap}.summary-bar button{width:100%}}
 @media(max-width:480px){body{padding:24px 14px}h1{font-size:34px}.card{padding:20px}.deadline-card{padding:24px}.milestones{grid-template-columns:1fr}.bid-form{flex-direction:column;align-items:stretch}.bid-form label{max-width:none}.deadline-meta{flex-wrap:wrap}.bid-entry{grid-template-columns:1fr}.bid-entry button{justify-self:start}.big-time{font-size:32px}}
@@ -80,7 +60,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 .skip-link{position:absolute;top:-200px;left:12px;padding:12px;z-index:100;background:#745610;color:#fff}.skip-link:focus{top:12px}
 @media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight}.ready-order-card,.inventory-material{border:2px solid CanvasText}}
 </style>
-</head>
+<link rel="stylesheet" href="theme.css?v=20261026"></head>
 <body>
   <a href="#calculator" class="skip-link">Skip to calculator</a>
   <header class="page-header">

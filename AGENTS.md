@@ -6,3 +6,5 @@
 - Bump the relevant asset query version when modifying shared JavaScript used by a cached HTML page.
 - Never publish operational backups, account records, keys, recovery codes, local archives, or credentials in this public repository. Private server/account source and data remain in the existing private repository.
 - Verify relevant owner, internal, courier, and public flows using fake data. Do not use production data for attack tests.
+
+- All pages use `theme.js` and `theme.css`. Keep the shared theme script ahead of authentication scripts so it can read the browser-wide preference before account storage namespacing. Put account appearance controls in Profile. Use `:root[data-theme=dark]` for dark styling rather than OS-only media rules, so explicit Light overrides a dark device setting.
