@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en">
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cwQ2qidpA1GkK2diiG46kQSNp23PRVjxbIgd3TZbLPM=' 'sha256-bxgI7W4yeWO0uAx9SyhCNTKfJzEGfZCoOo/NKk+KBno=' 'sha256-FHMkP9sS/10susiOqoP2Shho6BbfsovFsaA8JlkBMNo=' 'sha256-6osSt28WGfkuaB0xWq96juJhHdodHM5CLdd6mybAW/s=' 'sha256-uCqQDpoi7tMR5ZUBPCKpqdiWwn/NkMs3RfS04ozXbMk=' 'sha256-bFG5R1WQEUFBCy28n3hUlpqEvZBQYDZoymzUBKUCytE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer">
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cwQ2qidpA1GkK2diiG46kQSNp23PRVjxbIgd3TZbLPM=' 'sha256-bxgI7W4yeWO0uAx9SyhCNTKfJzEGfZCoOo/NKk+KBno=' 'sha256-FHMkP9sS/10susiOqoP2Shho6BbfsovFsaA8JlkBMNo=' 'sha256-6osSt28WGfkuaB0xWq96juJhHdodHM5CLdd6mybAW/s=' 'sha256-yyFoeh0Tca+yzOgoP94d2arui9+NohvBdw4jIe3kYpU=' 'sha256-bFG5R1WQEUFBCy28n3hUlpqEvZBQYDZoymzUBKUCytE='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -133,8 +133,8 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       <aside class="sequence-box" aria-labelledby="sequenceTitle">
         <h3 id="sequenceTitle">Sequential bids</h3>
         <p class="hint" id="sequenceHint">Valid bid amounts within your range.</p>
-        <div class="two-fields"><label>From<input id="sequenceFrom" type="number" min="0" step="1" value="1"></label><label>To<input id="sequenceTo" type="number" min="0" step="1" value="24001"></label></div>
-        <div id="sequenceValues" class="sequence-values" role="status" aria-live="polite"></div>
+        <div class="two-fields"><label>From<input id="sequenceFrom" type="number" min="0" step="1" value="1"></label><label>To<input id="sequenceTo" type="number" min="0" step="1" value="49001"></label></div>
+        <details id="sequenceOptions"><summary>Bid display options</summary><label>Number of bids to show<input id="sequenceCount" type="number" min="1" max="1000" step="1" value="50" aria-describedby="sequenceCountHint"></label><p class="hint" id="sequenceCountHint">Choose 1–1,000 bids.</p></details><div id="sequenceValues" class="sequence-values" role="status" aria-live="polite"></div>
       </aside>
 </div>
     </section>
@@ -273,26 +273,30 @@ const get=id=>document.getElementById(id);let current=null,currentIncrement=null
 const number=id=>get(id).value===''?NaN:Number(get(id).value);
 function setup(){return {start:number('bidStart'),increment:number('bidIncrement'),bid:number('candidateBid'),incrementBid:number('candidateIncrement'),split:get('splitPayment').checked,current,currentIncrement};}
 function payment(base,extra=0){return get('splitPayment').checked?`${base.toLocaleString()}  + ${extra.toLocaleString()} `:`${base.toLocaleString()} `;}
-function refresh(){const s=setup();if(!customSequenceRange&&Number.isSafeInteger(s.start)&&s.start>0&&Number.isSafeInteger(s.increment)&&s.increment>0){const base=s.split?0:s.start;const end=base+24*s.increment;if(Number.isSafeInteger(end)){get('sequenceFrom').value=base;get('sequenceTo').value=end;}}refreshSequence();get('candidateIncrementField').hidden=!s.split;get('bidBaseline').textContent=s.split?`Starting amount stays ${s.start.toLocaleString()}; separate increment amounts: ${[0,1,2,3].map(n=>n*s.increment).join(", ")}…`:`Valid amounts: ${[0,1,2,3].map(n=>s.start+n*s.increment).join(', ')}…`;}
+const displayCount=()=>number('sequenceCount');
+function refresh(){const s=setup();if(!customSequenceRange&&Number.isSafeInteger(s.start)&&s.start>0&&Number.isSafeInteger(s.increment)&&s.increment>0){const base=s.split?0:s.start;const end=base+(displayCount()-1)*s.increment;if(Number.isSafeInteger(end)){get('sequenceFrom').value=base;get('sequenceTo').value=end;}}refreshSequence();get('candidateIncrementField').hidden=!s.split;get('bidBaseline').textContent=s.split?`Starting amount stays ${s.start.toLocaleString()}; separate increment amounts: ${[0,1,2,3].map(n=>n*s.increment).join(", ")}…`:`Valid amounts: ${[0,1,2,3].map(n=>s.start+n*s.increment).join(', ')}…`;}
 
-function sequenceAmounts(start,increment,from,to,split){
+function sequenceAmounts(start,increment,from,to,split,limit){
+  if(!Number.isSafeInteger(limit)||limit<1||limit>1000)return {error:'Enter a whole number of bids from 1 to 1,000.'};
   if(![start,increment,from,to].every(Number.isSafeInteger)||start<1||increment<1||from<0||to<from) return {error:'Enter positive whole numbers for the starting bid and increment, and a range from 0 or higher with To at least From.'};
   const base=split?0:start;
   const first=base+Math.max(0,Math.ceil((from-base)/increment))*increment;
   if(!Number.isSafeInteger(first)||first>to)return {values:[],count:0};
   const count=Math.floor((to-first)/increment)+1;
-  return {values:Array.from({length:Math.min(count,200)},(_,i)=>first+i*increment),count};
+  return {values:Array.from({length:Math.min(count,limit)},(_,i)=>first+i*increment),count};
 }
 function refreshSequence(){
-  const s=setup(),r=sequenceAmounts(s.start,s.increment,number('sequenceFrom'),number('sequenceTo'),s.split);
-  get('sequenceHint').textContent=s.split?'Range applies to the separate increment payment. The starting payment stays fixed.':'Defaults to the first 25 bids. Change From and To for a custom range.';
-  get('sequenceValues').textContent=r.error||(r.count===0?'No valid bids in this range.':r.values.map(v=>s.split?`${s.start.toLocaleString()} + ${v.toLocaleString()}`:v.toLocaleString()).join(' • ')+(r.count>200?` • … Showing the first 200 of ${r.count.toLocaleString()} bids. Narrow the range to see more.`:''));
+  const s=setup(),r=sequenceAmounts(s.start,s.increment,number('sequenceFrom'),number('sequenceTo'),s.split,displayCount());
+  get('sequenceHint').textContent=s.split?'Range applies to the separate increment payment. The starting payment stays fixed.':'Shows up to your selected number of bids (50 by default). Change From and To for a custom range.';
+  get('sequenceValues').textContent=r.error||(r.count===0?'No valid bids in this range.':r.values.map(v=>s.split?`${s.start.toLocaleString()} + ${v.toLocaleString()}`:v.toLocaleString()).join(' • ')+(r.count>displayCount()?` • … Showing the first ${displayCount().toLocaleString()} of ${r.count.toLocaleString()} bids. Adjust Bid display options or narrow the range to see more.`:''));
 }
+get('sequenceCount').addEventListener('input',()=>{const s=setup(),limit=displayCount();if(customSequenceRange&&Number.isSafeInteger(limit)&&limit>=1&&limit<=1000&&Number.isSafeInteger(s.increment)&&s.increment>0){const base=s.split?0:s.start,from=number('sequenceFrom'),first=base+Math.max(0,Math.ceil((from-base)/s.increment))*s.increment,end=first+(limit-1)*s.increment;if(Number.isSafeInteger(end))get('sequenceTo').value=end;}refresh();});
+get('sequenceCount').addEventListener('keydown',event=>{if(event.key==='Enter'){event.preventDefault();refresh();}});
 for(const id of ['sequenceFrom','sequenceTo'])get(id).addEventListener('input',()=>{customSequenceRange=true;refreshSequence();});
 function check(){const r=AuctionBidding.validateBid(setup());const box=get('bidValidation');box.hidden=false;box.textContent=(r.valid?'Valid bid: ':'Invalid bid: ')+r.message;box.className='bid-result '+(r.valid?'valid':'invalid');box.removeAttribute('aria-label');box.title=r.message;return r;}
 for(const id of ['bidStart','bidIncrement','splitPayment'])get(id).addEventListener('input',()=>{current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
 for(const id of ['candidateBid','candidateIncrement'])get(id).addEventListener('input',()=>{get('bidValidation').hidden=true;});
-get('resetBids').addEventListener('click',()=>{get('bidStart').value=1;get('bidIncrement').value=1000;get('candidateBid').value=1;get('candidateIncrement').value=0;get('splitPayment').checked=false;customSequenceRange=false;current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
+get('resetBids').addEventListener('click',()=>{get('bidStart').value=1;get('bidIncrement').value=1000;get('candidateBid').value=1;get('candidateIncrement').value=0;get('splitPayment').checked=false;get('sequenceCount').value=50;get('sequenceOptions').open=false;customSequenceRange=false;current=null;currentIncrement=null;get('bidValidation').hidden=true;refresh();});
 get('checkBid').addEventListener('click',check);for(const id of ['candidateBid','candidateIncrement'])get(id).addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();check();}});refresh();
 })();
 
