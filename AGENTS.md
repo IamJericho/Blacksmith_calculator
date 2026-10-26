@@ -8,3 +8,4 @@
 - Verify relevant owner, internal, courier, and public flows using fake data. Do not use production data for attack tests.
 
 - All pages use `theme.js` and `theme.css`. Keep the shared theme script ahead of authentication scripts so it can read the browser-wide preference before account storage namespacing. Put account appearance controls in Profile. Use `:root[data-theme=dark]` for dark styling rather than OS-only media rules, so explicit Light overrides a dark device setting.
+- Theme preferences are browser-local and shared across pages; changing appearance must not add cloud polling or backend writes.
