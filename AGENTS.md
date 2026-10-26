@@ -9,3 +9,6 @@
 
 - All pages use `theme.js` and `theme.css`. Keep the shared theme script ahead of authentication scripts so it can read the browser-wide preference before account storage namespacing. Put account appearance controls in Profile. Use `:root[data-theme=dark]` for dark styling rather than OS-only media rules, so explicit Light overrides a dark device setting.
 - Theme preferences are browser-local and shared across pages; changing appearance must not add cloud polling or backend writes.
+
+- Customer/public pages load optional authentication only for signed-in navigation; never add auth-gate.js or force a login on client.html, auction.html or shared.html. Keep public pages usable when a saved session expires or is revoked.
+- Client drafts stay in browser-local storage under blacksmith-client-draft-v1. Reset clears the draft; do not send anonymous drafts to the backend.

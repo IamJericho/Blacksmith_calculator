@@ -23,3 +23,5 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-seri
 :root[data-theme=dark] :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline-color:#f1d78c}
 
 .account-card form>button{margin-top:14px}
+
+:root[data-theme=light] body{background:#faf9f6;color:#242424}:root[data-theme=dark] body{background:#171717;color:#eee}
