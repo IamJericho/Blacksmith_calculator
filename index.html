@@ -4,7 +4,7 @@
 <head>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
-  <title>Internal Calculator</title>
+  <title>Owner page · Blacksmith</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
 
@@ -83,7 +83,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 
 <body class="container-fluid">
 
-  <h1>Internal Calculator</h1>
+  <h1>Owner page</h1>
 
 
 
@@ -762,12 +762,12 @@ Ideal CC: ${result.CC.ideal}`;
 
 <script>
 (function redesignCalculator() {
-  const internal = document.title.includes("Internal");
+  const internal = document.title.includes("Owner page");
   const body = document.body;
   const heading = body.querySelector("h1");
   const masthead = document.createElement("header");
   masthead.className = "masthead";
-  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Build & manage orders" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="mode-tag">${internal ? "Internal workspace" : "Customer calculator"}</span>`;
+  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Owner page" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="mode-tag">${internal ? "Owner workspace" : "Customer calculator"}</span>`;
   const pageNav=document.createElement('nav');pageNav.className='internal-page-nav';pageNav.setAttribute('aria-label','Blacksmith pages');pageNav.innerHTML='<a class="btn btn-secondary" href="client.html">Client page</a><a class="btn btn-secondary" href="auction.html">Auction page</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#inventory" target="_blank" rel="noopener">Public inventory</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#restock" target="_blank" rel="noopener">Public restock</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#orders" target="_blank" rel="noopener">Public orders</a>';masthead.append(pageNav);
   heading.replaceWith(masthead);
   const workspace = document.createElement("main"); workspace.className = "workspace";workspace.id="calculatorWorkspace";workspace.tabIndex=-1;
@@ -1385,6 +1385,6 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 </script>
 <script src="courier-delivery-sync.js?v=20261019-delivered-paid"></script><script src="cloud-sync.js?v=20261026-staff-admin"></script>
 <script src="courier-admin.js?v=20261019-courier"></script>
-<script src="blueprint-library.js?v=20261020-copy"></script><script src="staff-admin.js?v=20261026-activity"></script></body>
+<script src="blueprint-library.js?v=20261020-copy"></script><script src="staff-admin.js?v=20261026-page-names"></script></body>
 
 </html>
