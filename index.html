@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="auth-locked">
 
 <head>
+<style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Owner page · Blacksmith</title>
@@ -762,12 +763,12 @@ Ideal CC: ${result.CC.ideal}`;
 
 <script>
 (function redesignCalculator() {
-  const internal = document.title.includes("Owner page");
+  const internal = true;
   const body = document.body;
   const heading = body.querySelector("h1");
   const masthead = document.createElement("header");
   masthead.className = "masthead owner-masthead";
-  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${internal ? "Owner page" : "Make it. Equip it."}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="cloud-status-slot"></span>`;
+  masthead.innerHTML = `<div><div class="eyebrow">Blacksmith / ${internal ? "Operations" : "Order desk"}</div><h1>${window.blacksmithStaffMode ? "Internal page" : "Owner page"}</h1><p class="subtitle">${internal ? "Prepare materials, organize pickup, and send the customer message." : "Choose your gear, set quantities, and copy your order."}</p></div><span class="cloud-status-slot"></span>`;
   const pageNav=document.createElement('nav');pageNav.className='internal-page-nav';pageNav.setAttribute('aria-label','Blacksmith pages');pageNav.innerHTML='<a class="btn btn-secondary" href="client.html">Client page</a><a class="btn btn-secondary" href="auction.html">Auction page</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#inventory" target="_blank" rel="noopener">Public inventory</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#restock" target="_blank" rel="noopener">Public restock</a><a class="btn btn-secondary" href="https://iamjericho.github.io/Blacksmith_calculator/shared.html#orders" target="_blank" rel="noopener">Public orders</a>';masthead.append(pageNav);
   heading.replaceWith(masthead);
   const workspace = document.createElement("main"); workspace.className = "workspace";workspace.id="calculatorWorkspace";workspace.tabIndex=-1;
@@ -1349,6 +1350,7 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 <script src="item-analytics.js?v=20261026"></script><script src="material-analytics.js?v=20261026-analytics-tab"></script>
 <script>
 (function setupDataStorage(){
+  if(window.blacksmithStaffMode)return;
   const panel=document.getElementById('dataStoragePanel');if(!panel)return;
   const keys=['blacksmith-material-inventory-v1','blacksmith-internal-items-v1','blacksmith-ready-orders-v1','blacksmith-occupied-pickup-locations-v1','blacksmith-restock-total-minimums-v2'];
   const get=id=>document.getElementById(id);let handle=null,timer=null,writing=Promise.resolve(),restoring=false;
@@ -1383,8 +1385,8 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 })();
 
 </script>
-<script src="courier-delivery-sync.js?v=20261019-delivered-paid"></script><script src="cloud-sync.js?v=20261026-header-status"></script>
-<script src="courier-admin.js?v=20261019-courier"></script>
-<script src="blueprint-library.js?v=20261020-copy"></script><script src="staff-admin.js?v=20261026-neutral-wording"></script><script src="page-menu.js?v=20261026-categories"></script></body>
+<script src="courier-delivery-sync.js?v=20261019-delivered-paid"></script><script src="app-sync.js?v=20261026"></script>
+<script src="courier-admin.js?v=20261026-role-gate"></script>
+<script src="blueprint-library.js?v=20261020-copy"></script><script src="access-admin.js?v=20261026"></script><script src="page-menu.js?v=20261026-categories"></script></body>
 
 </html>
