@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-cwQ2qidpA1GkK2diiG46kQSNp23PRVjxbIgd3TZbLPM=' 'sha256-qdo7fb5Cj8KKaqv3jv9ZhlG+QzTuBXfUnS4Uuw6TZLc=' 'sha256-X/wEM3M+1kGedNKWtDOkZfGiypmpjg7imu6T9JD8mhc=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer">
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -220,9 +220,9 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   
   <div class="output">
     <pre id="orderSummary"></pre>
-    <button class="btn btn-sm btn-primary" data-payment-copy onclick="copyOrder()">Copy to Clipboard</button>
+    <button class="btn btn-sm btn-primary" data-payment-copy data-security-action="action0">Copy to Clipboard</button>
     <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-    <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+    <button class="btn btn-sm btn-secondary" data-security-action="action1">Reset</button>
   </div>
 
   <script src="pricingEngine.js"></script>
@@ -641,6 +641,6 @@ Trader: <@1303790610620350587>`;
 })();
 
 </script>
-</body>
+<script>document.addEventListener("click",function(event){const target=event.target.closest("[data-security-action]");if(!target)return;const handlers={"action0":function(event){copyOrder();},"action1":function(event){resetAll();}};handlers[target.dataset.securityAction]?.call(target,event);});</script></body>
 
 </html>

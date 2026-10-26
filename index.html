@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head>
-<style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026"></script><script src="auth-gate.js?v=20261026"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-Y6XgJzAPAj9qx6d4M9ng66hDChL0zs6+WfysBeNtRII=' 'sha256-uhedLJqClzopvHQL7F9gnnwKLRvOvuB+rktzbHSwPUQ=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-jZ0BL2UGFkrxzIE0QuwXN7b5euFAxfKP/beUZJ4YFcE=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-vaFO9WPpEzqlNmsH6mazVN5JWBluHk3v5pfP4x06gus=' 'sha256-roNa+0cqyJP9GCzpxeeYZuejaGeL6bISXxLLkNtv1Uw=' 'sha256-1EL618Z7g/K56DSxziAS0Jy0COFycQS5X1hs9jIATw4=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer">
+<style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-security"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Owner page · Blacksmith</title>
@@ -177,7 +177,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
         placeholder="Example: F: 63, M: 206, H: 159">
     </div>
 
-    <button class="btn btn-sm btn-warning" onclick="calculateManual()">Calculate</button>
+    <button class="btn btn-sm btn-warning" data-security-action="action0">Calculate</button>
 
     <pre id="manualResult"></pre>
   </div>
@@ -191,7 +191,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     <h3>Internal Order Summary</h3>
     <pre id="orderSummaryInternal"></pre>
     <button class="btn btn-sm btn-primary"
-      onclick="copySections(['materialSummary','orderSummaryInternal'],'copyMsgInternal')">Copy All</button>
+      data-security-action="action1">Copy All</button>
     <span id="copyMsgInternal" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
   </div>
 
@@ -209,10 +209,10 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       </div>
 
       <div class="col-auto">
-        <button class="btn btn-sm btn-warning" onclick="manualTekSplit()">
+        <button class="btn btn-sm btn-warning" data-security-action="action2">
           Split Tek
         </button>
-        <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+        <button class="btn btn-sm btn-secondary" data-security-action="action3">Reset</button>
       </div>
 
     </div>
@@ -269,9 +269,9 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     </div>
 
     <div class="col-auto" style="margin-top:32px;">
-      <button class="btn btn-sm btn-primary" data-payment-copy onclick="copySections(['orderSummary'],'copyMsg')">Copy All</button>
+      <button class="btn btn-sm btn-primary" data-payment-copy data-security-action="action4">Copy All</button>
       <span id="copyMsg" style="margin-left:10px;color:#4caf50;display:none;">Copied!</span>
-      <button class="btn btn-sm btn-secondary" onclick="resetAll()">Reset</button>
+      <button class="btn btn-sm btn-secondary" data-security-action="action5">Reset</button>
     </div>
   </div>
 
@@ -1390,6 +1390,6 @@ window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
 </script>
 <script src="courier-delivery-sync.js?v=20261019-delivered-paid"></script><script src="app-sync.js?v=20261026"></script>
 <script src="courier-admin.js?v=20261026-role-gate"></script>
-<script src="blueprint-library.js?v=20261020-copy"></script><script src="access-admin.js?v=20261026"></script><script src="page-menu.js?v=20261026-categories"></script></body>
+<script src="blueprint-library.js?v=20261020-copy"></script><script src="access-admin.js?v=20261026"></script><script src="page-menu.js?v=20261026-categories"></script><script>document.addEventListener("click",function(event){const target=event.target.closest("[data-security-action]");if(!target)return;const handlers={"action0":function(event){calculateManual();},"action1":function(event){copySections(['materialSummary','orderSummaryInternal'],'copyMsgInternal');},"action2":function(event){manualTekSplit();},"action3":function(event){resetAll();},"action4":function(event){copySections(['orderSummary'],'copyMsg');},"action5":function(event){resetAll();}};handlers[target.dataset.securityAction]?.call(target,event);});</script></body>
 
 </html>
