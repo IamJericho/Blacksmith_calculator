@@ -1266,13 +1266,14 @@ window.formatBlacksmithItemList=function(entries){
   window.applyBlacksmithOrderReinforcement=function(order,costs){
     const subtotal=costs.total+costs.reinforcement;
     if(order.originalPastedPayment===undefined)order.originalPastedPayment=order.payment||'';
-    const deliveryFee=order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0;order.payment=(subtotal+deliveryFee)+' Tek Ceilings';if(order.delivery&&order.courierPayout===undefined)order.courierPayout=deliveryFee;
-    order.reinforced=true;order.reinforcementCharged=true;order.reinforcementPricingApplied=1;
+    const deliveryFee=order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0;order.payment=(subtotal+deliveryFee)+' Tek Ceilings';if(order.delivery)order.courierPayout=deliveryFee;
+    order.reinforced=true;order.reinforcementCharged=true;order.reinforcementPricingApplied=1;order.reinforcementRoundingVersion=2;
     delete order.priceWarning;
   };
   function syncOrderReinforcement(order){
     const reinforced=typeof order.body==='string'?window.isBlacksmithReinforced(order.body):order.reinforced===true;
-    if(!reinforced||order.reinforcementPricingApplied===1)return false;
+    if(!reinforced||order.reinforcementRoundingVersion===2)return false;
+    if(order.reinforcementPricingApplied===1&&order.paymentBeforeRoundingCorrection===undefined)order.paymentBeforeRoundingCorrection=order.payment||'';
     try{window.applyBlacksmithOrderReinforcement(order,readyOrderCosts(order,!order.pricingVersion||order.pricingVersion==='legacy-quoted'));}
     catch(error){order.reinforced=true;order.priceWarning=error.message;}
     return true;
@@ -1284,7 +1285,7 @@ window.formatBlacksmithItemList=function(entries){
       const {total:base,reinforcement}=readyOrderCosts(order,legacy);let total=base;
       if(order.reinforced)total+=reinforcement;if(order.delivery){const deliveryFee=Math.max(100,Math.ceil(total*0.25));total+=deliveryFee;if(order.courierPayout===undefined)order.courierPayout=deliveryFee;}order.payment=total+' Tek Ceilings';
     }
-    if(order.reinforced)order.reinforcementPricingApplied=1;order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
+    if(order.reinforced){order.reinforcementPricingApplied=1;order.reinforcementRoundingVersion=2;}order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
   }
   let quotesChanged=false;for(const order of orders){if(!order.priceLocked){lockReadyOrderPrice(order,true);quotesChanged=true;}}if(quotesChanged)save();
   window.prepareBlacksmithReadyOrders=function(text){
