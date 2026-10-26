@@ -456,7 +456,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 
           if (cat === "weapons" || cat === "tools" || cat === "armor" || cat === "tek") {
             hasReinforce = true;
-            reinforceTek += Math.ceil(item.tek * qty * 0.30);
+            reinforceTek += item.tek * qty;
           }
 
         }
@@ -493,6 +493,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 
       }
 
+      reinforceTek = Math.ceil(reinforceTek * 0.30);
       const finalTek = totalTek + (reinforce ? reinforceTek : 0);
       const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
       const paymentTotal = finalTek + deliveryFee;
@@ -1258,9 +1259,9 @@ window.formatBlacksmithItemList=function(entries){
       for(const [key,quantity] of parsed.totals){const select=selects[key],group=select.dataset.group,[category,name]=select.dataset.name.split('|');let item;
         if(['regular','platform','teksaddles'].includes(group))item=BLACKSMITH.saddles[group][category];else{const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const tier=group.endsWith('2')?'tier2':'tier1';item=collection[tier][category][name];}
         const price=legacy?(group==='teksaddles'?item.tek:DTJ_PRICING.priceLegacyItem(item.materials).CC.ideal+(item.additionalTek||0)):item.tek;
-        total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=Math.ceil(price*quantity*0.30);
+        total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=price*quantity;
       }
-      return {total,reinforcement};
+      return {total,reinforcement:Math.ceil(reinforcement*0.30)};
   }
   window.applyBlacksmithOrderReinforcement=function(order,costs){
     const subtotal=costs.total+costs.reinforcement;
@@ -1305,10 +1306,11 @@ window.formatBlacksmithItemList=function(entries){
 <script>
 window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
   const materials={},eligibleMaterials={},missing=[];let price=0,reinforcement=0;
-  for(const row of rows){price+=row.item.tek*row.quantity;if(reinforced&&row.eligible)reinforcement+=Math.ceil(row.item.tek*row.quantity*0.30);
+  for(const row of rows){price+=row.item.tek*row.quantity;if(reinforced&&row.eligible)reinforcement+=row.item.tek*row.quantity;
     if(!row.item.materials||!Object.keys(row.item.materials).length){missing.push(row.label);continue;}
     for(const [code,units]of Object.entries(row.item.materials)){if(['D','J','Q'].includes(code))continue;materials[code]=(materials[code]||0)+units*row.quantity;if(row.eligible)eligibleMaterials[code]=(eligibleMaterials[code]||0)+units*row.quantity;}
   }
+  reinforcement=Math.ceil(reinforcement*0.30);
   if(reinforced)for(const [code,units]of Object.entries(eligibleMaterials))materials[code]+=Math.ceil(units*0.285);
   const cost=Object.keys(materials).length?DTJ_PRICING.calculateTC(materials).TC:0;
   const fee=delivery&&rows.length?Math.max(100,Math.ceil((price+reinforcement)*0.25)):0;
