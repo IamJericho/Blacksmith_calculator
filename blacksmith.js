@@ -79,7 +79,7 @@ window.BLACKSMITH = {
       "Castoroides": { materials: { A: 1113, H: 2306, T: 1431, F: 1590, M: 795 } },
       "Cerberax": { materials: { H: 6751, F: 4296, M: 3682 }, saddleCategory: "Land" },
       "Ceratosaurus": { materials: { F: 2107, M: 156, H: 1014 } },
-      "Chalicotherium": { materials: { F: 1481, M: 370, H: 2180 } },
+      "Chalicotherium": { materials: { H: 2376, F: 1614, M: 403 } },
       "Concavenator": { materials: { F: 1545, M: 193, H: 2705, C: 386 }, additionalTek: 20 },     
       "Cryolophosaurus": { materials: { H: 6686, B: 1966, M: 2123, F: 5505 } },
 
@@ -179,7 +179,7 @@ window.BLACKSMITH = {
       "Thorny Dragon": { materials: { Y: 765, H: 2430, W: 1125, F: 1350, M: 315 } },
       "Thylacoleo": { materials: { F: 1397, M: 180, H: 2615 } },
       "Tidepup": { materials: { F: 699, M: 139, A: 69, H: 1118, W: 279 } },     
-      "Trike": { materials: { F: 700, W: 218, H: 1225 } },
+      "Trike": { materials: { H: 1249, F: 713, W: 223 } },
       "Tusoteuthis": { materials: { A: 391, H: 2782, F: 6914, M: 260 } },
       
       "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 }, additionalTek: 20 },
@@ -198,7 +198,7 @@ window.BLACKSMITH = {
       "Gigadesmodus Platform (Primitive)": { materials: { A: 225, H: 600, B: 150, F: 525, M: 450 } },
       "Grand Tortugar Platform (Not Capped 51.2 Armor)": { materials: { H: 1064, W: 2837, M: 443, F: 2660 } },
       "Megachelon Platform": { materials: { F: 2311, M: 675, B: 373, H: 2773, SF: 195, A: 248 } },
-      "Mosasaurus Platform": { materials: { A: 1469, H: 7837, B: 2612, F: 5878, M: 9797 } },
+      "Mosasaurus Platform": { materials: { F: 6496, M: 10828, A: 1624, H: 8662, B: 2887 } },
       "Paracer Platform": { materials: { A: 217, H: 2779, B: 390, F: 1736, M: 607 } },
       "Plesiosaur Platform": { materials: { A: 468, H: 5792, B: 1320, F: 3450, M: 954 } },
       "Quetzal Platform": { materials: { A: 1039, H: 5371, B: 1906, F: 3465, M: 1559 } },
