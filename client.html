@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qdo7fb5Cj8KKaqv3jv9ZhlG+QzTuBXfUnS4Uuw6TZLc=' 'sha256-X/wEM3M+1kGedNKWtDOkZfGiypmpjg7imu6T9JD8mhc=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qdo7fb5Cj8KKaqv3jv9ZhlG+QzTuBXfUnS4Uuw6TZLc=' 'sha256-X/wEM3M+1kGedNKWtDOkZfGiypmpjg7imu6T9JD8mhc=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -65,7 +65,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 .skip-link{position:absolute;top:-200px;left:12px;padding:12px;z-index:100;background:#745610;color:#fff}.skip-link:focus{top:12px}
 @media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight}.ready-order-card,.inventory-material{border:2px solid CanvasText}}
 </style>
-<link rel="stylesheet" href="theme.css?v=20261026-site"><link rel="stylesheet" href="site-navigation.css?v=20261026"><script src="site-navigation.js?v=20261027-storage" defer></script><script src="client-draft.js?v=20261026" defer></script><script src="tab-navigation.js?v=20261026"></script></head>
+<link rel="stylesheet" href="theme.css?v=20261026-site"><link rel="stylesheet" href="site-navigation.css?v=20261026"><script src="site-navigation.js?v=20261027-storage" defer></script><script src="client-draft.js?v=20261029-account-limits" defer></script><script src="tab-navigation.js?v=20261026"></script></head>
 
 <body class="container-fluid">
 
@@ -579,48 +579,7 @@ Trader: <@1303790610620350587>`;
 })();
 
 </script>
-<script>
-(function addQuantitySteppers() {
-  const steppers = [];
-  for (const select of document.querySelectorAll('select[data-group]')) {
-    const name = select.dataset.name.split('|').pop();
-    const maximum = Number(select.options[select.options.length - 1].value);
-    const wrapper = document.createElement('div');
-    wrapper.className = 'quantity-control';
-    const minus = document.createElement('button');
-    minus.type = 'button'; minus.textContent = '−';
-    minus.setAttribute('aria-label', 'Decrease quantity for ' + name);
-    const input = document.createElement('input');
-    input.type = 'number'; input.min = '0'; input.max = String(maximum); input.step = '1';
-    input.inputMode = 'numeric'; input.className = 'quantity-input';
-    input.setAttribute('aria-label', 'Quantity for ' + name);
-    const plus = document.createElement('button');
-    plus.type = 'button'; plus.textContent = '+';
-    plus.setAttribute('aria-label', 'Increase quantity for ' + name);
-    select.hidden = true; select.tabIndex = -1; select.setAttribute('aria-hidden', 'true');
-    select.after(wrapper); wrapper.append(minus, input, plus);
-    function sync() {
-      input.value = select.value;
-      minus.disabled = Number(select.value) <= 0;
-      plus.disabled = Number(select.value) >= maximum;
-    }
-    function setQuantity(value) {
-      const safeValue = Number.isFinite(value) ? Math.min(maximum, Math.max(0, Math.floor(value))) : 0;
-      select.value = String(safeValue);
-      sync();
-      select.dispatchEvent(new Event('change', { bubbles: true }));
-    }
-    minus.addEventListener('click', () => setQuantity(Number(select.value) - 1));
-    plus.addEventListener('click', () => setQuantity(Number(select.value) + 1));
-    input.addEventListener('input', () => setQuantity(input.valueAsNumber));
-    select.addEventListener('change', sync);
-    sync(); steppers.push(sync);
-  }
-  const originalReset = window.resetAll;
-  window.resetAll = function () { originalReset(); for (const sync of steppers) sync(); };
-})();
-
-</script>
+<script src="client-quantities.js?v=20261029-account-limits"></script>
 <script>document.addEventListener("click",function(event){const target=event.target.closest("[data-security-action]");if(!target)return;const handlers={"action0":function(event){copyOrder();},"action1":function(event){resetAll();}};handlers[target.dataset.securityAction]?.call(target,event);});</script></body>
 
 </html>
