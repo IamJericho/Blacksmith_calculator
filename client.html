@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-qdo7fb5Cj8KKaqv3jv9ZhlG+QzTuBXfUnS4Uuw6TZLc=' 'sha256-X/wEM3M+1kGedNKWtDOkZfGiypmpjg7imu6T9JD8mhc=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-B/O2MtdCtK3yOyL+QwXYrcXGiugjpGU84pVxJfvpScc=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -160,6 +160,9 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </table>
   <p class="important">Cursed Gear/Items are not guaranteed to be max armor/damage</p>
 
+  <h2>Skiff</h2>
+  <table class="table table-dark table-sm table-zebra"><thead><tr><th>Item</th><th>Qty</th></tr></thead><tbody id="skiff"><tr><td>Skiff<br><small>Delivery only. 200 Tek total on its own, or free with other delivery items.</small></td><td><select class="form-select form-select-sm" data-group="teksaddles" data-name="Skiff"><option>0</option><option>1</option></select></td></tr></tbody></table>
+  <p id="skiffStatus" role="status"></p>
   <div class="mb-3" id="reinforceBox" style="display:none;">
     <h2>Reinforce</h2>
     <select id="reinforceSelect" class="form-select form-select-sm" style="max-width:200px">
@@ -195,7 +198,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       <option value="no">No</option>
       <option value="yes">Yes</option>
     </select>
-    <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater).</div>
+    <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater). Skiff-only delivery is included in the 200 Tek total.</div>
   </div>
   
   <div class="output">
@@ -206,7 +209,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="pricingEngine.js"></script>
-  <script src="blacksmith.js?v=20261027-saddles"></script>
+  <script src="blacksmith.js?v=20261030-skiff"></script>
   <script>
 
     /* =============================
@@ -358,7 +361,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     buildSimple("regular", Object.fromEntries(Object.entries(BLACKSMITH.saddles.regular).filter(([name]) => !name.startsWith("Companion "))));
     buildSimple("companion", Object.fromEntries(Object.entries(BLACKSMITH.saddles.regular).filter(([name]) => name.startsWith("Companion "))), "regular");
     buildSimple("platform", BLACKSMITH.saddles.platform);
-    buildSimple("teksaddles", BLACKSMITH.saddles.teksaddles);
+    buildSimple("teksaddles", Object.fromEntries(Object.entries(BLACKSMITH.saddles.teksaddles).filter(([name])=>name!=="Skiff")));
     buildNested("tier1", BLACKSMITH.equipment.tier1);
     if (BLACKSMITH.equipment.tier2) buildNested("tier2", BLACKSMITH.equipment.tier2);
     if (BLACKSMITH.cursed?.tier1) buildNested("cursed1", BLACKSMITH.cursed.tier1);
@@ -377,6 +380,8 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     function calc() {
 
       let totalTek = 0;
+      let skiffs=0;
+      const delivery = document.getElementById("deliverySelect").value === "yes";
       let totalItems = 0;
       let reinforceEligibleTek = 0;
       let hasNonSaddle = false;
@@ -388,6 +393,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
         const qty = +sel.value;
         if (!qty) return;
 
+        if(sel.dataset.name==="Skiff"){skiffs=qty;return;}
         totalItems += qty;
 
         const group = sel.dataset.group;
@@ -430,12 +436,12 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
         : 0;
 
       const orderTotal = totalTek + reinforceMarkup;
-      const delivery = document.getElementById("deliverySelect").value === "yes";
-      const deliveryFee = delivery
-        ? Math.max(100, Math.ceil(orderTotal * 0.25))
-        : 0;
+      const skiff=window.blacksmithSkiffPricing(orderTotal,totalItems,skiffs,delivery);
+      if(skiff.included){output.saddle.push(`${skiff.included} Skiff`);totalItems+=skiff.included;totalTek+=skiff.skiffTek;}
+      document.getElementById('skiffStatus').textContent=skiffs?(delivery?(skiff.skiffTek?'Skiff included: 200 Tek each, delivery included.':'Skiff included free with this delivery order.'):'Skiff selected but not included. Choose Delivery to add it.'):'';
+      const deliveryFee = skiff.deliveryFee;
 
-      const paymentTotal = orderTotal + deliveryFee;
+      const paymentTotal = orderTotal + skiff.skiffTek + deliveryFee;
       const payment = paymentUI.update(totalTek, { reinforcementTek: reinforceMarkup, deliveryTek: deliveryFee, reinforce: reinforceYes });
 
       let summary = `Name: @your name
@@ -474,6 +480,7 @@ Trader: <@1303790610620350587>`;
       document.getElementById("deliverySelect").value = "no";
       document.getElementById("reinforceSelect").value = "no";
       document.getElementById("reinforceBox").style.display = "none";
+      document.getElementById("skiffStatus").textContent="";
       paymentUI.reset();
       document.getElementById("orderSummary").textContent = "";
     }
@@ -500,7 +507,7 @@ Trader: <@1303790610620350587>`;
   catalog.innerHTML = `<div class="catalog-toolbar"><input class="form-control" id="catalogSearch" type="search" placeholder="Search items…" aria-label="Search all items"><button type="button" class="btn btn-secondary selected-filter" aria-pressed="false">Selected items</button><a class="btn btn-secondary order-jump" href="#orderPanel">View order</a></div><nav class="catalog-tabs" aria-label="Item categories"></nav>`;
   const tabs = catalog.querySelector("nav");
   const panels = [];
-  for (const id of ["regular", "companion", "platform", "teksaddles", "tier1", "tier2", "cursed1", "cursed2"]) {
+  for (const id of ["regular", "companion", "platform", "teksaddles", "tier1", "tier2", "cursed1", "cursed2", "skiff"]) {
     const tbody = document.getElementById(id);
     if (!tbody || !tbody.querySelector("select[data-group]")) {
       if (tbody) { const table=tbody.closest("table"); const h=table.previousElementSibling;if(h?.tagName==="H2")h.remove();table.remove(); }
@@ -526,6 +533,8 @@ Trader: <@1303790610620350587>`;
     for(const button of [...tabs.children])if(['cursed1','cursed2'].includes(button.dataset.group))button.remove();
     const button=document.createElement('button');button.type='button';button.className='catalog-tab';button.dataset.group='cursed';button.textContent='Cursed Gear';button.setAttribute('aria-pressed','false');tabs.append(button);
   }
+  const skiffTab=tabs.querySelector('[data-group=skiff]');if(skiffTab)tabs.append(skiffTab);
+  const skiffPanel=panels.find(p=>p.dataset.group==='skiff');if(skiffPanel)skiffPanel.append(document.getElementById('skiffStatus'));
   const empty=document.createElement("p");empty.className="empty-results";empty.textContent="No matching items. Try another search or category.";empty.hidden=true;catalog.append(empty);
   const aside=document.createElement("aside");aside.className="order-panel";aside.id="orderPanel";aside.setAttribute("aria-label","Order controls");
   aside.innerHTML='<div class="order-heading"><h2>Your order</h2><span class="order-count">0 items</span></div><div class="basket"><p class="empty-basket">Select an item to start your order.</p></div>';
@@ -558,7 +567,7 @@ Trader: <@1303790610620350587>`;
     for(const panel of panels){let visible=0;const categoryRows=[];
       for(const row of panel.querySelectorAll("tbody tr")){
         const sel=row.querySelector("select[data-group]");if(!sel){categoryRows.push(row);continue;}
-        const qty=Number(sel.value);count+=qty;row.classList.toggle("selected",qty>0);
+        const qty=sel.dataset.name==='Skiff'&&document.getElementById('deliverySelect').value!=='yes'?0:Number(sel.value);count+=qty;row.classList.toggle("selected",qty>0);
         const match=(!query||sel.dataset.name.toLowerCase().includes(query))&&(!selectedOnly||qty>0);
         row.hidden=!match;if(match)visible++;
         if(qty>0){const entry=document.createElement("div");entry.className="basket-row";const name=document.createElement("span");name.textContent=sel.dataset.name.split("|").pop();const amount=document.createElement("strong");amount.textContent="× "+qty;entry.append(name,amount);basket.append(entry);}
