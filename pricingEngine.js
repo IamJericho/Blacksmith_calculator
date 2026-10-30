@@ -310,7 +310,9 @@ function selectedHexagonItems() {
                 window.BLACKSMITH.equipment[group][category][name];
         items.push({ item, quantity, reinforceEligible: !saddle && ["weapons", "tools", "armor", "tek"].includes(category) });
     }
-    return items;
+    const otherItems=items.some(entry=>!entry.item.deliveryOnly);
+    const delivery=document.getElementById('deliverySelect')?.value==='yes';
+    return items.flatMap(entry=>!entry.item.deliveryOnly?[entry]:!delivery?[]:[{...entry,item:{...entry.item,tek:otherItems?0:entry.item.tek}}]);
 }
 
 
