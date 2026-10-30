@@ -312,7 +312,7 @@ function selectedHexagonItems() {
     }
     const otherItems=items.some(entry=>!entry.item.deliveryOnly);
     const delivery=document.getElementById('deliverySelect')?.value==='yes';
-    return items.flatMap(entry=>!entry.item.deliveryOnly?[entry]:!delivery?[]:[{...entry,item:{...entry.item,tek:otherItems?0:entry.item.tek}}]);
+    return items.flatMap(entry=>!entry.item.deliveryOnly?[entry]:!delivery?[]:[{...entry,quantity:1,item:{...entry.item,tek:otherItems?0:entry.item.tek}}]);
 }
 
 

@@ -451,7 +451,7 @@ window.BLACKSMITH = {
   }
 })();
 
-window.blacksmithSkiffPricing=function(base,otherCount,skiffs,delivery){const included=delivery?skiffs:0,skiffTek=included&&otherCount===0?window.BLACKSMITH.saddles.teksaddles.Skiff.tek*included:0;return {included,skiffTek,deliveryFee:delivery&&(otherCount||included)?(included&&!otherCount?0:Math.max(100,Math.ceil(base*.25))):0};};
+window.blacksmithSkiffPricing=function(base,otherCount,skiffs,delivery){const included=delivery?skiffs:0,skiffTek=included&&otherCount===0?window.BLACKSMITH.saddles.teksaddles.Skiff.tek:0;return {included,skiffTek,deliveryFee:delivery&&(otherCount||included)?(included&&!otherCount?0:Math.max(100,Math.ceil(base*.25))):0};};
 
 window.blacksmithOrderNotes=function(items){
  const feedback='Your feedback would be greatly appreciated. Please leave a review at https://discord.com/channels/928159194929045584/983967467657367582, and I would be happy to leave feedback for you as well. Thank you for your business!';
