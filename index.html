@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-Y6XgJzAPAj9qx6d4M9ng66hDChL0zs6+WfysBeNtRII=' 'sha256-Unl3w0FX08sl087unRaxmFRwLrvjp4jfG8Bbr2PxT30=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-jZ0BL2UGFkrxzIE0QuwXN7b5euFAxfKP/beUZJ4YFcE=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-fzjNqQtwg4vhXAmbP1avcBXvOD/dg7b323xUE/SO5oI=' 'sha256-XdJe5QCfiYRk0dDU6ooM1EvtpV9Ylh50gaxt1rU04j8=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-slJ1KuJkBV1jU0izCkP4c71HVhaqxPl9AiLBltHcGTA=' 'sha256-Unl3w0FX08sl087unRaxmFRwLrvjp4jfG8Bbr2PxT30=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-jZ0BL2UGFkrxzIE0QuwXN7b5euFAxfKP/beUZJ4YFcE=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-MtSDnVZuO39zzmy7u56K8rlyjd+qaNSF/rtI4pZUF5M=' 'sha256-YeSsdww+lN6ViUbI8y7uenjbkuk2uSo7bQyTpuq9VLQ=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -309,7 +309,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="pricingEngine.js?v=20261014-delivery1000"></script>
-  <script src="blacksmith.js?v=20261027-saddles"></script>
+  <script src="blacksmith.js?v=20261030-skiff"></script>
 
   <script>
 (function setupActionFeedback(){
@@ -409,7 +409,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 
     function calc() {
 
-      let totalTek = 0;
+      let totalTek = 0,skiffs=0;
       let reinforceTek = 0;
       let hasReinforce = false;
 
@@ -435,6 +435,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
         const qty = +sel.value;
         if (!qty) return;
 
+        if(sel.dataset.name==="Skiff"){skiffs=qty;return;}
         totalItems += qty;
 
         const g = sel.dataset.group;
@@ -503,8 +504,10 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 
       reinforceTek = Math.ceil(reinforceTek * 0.30);
       const finalTek = totalTek + (reinforce ? reinforceTek : 0);
-      const deliveryFee = delivery ? Math.max(100, Math.ceil(finalTek * 0.25)) : 0;
-      const paymentTotal = finalTek + deliveryFee;
+      const skiff=window.blacksmithSkiffPricing(finalTek,totalItems,skiffs,delivery);
+      if(skiff.included){output.saddle.push(`${skiff.included} Skiff`);totalItems+=skiff.included;totalTek+=skiff.skiffTek;}
+      const deliveryFee = skiff.deliveryFee;
+      const paymentTotal = finalTek + skiff.skiffTek + deliveryFee;
       const payment = paymentUI.update(totalTek, { reinforcementTek: reinforce ? reinforceTek : 0, deliveryTek: deliveryFee, reinforce: reinforce });
       const customerPaymentText = payment.paymentText.split("\n")
         .filter(line => !line.startsWith("Original Price:")).join("\n");
@@ -1276,18 +1279,21 @@ window.formatBlacksmithItemList=function(entries){
       const entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));
       const parsed=window.parsePastedBlacksmithOrders(order.items,entries);
       if(parsed.errors.length||!parsed.totals.size){throw new Error('Cannot calculate reinforcement: check the order items first.');}
-      let total=0,reinforcement=0;
+      let total=0,reinforcement=0,skiffs=0,otherCount=0;
       for(const [key,quantity] of parsed.totals){const select=selects[key],group=select.dataset.group,[category,name]=select.dataset.name.split('|');let item;
         if(['regular','platform','teksaddles'].includes(group))item=BLACKSMITH.saddles[group][category];else{const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const tier=group.endsWith('2')?'tier2':'tier1';item=collection[tier][category][name];}
+        if(item.deliveryOnly){skiffs+=quantity;continue;}otherCount+=quantity;
         const price=legacy?(group==='teksaddles'?item.tek:DTJ_PRICING.priceLegacyItem(item.materials).CC.ideal+(item.additionalTek||0)):item.tek;
         total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=price*quantity;
       }
-      return {total,reinforcement:Math.ceil(reinforcement*0.30)};
+      if(skiffs&&!order.delivery)throw Error('Skiff is available for delivery orders only.');
+      const skiff=window.blacksmithSkiffPricing(total,otherCount,skiffs,order.delivery);
+      return {total:total+skiff.skiffTek,reinforcement:Math.ceil(reinforcement*0.30),skiffOnly:!!skiffs&&!otherCount};
   }
   window.applyBlacksmithOrderReinforcement=function(order,costs){
     const subtotal=costs.total+costs.reinforcement;
     if(order.originalPastedPayment===undefined)order.originalPastedPayment=order.payment||'';
-    const deliveryFee=order.delivery?Math.max(100,Math.ceil(subtotal*0.25)):0;order.payment=(subtotal+deliveryFee)+' Tek Ceilings';if(order.delivery)order.courierPayout=deliveryFee;
+    const deliveryFee=order.delivery&&!costs.skiffOnly?Math.max(100,Math.ceil(subtotal*0.25)):0;order.payment=(subtotal+deliveryFee)+' Tek Ceilings';if(order.delivery)order.courierPayout=deliveryFee;
     order.reinforced=true;order.reinforcementCharged=true;order.reinforcementPricingApplied=1;order.reinforcementRoundingVersion=2;
     delete order.priceWarning;
   };
@@ -1299,12 +1305,12 @@ window.formatBlacksmithItemList=function(entries){
     catch(error){order.reinforced=true;order.priceWarning=error.message;}
     return true;
   }
-  window.calculateBlacksmithEditedQuote=function(order){const costs=readyOrderCosts(order,false),subtotal=costs.total+(order.reinforced?costs.reinforcement:0),fee=order.delivery?Math.max(100,Math.ceil(subtotal*.25)):0;return {payment:(subtotal+fee)+' Tek Ceilings',courierPayout:order.delivery?fee:null,quoteLockedAt:new Date().toISOString(),pricingVersion:DTJ_PRICING.pricingVersion};};
+  window.calculateBlacksmithEditedQuote=function(order){const costs=readyOrderCosts(order,false),subtotal=costs.total+(order.reinforced?costs.reinforcement:0),fee=order.delivery&&!costs.skiffOnly?Math.max(100,Math.ceil(subtotal*.25)):0;return {payment:(subtotal+fee)+' Tek Ceilings',courierPayout:order.delivery?fee:null,quoteLockedAt:new Date().toISOString(),pricingVersion:DTJ_PRICING.pricingVersion};};
   function lockReadyOrderPrice(order,legacy){
     if(order.priceLocked)return;
     if(order.reinforced||!order.payment){
-      const {total:base,reinforcement}=readyOrderCosts(order,legacy);let total=base;
-      if(order.reinforced)total+=reinforcement;if(order.delivery){const deliveryFee=Math.max(100,Math.ceil(total*0.25));total+=deliveryFee;if(order.courierPayout===undefined)order.courierPayout=deliveryFee;}order.payment=total+' Tek Ceilings';
+      const {total:base,reinforcement,skiffOnly}=readyOrderCosts(order,legacy);let total=base;
+      if(order.reinforced)total+=reinforcement;if(order.delivery){const deliveryFee=skiffOnly?0:Math.max(100,Math.ceil(total*0.25));total+=deliveryFee;if(order.courierPayout===undefined)order.courierPayout=deliveryFee;}order.payment=total+' Tek Ceilings';
     }
     if(order.reinforced){order.reinforcementPricingApplied=1;order.reinforcementRoundingVersion=2;}order.reinforcementCharged=order.reinforced===true;order.priceLocked=true;order.pricingVersion=legacy?'legacy-quoted':DTJ_PRICING.pricingVersion;order.quoteLockedAt=new Date().toISOString();
   }
@@ -1327,15 +1333,15 @@ window.formatBlacksmithItemList=function(entries){
 <script src="crafting-orders.js?v=20261020-active-orders"></script>
 <script>
 window.calculateBlacksmithPreview=function(rows,reinforced,delivery){
-  const materials={},eligibleMaterials={},missing=[];let price=0,reinforcement=0;
-  for(const row of rows){price+=row.item.tek*row.quantity;if(reinforced&&row.eligible)reinforcement+=row.item.tek*row.quantity;
+  const materials={},eligibleMaterials={},missing=[];let price=0,reinforcement=0,skiffs=0,otherCount=0;
+  for(const row of rows){if(row.item.deliveryOnly){skiffs+=row.quantity;continue;}otherCount+=row.quantity;price+=row.item.tek*row.quantity;if(reinforced&&row.eligible)reinforcement+=row.item.tek*row.quantity;
     if(!row.item.materials||!Object.keys(row.item.materials).length){missing.push(row.label);continue;}
     for(const [code,units]of Object.entries(row.item.materials)){if(['D','J','Q'].includes(code))continue;materials[code]=(materials[code]||0)+units*row.quantity;if(row.eligible)eligibleMaterials[code]=(eligibleMaterials[code]||0)+units*row.quantity;}
   }
   reinforcement=Math.ceil(reinforcement*0.30);
   if(reinforced)for(const [code,units]of Object.entries(eligibleMaterials))materials[code]+=Math.ceil(units*0.285);
   const cost=Object.keys(materials).length?DTJ_PRICING.calculateTC(materials).TC:0;
-  const fee=delivery&&rows.length?Math.max(100,Math.ceil((price+reinforcement)*0.25)):0;
+  const skiff=window.blacksmithSkiffPricing(price+reinforcement,otherCount,skiffs,delivery);price+=skiff.skiffTek;const fee=skiff.deliveryFee;
   return {materials,missing,cost,price,reinforcement,delivery:fee,total:price+reinforcement+fee};
 };
 (function setupCostPreview(){
