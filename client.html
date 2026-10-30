@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-SiEo9dEdK1MiIU3fuIT+5y8F0TwNpXz7kAR26GJrnos=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Gloi9x5hCFBlB+XZcjFeXGpmzGN1nXr2ghBMbpzMiQU=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -210,7 +210,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="pricingEngine.js?v=20261030-skiff-flat"></script>
-  <script src="blacksmith.js?v=20261030-skiff-flat"></script>
+  <script src="blacksmith.js?v=20261030-feedback-instructions"></script>
   <script>
 
     /* =============================
@@ -463,7 +463,7 @@ Order:
 Total Items: ${totalItems}
 Trader: <@1303790610620350587>`;
 
-      document.getElementById("orderSummary").textContent = summary+"\n\n"+window.blacksmithOrderNotes(summary);
+      document.getElementById("orderSummary").textContent = summary+"\n\n"+window.blacksmithOrderNotes(summary,false);
     }
 
     function copyOrder() {
