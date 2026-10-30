@@ -205,6 +205,7 @@ window.BLACKSMITH = {
       "Shastasaurus Submarine": { materials: { A: 1728, E: 1296, B: 2160, C: 3024, M: 12963 } }
     },
     teksaddles: {
+      "Skiff": { materials: {}, tek: 200, deliveryOnly: true },
       "Megalodon Tek Saddle": { materials: { J: 223.2 }, tek: 150 },
       "Mosasaurus Tek Saddle": { materials: { J: 223.2 }, tek: 250 },
       "Rex Tek Saddle": { materials: { J: 223.2 }, tek: 250 },
@@ -449,3 +450,5 @@ window.BLACKSMITH = {
     }
   }
 })();
+
+window.blacksmithSkiffPricing=function(base,otherCount,skiffs,delivery){const included=delivery?skiffs:0,skiffTek=included&&otherCount===0?200*included:0;return {included,skiffTek,deliveryFee:delivery&&(otherCount||included)?(included&&!otherCount?0:Math.max(100,Math.ceil(base*.25))):0};};
