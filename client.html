@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-B/O2MtdCtK3yOyL+QwXYrcXGiugjpGU84pVxJfvpScc=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-b9WSKDaG6eV4opt0oCe2/VqCZyjrFAkNDYU7pCdsBQA=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -161,7 +161,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   <p class="important">Cursed Gear/Items are not guaranteed to be max armor/damage</p>
 
   <h2>Skiff</h2>
-  <table class="table table-dark table-sm table-zebra"><thead><tr><th>Item</th><th>Qty</th></tr></thead><tbody id="skiff"><tr><td>Skiff<br><small>Delivery only. 200 Tek total on its own, or free with other delivery items.</small></td><td><select class="form-select form-select-sm" data-group="teksaddles" data-name="Skiff"><option>0</option><option>1</option></select></td></tr></tbody></table>
+  <table class="table table-dark table-sm table-zebra"><thead><tr><th>Item</th><th>Qty</th></tr></thead><tbody id="skiff"><tr><td>Skiff<br><small>Delivery only. <span data-skiff-price>200</span> Tek total on its own, or free with other delivery items.</small></td><td><select class="form-select form-select-sm" data-group="teksaddles" data-name="Skiff"><option>0</option><option>1</option></select></td></tr></tbody></table>
   <p id="skiffStatus" role="status"></p>
   <div class="mb-3" id="reinforceBox" style="display:none;">
     <h2>Reinforce</h2>
@@ -198,7 +198,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       <option value="no">No</option>
       <option value="yes">Yes</option>
     </select>
-    <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater). Skiff-only delivery is included in the 200 Tek total.</div>
+    <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater). Skiff-only delivery is included in the <span data-skiff-price>200</span> Tek total.</div>
   </div>
   
   <div class="output">
@@ -209,7 +209,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="pricingEngine.js"></script>
-  <script src="blacksmith.js?v=20261030-skiff"></script>
+  <script src="blacksmith.js?v=20261030-skiff-notes"></script>
   <script>
 
     /* =============================
@@ -438,7 +438,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       const orderTotal = totalTek + reinforceMarkup;
       const skiff=window.blacksmithSkiffPricing(orderTotal,totalItems,skiffs,delivery);
       if(skiff.included){output.saddle.push(`${skiff.included} Skiff`);totalItems+=skiff.included;totalTek+=skiff.skiffTek;}
-      document.getElementById('skiffStatus').textContent=skiffs?(delivery?(skiff.skiffTek?'Skiff included: 200 Tek each, delivery included.':'Skiff included free with this delivery order.'):'Skiff selected but not included. Choose Delivery to add it.'):'';
+      document.getElementById('skiffStatus').textContent=skiffs?(delivery?(skiff.skiffTek?'Skiff included: '+BLACKSMITH.saddles.teksaddles.Skiff.tek+' Tek each, delivery included.':'Skiff included free with this delivery order.'):'Skiff selected but not included. Choose Delivery to add it.'):'';
       const deliveryFee = skiff.deliveryFee;
 
       const paymentTotal = orderTotal + skiff.skiffTek + deliveryFee;
@@ -461,7 +461,7 @@ Order:
 Total Items: ${totalItems}
 Trader: <@1303790610620350587>`;
 
-      document.getElementById("orderSummary").textContent = summary;
+      document.getElementById("orderSummary").textContent = summary+"\n\n"+window.blacksmithOrderNotes(summary);
     }
 
     function copyOrder() {
