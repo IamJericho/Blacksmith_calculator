@@ -1,11 +1,12 @@
 /* Shared WCAG 2.1 A/AA interaction, contrast and reflow safeguards. */
-:root{--a11y-focus:#654a0b;--a11y-hover:#ead6a0;--a11y-hover-text:#242424;--a11y-input-line:#87764e;--a11y-error:#a12218}
-:root[data-theme=dark]{--a11y-focus:#f1d78c;--a11y-hover:#f1dda7;--a11y-hover-text:#242424;--a11y-input-line:#bca66d;--a11y-error:#ffb4ab}
+:root{--a11y-focus:#654a0b;--a11y-hover:#ead6a0;--a11y-hover-text:#242424;--a11y-input-line:#87764e;--a11y-error:#a12218;--a11y-button-hover:#745610;--a11y-button-hover-text:#fff}
+:root[data-theme=dark]{--a11y-focus:#f1d78c;--a11y-hover:#f1dda7;--a11y-hover-text:#242424;--a11y-input-line:#bca66d;--a11y-error:#ffb4ab;--a11y-button-hover:#fff0c2;--a11y-button-hover-text:#242424}
 [hidden]{display:none!important}
 :where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--a11y-focus)!important;outline-offset:3px!important}
 :where(button,summary,a){touch-action:manipulation}
 .order-summary-menu button:hover,.order-summary-menu button:focus-visible,.site-menu-panel a:hover,.site-menu-panel a:focus-visible{background:var(--a11y-hover)!important;color:var(--a11y-hover-text)!important;border-color:var(--a11y-focus)!important;text-decoration:underline;text-underline-offset:3px}
-:where(button,.btn,summary):not(:disabled):hover{border-color:var(--a11y-focus)}
+@media(hover:hover){:is(button,.btn,summary):not(:disabled):not([aria-disabled=true]):hover{background:var(--a11y-button-hover)!important;color:var(--a11y-button-hover-text)!important;border-color:var(--a11y-focus)!important;text-decoration:underline;text-underline-offset:3px}}
+:is(button,.btn,summary):not(:disabled):not([aria-disabled=true]):focus-visible{background:var(--a11y-button-hover)!important;color:var(--a11y-button-hover-text)!important;border-color:var(--a11y-focus)!important;text-decoration:underline;text-underline-offset:3px}
 :where(input,select,textarea):not([type=checkbox]):not([type=radio]):not(:disabled){border-color:var(--a11y-input-line)}
 :where(input,select,textarea)[aria-invalid=true]{border:2px solid var(--a11y-error)!important}
 .a11y-field-error{color:var(--a11y-error);font-size:14px;margin:6px 0 12px;line-height:1.5}
@@ -29,3 +30,5 @@
 @media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight!important}.order-summary-menu button:hover,.order-summary-menu button:focus-visible{background:Highlight!important;color:HighlightText!important}.order-summary-menu{border:1px solid CanvasText}.a11y-field-error{color:CanvasText}}
 
 :where(.table-wrap,.availability-table,.sequence-values){max-width:100%;overflow:auto}
+
+@media(forced-colors:active){:is(button,.btn,summary):not(:disabled):hover,:is(button,.btn,summary):not(:disabled):focus-visible{background:Highlight!important;color:HighlightText!important;border-color:Highlight!important}}
