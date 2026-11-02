@@ -6,7 +6,7 @@
   if(order.workStatus==='processing')return {text:'Processing order',state:'processing'};
   if(order.workStatus!=='complete')return {text:'Not started',state:'new'};
   if(order.delivery&&!window.blacksmithHasDeliveryInstructions(order))return {text:'Complete · Awaiting delivery instructions',state:'instructions'};
-  const text='Complete · Awaiting '+(order.delivery?'Delivery':'Pickup')+(order.paid?'':'/Payment');
+  const text='Complete · Awaiting '+(order.delivery?'Delivery':order.faceToFace?'F2F Pickup':'Pickup')+(order.paid?'':'/Payment');
   return {text,state:!order.delivery&&order.faceToFace?(order.paid?'f2f-paid':'f2f-unpaid'):'ready'};
  }
  function apply(element,order){

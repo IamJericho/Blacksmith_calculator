@@ -1,0 +1,15 @@
+/* Shared owner/courier operation controls. */
+:where(.ready-order-card,.processing-packing-panel,.card,.card-footer,#connectionPanel) button{font:inherit;font-size:14px;font-weight:600;line-height:1.4;min-height:44px;padding:10px 16px;border:1px solid #87764e;border-radius:9px;background:var(--panel,#fff);color:var(--text,#242424);cursor:pointer}
+:where(.ready-order-card,.processing-packing-panel,.card,#connectionPanel) button:disabled{opacity:.55;cursor:default}
+:where(.ready-order-card,.card) .btn-primary,.card-footer button{background:#f1dda7;color:#242424;border-color:#87764e}
+:where(.ready-order-card,.card,.processing-packing-panel) :where(input[type=number],input[type=text],textarea,select){font:inherit;font-size:14px;line-height:1.4;border:1px solid #87764e;border-radius:9px;padding:10px 12px;min-height:44px;background:var(--panel,#fff);color:var(--text,#242424)}
+:where(.crafting-quantity-controls,.processing-packing-quantity,.packing-quantity-controls){display:flex;align-items:end;gap:8px;margin:10px 0}
+:where(.crafting-quantity-controls,.processing-packing-quantity,.packing-quantity-controls) button{min-width:44px;min-height:44px;padding:8px;font-size:18px}
+:where(.courier-packing,.order-packing-options,.order-crafting-items)>summary{font-size:15px;font-weight:600;min-height:44px;align-content:center}
+.courier-packing-list{padding:0;list-style:none}.courier-packing-list>li{padding:16px 0;border-top:1px solid var(--line,#ddd8ce)}.packing-quantity-status{display:flex;flex-wrap:wrap;gap:4px 12px;align-self:center;font-size:13px;font-weight:400}.packing-quantity-status .packing-have{font-weight:600}
+.blacksmith-order-status{line-height:1.5;max-width:340px;overflow-wrap:anywhere}
+:root[data-theme=dark] :where(.ready-order-card,.processing-packing-panel,.card,#connectionPanel) button{background:#292929;color:var(--text,#f5f5f5);border-color:#a08b58}
+:root[data-theme=dark] :where(.ready-order-card,.card) .btn-primary,:root[data-theme=dark] .card-footer button{background:#f1dda7;color:#242424}
+.card.order-processing-reinforced{background:#e8f7ee;border:2px solid #d62a83;border-left:8px solid #218a49;box-shadow:inset 4px 0 #ed54a1}
+:root[data-theme=dark] .card.order-processing-reinforced{background:#142e23;border-color:#f575b5;border-left-color:#55d98a;box-shadow:inset 4px 0 #f575b5}
+:where(.ready-order-card,.processing-packing-panel,.card) :where(button,input,textarea,select):focus-visible{outline:3px solid var(--focus,#745610);outline-offset:3px}
