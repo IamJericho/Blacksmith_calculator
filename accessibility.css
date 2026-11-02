@@ -1,0 +1,31 @@
+/* Shared WCAG 2.1 A/AA interaction, contrast and reflow safeguards. */
+:root{--a11y-focus:#654a0b;--a11y-hover:#ead6a0;--a11y-hover-text:#242424;--a11y-input-line:#87764e;--a11y-error:#a12218}
+:root[data-theme=dark]{--a11y-focus:#f1d78c;--a11y-hover:#f1dda7;--a11y-hover-text:#242424;--a11y-input-line:#bca66d;--a11y-error:#ffb4ab}
+[hidden]{display:none!important}
+:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid var(--a11y-focus)!important;outline-offset:3px!important}
+:where(button,summary,a){touch-action:manipulation}
+.order-summary-menu button:hover,.order-summary-menu button:focus-visible,.site-menu-panel a:hover,.site-menu-panel a:focus-visible{background:var(--a11y-hover)!important;color:var(--a11y-hover-text)!important;border-color:var(--a11y-focus)!important;text-decoration:underline;text-underline-offset:3px}
+:where(button,.btn,summary):not(:disabled):hover{border-color:var(--a11y-focus)}
+:where(input,select,textarea):not([type=checkbox]):not([type=radio]):not(:disabled){border-color:var(--a11y-input-line)}
+:where(input,select,textarea)[aria-invalid=true]{border:2px solid var(--a11y-error)!important}
+.a11y-field-error{color:var(--a11y-error);font-size:14px;margin:6px 0 12px;line-height:1.5}
+.a11y-skip{position:fixed;left:12px;top:-200px;z-index:10000;padding:12px 18px;border:2px solid currentColor;border-radius:6px;background:#fff;color:#242424;font:600 16px/1.5 system-ui}
+.a11y-skip:focus{top:12px}
+:root[data-theme=dark] .a11y-skip{background:#222;color:#fff}
+.a11y-table-region{max-width:100%;overflow:auto;margin:12px 0;overscroll-behavior-x:contain}
+.a11y-table-region:focus-visible{outline-offset:-3px!important}
+.order-summary-menu{max-width:min(260px,calc(100vw - 32px));max-height:min(420px,65vh);overflow:auto}
+.order-summary-menu button{white-space:normal;overflow-wrap:anywhere;min-height:44px}
+:where(dialog){max-width:calc(100vw - 32px);max-height:calc(100dvh - 32px);overflow:auto}
+:where(dialog) :where(input,select,textarea){max-width:100%;min-width:0;box-sizing:border-box}
+:where(.order-card-header,.card-header,.masthead,.page-header,.password-field){flex-wrap:wrap;min-width:0}
+:where(.order-card-header,.card-header)>*{min-width:0;max-width:100%}
+:where(.order-work-state,.order-status,.blacksmith-order-status,.mode-tag,.badge){white-space:normal;overflow-wrap:anywhere}
+:where(pre,p,h1,h2,h3,h4,label,button,a){overflow-wrap:anywhere}
+:where(.workspace,.catalog,.content,.account-card,.internal-tools,.order-panel){min-width:0}
+:root[data-theme=dark] .payment-error,:root[data-theme=dark] .order-edit-error{color:#ffb4ab}
+@media(max-width:600px){.workspace{grid-template-columns:minmax(0,1fr)!important}.order-panel{position:static!important;max-height:none!important}.catalog-toolbar,.password-field{flex-wrap:wrap}.password-field input{flex-basis:160px}.order-summary-actions{flex-wrap:wrap}.site-menu-panel{white-space:normal}.two-fields,.financials,.milestones{grid-template-columns:minmax(0,1fr)}.order-summary-menu{right:0;min-width:min(190px,calc(100vw - 48px))}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+@media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight!important}.order-summary-menu button:hover,.order-summary-menu button:focus-visible{background:Highlight!important;color:HighlightText!important}.order-summary-menu{border:1px solid CanvasText}.a11y-field-error{color:CanvasText}}
+
+:where(.table-wrap,.availability-table,.sequence-values){max-width:100%;overflow:auto}
