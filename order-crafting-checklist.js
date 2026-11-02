@@ -1,6 +1,8 @@
 (()=>{
+ const visible=new Set();
  const amount=(value,total)=>value===true?total:Number.isSafeInteger(value)?Math.max(0,Math.min(total,value)):0;
  window.setupBlacksmithCraftingChecklist=function(parent,order){
+ const host=parent,content=document.createElement('div'),toggleLabel=document.createElement('label'),toggle=document.createElement('input');toggleLabel.className='check';toggle.type='checkbox';toggle.checked=visible.has(order.id);content.hidden=!toggle.checked;content.id='crafting-checklist-'+order.id;toggle.setAttribute('aria-controls',content.id);toggleLabel.append(toggle,document.createTextNode('Show crafting checklist'));host.append(toggleLabel,content);toggle.addEventListener('change',()=>{content.hidden=!toggle.checked;if(toggle.checked)visible.add(order.id);else visible.delete(order.id);});parent=content;
  const heading=document.createElement('h3');heading.textContent='Crafting checklist';parent.append(heading);const progress=document.createElement('p');progress.className='note';parent.append(progress);const message=document.createElement('p');message.className='note';message.setAttribute('role','status');
  const selects=[...document.querySelectorAll('select[data-group]')],norm=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim(),entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[norm(select.dataset.name),norm(select.dataset.name.split('|').pop())]})),parsed=window.parsePastedBlacksmithOrders(order.items||'',entries);
  if(parsed.errors.length||!parsed.totals.size){progress.textContent='Check off list unavailable. Review the order items below.';const raw=document.createElement('pre');raw.textContent=order.items||'No items recorded.';parent.append(raw);return;}
