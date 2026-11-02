@@ -12,6 +12,6 @@
   appearanceVisibility(true);nav.hidden=false;toolbar.hidden=false;
  }
  async function refresh(){const current=++generation;nav.hidden=true;appearanceVisibility(!!A?.state);toolbar.hidden=!appearance||!!A?.state;if(!A?.state)return;const token=A.state.token;try{const data=await(A.ready||A.request('/auth/me'));if(current!==generation||A.state?.token!==token)return;if(data.account.needsSetup||data.account.mustChangePassword)return;A.account(data.account);render(data.account);}catch(error){if(current!==generation)return;if(error.status===401||error.loginRequired)A.clear();if(!A?.state){appearanceVisibility(false);toolbar.hidden=!appearance;}}}
- document.addEventListener('pointerdown',event=>{for(const menu of toolbar.querySelectorAll('details[open]'))if(!menu.contains(event.target))menu.open=false;});toolbar.addEventListener('keydown',event=>{if(event.key==='Escape'){const menu=event.target.closest('details');if(menu?.open){menu.open=false;menu.querySelector('summary').focus();event.preventDefault();}}});
+
  window.addEventListener('blacksmith-auth-change',refresh);window.addEventListener('pageshow',event=>{if(event.persisted)refresh();});refresh();
 })();
