@@ -13,18 +13,17 @@
  const button=create('button','Add past order');button.id='addPastOrder';button.type='button';button.className='btn btn-primary';panel.querySelector('p').after(button);
  button.addEventListener('click',()=>{
   const {d,form,error,close}=dialog('Add past order',button);
-  const paste=field(form,'Paste old order','textarea');paste.required=true;paste.rows=10;
+  const paste=field(form,'Paste past orders','textarea');paste.required=true;paste.rows=10;
   const name=field(form,'Saved name (optional)');name.maxLength=120;let manualName=false;
   name.addEventListener('input',()=>{manualName=!!name.value.trim();});
-  paste.addEventListener('input',()=>{if(manualName)return;const blocks=window.parseReadyOrderBlocks(paste.value);name.value=blocks.length===1?remembered(blocks[0].name):'';});
+  const preview=create('p','Paste one or more orders, each starting with Name:. All orders are checked before any are saved.',form);preview.setAttribute('role','status');
+  paste.addEventListener('input',()=>{try{const blocks=window.parseBlacksmithPastOrders(paste.value);preview.textContent=blocks.length+' order'+(blocks.length===1?'':'s')+' found. '+(blocks.length>1?'Saved name applies only to a single order; remembered names are used for batches.':'Ready to save to completed History.');name.disabled=blocks.length!==1;if(!manualName)name.value=blocks.length===1?remembered(blocks[0].name):'';}catch(ex){preview.textContent=paste.value.trim()?ex.message:'Paste one or more orders, each starting with Name:.';}});
   actions(form,close,'Save to history');form.addEventListener('submit',e=>{e.preventDefault();try{
-   const blocks=window.parseReadyOrderBlocks(paste.value);if(blocks.length!==1)throw Error('Paste one order at a time, including its Name: and Order: lines.');const source=blocks[0];
-   const match=source.body.match(/\bOrder\s*:\s*([\s\S]*?)(?=\b(?:Payment|Total Items|Trader|Name|Reinforced|Delivery)\s*:|$)/i);if(!source.name||!match?.[1].trim())throw Error('Include the customer and ordered items in the pasted message.');
-   const items=match[1].trim(),lines=items.split(/\n/);if(lines.some(line=>line.trim()&&!/^(?:Saddles?|Equipment|Tier\s*[12]|Cursed\s*(?:Tier\s*)?[12])\s*:?$/i.test(line.trim())&&!/^\d+\s+\S/.test(line.trim())))throw Error('The order items need quantities, for example 20 Rex.');
-   const quantities=lines.map(line=>line.trim().match(/^(\d+)\s+\S/)).filter(Boolean).map(m=>Number(m[1]));if(!quantities.length||quantities.some(q=>!Number.isSafeInteger(q)||q<1))throw Error('No valid item quantities found in that order.');const count=quantities.reduce((a,b)=>a+b,0);if(!Number.isSafeInteger(count))throw Error('The total quantity is too large.');
-   const prefs=read(PREF),history=prefs.orderHistory||[],order={id:crypto.randomUUID(),name:source.name.trim(),orderName:name.value.trim()||remembered(source.name),body:source.body,items,count,payment:source.payment,delivery:source.delivery,faceToFace:!source.delivery&&/\bFace[ -]to[ -]face\s*:\s*Yes\b/i.test(source.body),reinforced:source.reinforced,paid:true,fulfilled:true,workStatus:'complete',priceLocked:true,room:'',vault:'',pin:'',pendingRoom:false,completedAt:null,createdAt:null,importedAt:new Date().toISOString(),historicalImport:true};
-   if(history.some(o=>key(o.name)===key(order.name)&&o.items===order.items&&o.payment===order.payment&&(o.completedAt||null)===null)&&!window.confirm('A matching completed order is already in history. Save another copy?'))return;
-   prefs.orderHistory=[order,...history];localStorage.setItem(PREF,JSON.stringify(prefs));close();updated('Past order saved to completed Order History.');
+   const blocks=window.parseBlacksmithPastOrders(paste.value),prefs=read(PREF),history=prefs.orderHistory||[];
+   const orders=blocks.map(source=>({id:crypto.randomUUID(),name:source.name,orderName:(blocks.length===1?name.value.trim():'')||remembered(source.name),body:source.body,items:source.items,count:source.count,payment:source.payment,delivery:source.delivery,faceToFace:!source.delivery&&source.faceToFace,reinforced:source.reinforced,paid:true,fulfilled:true,workStatus:'complete',priceLocked:true,room:'',vault:'',pin:'',pendingRoom:false,completedAt:null,createdAt:null,importedAt:new Date().toISOString(),historicalImport:true}));
+   const seen=[...history];let duplicates=0;for(const order of orders){if(seen.some(o=>key(o.name)===key(order.name)&&o.items===order.items&&o.payment===order.payment&&(o.completedAt||null)===null))duplicates++;seen.push(order);}
+   if(duplicates&&!window.confirm(duplicates+' matching order'+(duplicates===1?' is':'s are')+' already in history or repeated in this batch. Save all copies anyway?'))return;
+   prefs.orderHistory=[...orders,...history];localStorage.setItem(PREF,JSON.stringify(prefs));close();updated(orders.length===1?'Past order saved to completed Order History.':orders.length+' past orders saved to completed Order History.');
   }catch(ex){error.textContent=ex.message;}});d.showModal();paste.focus();
  });
  window.dispatchEvent(new Event('blacksmith-order-management-updated'));
