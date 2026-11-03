@@ -1,7 +1,7 @@
 (function(){
   const itemKey='blacksmith-internal-items-v1',orderKey='blacksmith-ready-orders-v1';
   const read=(key,fallback)=>JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback));
-  window.blacksmithOrderHistory=function(){return read(itemKey,{}).orderHistory||[];};
+  window.blacksmithOrderHistory=function(){return [...(read(itemKey,{}).orderHistory||[])].sort((a,b)=>{const date=o=>{const value=Date.parse(o.importedOrderAt||o.completedAt||'');return Number.isNaN(value)?-Infinity:value;};const first=date(a),second=date(b);return first===second?0:second-first;});};
   window.blacksmithArchiveOrder=function(order){const data=read(itemKey,{}),history=data.orderHistory||[];const archived={...order,completedAt:new Date().toISOString(),room:'',vault:'',previousRoom:order.room||order.previousRoom||'',previousVault:order.vault||order.previousVault||''};data.orderHistory=[archived,...history.filter(o=>o.id!==order.id)];localStorage.setItem(itemKey,JSON.stringify(data));return archived;};
   window.blacksmithRestoreOrder=function(id){const data=read(itemKey,{}),history=data.orderHistory||[],order=history.find(o=>o.id===id);if(!order)return null;const active=read(orderKey,[]);if(active.some(o=>o.id===id))throw Error('This order is already active.');const restored={...order,fulfilled:false,fulfilledAt:null,room:'',vault:'',manualLocation:false,pendingRoom:!order.delivery};delete restored.completedAt;active.push(restored);localStorage.setItem(orderKey,JSON.stringify(active));data.orderHistory=history.filter(o=>o.id!==id);localStorage.setItem(itemKey,JSON.stringify(data));return restored;};
   window.blacksmithOrderMaterials=function(order){
