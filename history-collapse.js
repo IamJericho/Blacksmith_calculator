@@ -6,6 +6,7 @@
   const header=document.createElement('div'),identity=document.createElement('div'),body=document.createElement('div'),toggle=document.createElement('button');header.className='history-card-header';identity.className='history-card-identity';body.className='history-card-body';body.id='history-details-'+order.id;identity.append(title);
   for(const line of [...card.querySelectorAll(':scope > .history-order-summary')])identity.append(line);
   if(order.importedOrderAt||order.completedAt){const date=new Date(order.importedOrderAt||order.completedAt);if(!Number.isNaN(date.getTime())){const completed=document.createElement('p');completed.className='note';completed.textContent=(order.importedOrderAt?'Order date: ':'Completed: ')+date.toLocaleString();identity.append(completed);}}
+  if(order.quantityUnconfirmed){const note=document.createElement('p');note.className='note';note.textContent='Item quantity unconfirmed — original description retained.';identity.append(note);}
   for(const child of [...card.children])body.append(child);
   toggle.type='button';toggle.className='btn btn-secondary';toggle.setAttribute('aria-controls',body.id);let expanded=read().has(order.id);
   function update(){body.hidden=!expanded;toggle.textContent=expanded?'Minimize order':'Expand order';toggle.setAttribute('aria-expanded',String(expanded));toggle.setAttribute('aria-label',toggle.textContent+' history for '+(order.orderName||order.name||'customer'));card.classList.toggle('history-card-minimized',!expanded);}
