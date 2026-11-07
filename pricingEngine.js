@@ -462,10 +462,12 @@ function initializePaymentUI(onChange, audience = "internal") {
         details.hidden = true;
         let result = null;
         let error = null;
-        let paymentText = `Payment: ${totalTek} Tek Ceilings`;
+        const starfallApply=value=>charges.starfallDiscount?window.BLACKSMITH_STARFALL.apply(value,charges.starfallDiscount):value;
+        let paymentText = `Payment: ${starfallApply(totalTek)} Tek Ceilings`;
         if (alternative || hexagons) {
             try {
                 result = hexagons ? calculateHexagonPayment(itemTek, hexCharges) : calculateAlternativePayment(itemTek, resource.value, hexCharges);
+                if(charges.starfallDiscount){const raw=hexagons?result.originalTek*result.conversionRate:result.conversionTek*result.unitsPerTek;result={...result,resourceQuantity:starfallApply(raw),reinforcementTek:0,deliveryTek:0};}
                 paymentText = formatAlternativePayment(result, audience);
                 details.textContent = paymentText;
             } catch (err) {

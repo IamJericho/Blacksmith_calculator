@@ -1,5 +1,5 @@
 (()=>{
- const key='blacksmith-client-draft-v1',get=Storage.prototype.getItem,set=Storage.prototype.setItem,remove=Storage.prototype.removeItem,fields=['reinforceSelect','deliverySelect','paymentMethod','paymentResource'];let restoring=false;
+ const key='blacksmith-client-draft-v1',get=Storage.prototype.getItem,set=Storage.prototype.setItem,remove=Storage.prototype.removeItem,fields=['starfallDiscount','reinforceSelect','deliverySelect','paymentMethod','paymentResource'];let restoring=false;
  const status=document.createElement('p');status.id='clientDraftStatus';status.className='client-draft-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');(document.querySelector('.masthead')||document.querySelector('h1')).after(status);
  const notify=message=>{if(status.textContent!==message)status.textContent=message;};
  const selects=()=>[...document.querySelectorAll('select[data-group][data-name]')],id=select=>select.dataset.group+'|'+select.dataset.name;
@@ -7,11 +7,11 @@
  function restore(){let draft;try{const raw=get.call(localStorage,key);if(!raw)return;draft=JSON.parse(raw);}catch{notify('Your saved draft could not be read.');return;}if(!draft||draft.version!==1||!draft.quantities||typeof draft.quantities!=='object'||Array.isArray(draft.quantities)||!draft.choices||typeof draft.choices!=='object')return;
   restoring=true;let changed=null,limited=false;try{for(const select of selects()){const saved=draft.quantities[id(select)];if(!Number.isSafeInteger(saved)||saved<1)continue;window.blacksmithClientQuantity.set(select,saved);changed=select;limited||=Number(select.value)!==saved;}
 
-   for(const field of fields){const input=document.getElementById(field),value=draft.choices[field];if(input&&typeof value==='string'&&[...input.options].some(o=>o.value===value))input.value=value;}
+   for(const field of fields){const input=document.getElementById(field),value=draft.choices[field];if(field==='starfallDiscount'){input.value=Object.hasOwn(window.BLACKSMITH_STARFALL.rates,value)?value:'';for(const choice of document.querySelectorAll('[data-starfall-discount]'))choice.checked=choice.value===input.value;}else if(input&&typeof value==='string'&&[...input.options].some(o=>o.value===value))input.value=value;}
    // Recalculate from current recipes rather than restoring stale displayed prices.
    if(changed)changed.dispatchEvent(new Event('change',{bubbles:true}));else if(typeof window.calc==='function')window.calc();
    document.getElementById('paymentMethod')?.dispatchEvent(new Event('change',{bubbles:true}));notify(limited?'Saved draft restored. Some quantities were limited to the current maximum.':'Saved draft restored.');
   }finally{restoring=false;}}
- document.addEventListener('input',event=>{if(event.target.matches('.quantity-input,select[data-group],#reinforceSelect,#deliverySelect,#paymentMethod,#paymentResource'))save();});document.addEventListener('change',event=>{if(event.target.matches('select[data-group],#reinforceSelect,#deliverySelect,#paymentMethod,#paymentResource'))save();});window.addEventListener('pagehide',save);
+ document.addEventListener('input',event=>{if(event.target.matches('.quantity-input,select[data-group],#reinforceSelect,#deliverySelect,#paymentMethod,#paymentResource,[data-starfall-discount]'))save();});document.addEventListener('change',event=>{if(event.target.matches('select[data-group],#reinforceSelect,#deliverySelect,#paymentMethod,#paymentResource,[data-starfall-discount]'))save();});window.addEventListener('pagehide',save);
  const reset=window.resetAll;window.resetAll=function(...args){restoring=true;try{return reset.apply(this,args);}finally{restoring=false;try{remove.call(localStorage,key);}catch{}notify('Order cleared. Saved draft removed.');}};Promise.resolve(window.clientQuantityReady).then(restore);
 })();

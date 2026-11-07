@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-Y5IlG3jnnJLb/qaZt8O0AJlOnU4ZzeUnbRW/WkEvZNE=' 'sha256-GR1K4dCL1yeLsiO0IWGzuvqUS1GosT7wPACzwss9grI=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ljcsrGg5JljpAP53m2r7qFrEd6PdTp/oE9XxGs+A4vQ=' 'sha256-U4eopndNAF890AcCunJb3KzGOBnI9cLz7kgUsNxLN00=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -65,7 +65,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
 .skip-link{position:absolute;top:-200px;left:12px;padding:12px;z-index:100;background:#745610;color:#fff}.skip-link:focus{top:12px}
 @media(forced-colors:active){:where(a,button,input,select,textarea,summary,[tabindex]):focus-visible{outline:3px solid Highlight}.ready-order-card,.inventory-material{border:2px solid CanvasText}}
 </style>
-<link rel="stylesheet" href="theme.css?v=20261026-site"><link rel="stylesheet" href="site-navigation.css?v=20261026"><script src="site-navigation.js?v=20261102-hover" defer></script><script src="client-draft.js?v=20261029-account-limits" defer></script><script src="tab-navigation.js?v=20261026"></script><link rel="stylesheet" href="accessibility.css?v=20261102-button-hover"><script src="accessibility.js?v=20261102" defer></script>
+<link rel="stylesheet" href="theme.css?v=20261026-site"><link rel="stylesheet" href="site-navigation.css?v=20261026"><script src="site-navigation.js?v=20261102-hover" defer></script><script src="client-draft.js?v=20261107-discount" defer></script><script src="tab-navigation.js?v=20261026"></script><link rel="stylesheet" href="accessibility.css?v=20261102-button-hover"><script src="accessibility.js?v=20261102" defer></script>
 <script src="order-menu.js?v=20261102-navigation-hover" defer></script>
 </head>
 
@@ -203,6 +203,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     <div class="note">Delivery Fee is 100 TEK, or 25% of order total (whichever is greater). Skiff-only delivery is included in the <span data-skiff-price>200</span> Tek total.</div>
   </div>
   
+<fieldset id="starfallDiscountBox" style="margin:18px 0;padding:12px;border:1px solid var(--line);border-radius:8px"><legend>Starfall discount</legend><p class="note">Select one eligible group. Applies to the full order total, including reinforcement and delivery. Rounded up to whole Tek.</p><input type="hidden" id="starfallDiscount" value=""><label class="check" style="display:flex;gap:8px;align-items:center;padding:8px 0"><input type="checkbox" data-starfall-discount aria-label="Starfall Staff — 20%" value="Staff"> Starfall Staff — 20%</label><label class="check" style="display:flex;gap:8px;align-items:center;padding:8px 0"><input type="checkbox" data-starfall-discount aria-label="Young Guard — 10%" value="Young Guard"> Young Guard — 10%</label><label class="check" style="display:flex;gap:8px;align-items:center;padding:8px 0"><input type="checkbox" data-starfall-discount aria-label="Supporter — 5%" value="Supporter"> Supporter — 5%</label></fieldset>
   <div class="output">
     <pre id="orderSummary"></pre>
     <p id="copyOrderError" role="alert" tabindex="-1" hidden style="color:#b3261e"></p>
@@ -211,7 +212,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     <button class="btn btn-sm btn-secondary" data-security-action="action1">Reset</button>
   </div>
 
-  <script src="pricingEngine.js?v=20261030-skiff-flat"></script>
+  <script src="starfall-discounts.js?v=20261107"></script><script src="pricingEngine.js?v=20261107-starfall"></script>
   <script src="blacksmith.js?v=20261107-blueprints"></script>
   <script>
 
@@ -446,7 +447,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       const deliveryFee = skiff.deliveryFee;
 
       const paymentTotal = orderTotal + skiff.skiffTek + deliveryFee;
-      const payment = paymentUI.update(totalTek, { reinforcementTek: reinforceMarkup, deliveryTek: deliveryFee, reinforce: reinforceYes });
+      const starfall=document.getElementById('starfallDiscount').value;const payment = paymentUI.update(totalTek, { reinforcementTek: reinforceMarkup, deliveryTek: deliveryFee, reinforce: reinforceYes,starfallDiscount:starfall });
 
       let summary = `Name: @your name
 Order:
@@ -460,6 +461,7 @@ Order:
 
       if (reinforceYes) summary += `Reinforced: Yes\n`;
       if (delivery) summary += `Delivery: Yes\n`;
+      if(starfall)summary+=`Starfall: ${starfall}\n`;
 
       summary += `${payment.paymentText}
 Total Items: ${totalItems}
@@ -486,6 +488,7 @@ Trader: <@1303790610620350587>`;
     }
 
     function resetAll() {
+      document.getElementById('starfallDiscount').value='';for(const input of document.querySelectorAll('[data-starfall-discount]'))input.checked=false;
       document.querySelectorAll("select").forEach(s => s.value = 0);
       document.getElementById("deliverySelect").value = "no";
       document.getElementById("reinforceSelect").value = "no";
@@ -553,7 +556,7 @@ Trader: <@1303790610620350587>`;
   if(internal){
     const options=document.getElementById("roomSelect").closest(".row");aside.append(options,payment);
   }else{
-    const reinforce=document.getElementById("reinforceBox");const delivery=document.getElementById("deliverySelect").parentElement;aside.append(reinforce,payment,delivery);
+    const reinforce=document.getElementById("reinforceBox");const delivery=document.getElementById("deliverySelect").parentElement;aside.append(reinforce,payment,delivery,document.getElementById('starfallDiscountBox'));
   }
   const message=document.createElement(internal ? "details" : "section");message.className=internal ? "message-details" : "message-visible";message.innerHTML=internal ? '<summary>Order message</summary>' : '<h3>Order summary</h3>';
   message.append(document.getElementById("orderSummary"));aside.append(message);
