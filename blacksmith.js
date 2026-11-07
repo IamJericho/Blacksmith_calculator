@@ -264,7 +264,7 @@ window.BLACKSMITH = {
         "Arctic Legs": { materials: { F: 502, M: 401, H: 893, Z: 4820, D: 1124 } },
 
         "Glider Suit - (Not Max)": { materials: { V: 354, H: 851, F: 1418, M: 851, D: 4447 } },
-        "Gas Mask": { materials: { X: 5, P: 57, C: 28, D: 85 } },
+        "Gas Mask": { materials: { C: 43, X: 8, P: 87, D: 152 } },
 
         "Flak Boots": { materials: { F: 352, M: 704, H: 528, D: 1800 } },
         "Flak Chest": { materials: { F: 368, M: 1192, H: 921, D: 1804 } },
@@ -326,7 +326,7 @@ window.BLACKSMITH = {
        },
        armor: {
         "Glider Suit - (Not Max)": { materials: { V: 306, H: 735, F: 1225, M: 735, D: 4323 } },
-        "Gas Mask": { materials: { X: 134, P: 1347, C: 673, D: 473 } },
+        "Gas Mask": { materials: { C: 43, X: 8, P: 87, D: 152 } },
 
         "Flak Boots": { materials: { F: 352, M: 704, H: 528, D: 1800 } },
         "Flak Chest": { materials: { F: 368, M: 1192, H: 921, D: 1804 } },
