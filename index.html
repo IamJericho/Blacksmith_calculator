@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-zjhxEu/3zf00ygVBq6i6pcPB6fvmRtsox17YTMUr4qw=' 'sha256-SxCgHswYB3TmtLxpxDKzpYEAmbBEaDQgRKJShvfvc6I=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-tgVMBpShZA3Yd2D2oNTbeUL5tH4ZMgWbsxa8WTiVa+4=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-zjhxEu/3zf00ygVBq6i6pcPB6fvmRtsox17YTMUr4qw=' 'sha256-SxCgHswYB3TmtLxpxDKzpYEAmbBEaDQgRKJShvfvc6I=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-TD5L8CAO0e2VgcFbIBNnBK1t76L/ry46Raqd3o0YpYk=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -323,7 +323,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     <pre id="orderSummary"></pre>
   </div>
 
-  <script src="starfall-discounts.js?v=20261107"></script><script src="pricingEngine.js?v=20261107-starfall"></script>
+  <script src="starfall-discounts.js?v=20261107"></script><script src="pricingEngine.js?v=20261108-base-materials"></script>
   <script src="blacksmith.js?v=20261107-gasmask"></script>
 
   <script>
@@ -1300,7 +1300,7 @@ window.formatBlacksmithItemList=function(entries){
   window.addEventListener('blacksmith-order-management-updated',()=>{locationDrafts.clear();readLatestOrders();render();});
   window.addEventListener('blacksmith-courier-delivery-updated',()=>{readLatestOrders();render();});
   function renderHistory(){const query=get('historySearch').value.trim().toLowerCase();const root=get('orderHistoryList');root.replaceChildren();let history;try{history=window.blacksmithOrderHistory();}catch(error){root.textContent=error.message;return;}get('orderHistoryHeading').textContent='Order History ('+history.length+')';const historyTab=document.querySelector('.catalog-tab[data-group="order-history"]');if(historyTab)historyTab.textContent='Order History'+(history.length?' ('+history.length+')':'');for(const order of history.filter(o=>[o.orderName||'',o.name,o.items,o.privateNotes||''].join(' ').toLowerCase().includes(query))){const card=document.createElement('div');card.className='history-card';const title=document.createElement('h3');title.textContent=(order.orderName?order.orderName+' · ':'')+order.name+' · '+(order.delivery?'Delivered':'Picked up');const detail=document.createElement('pre');detail.textContent=order.items+'\nPayment: '+(order.payment||'not recorded')+'\nCompleted: '+(order.completedAt?new Date(order.completedAt).toLocaleString():'Date not recorded')+(order.privateNotes?'\nPrivate notes: '+order.privateNotes:'');const undo=document.createElement('button');undo.className='btn btn-secondary';undo.type='button';undo.textContent='Undo / reopen order';undo.addEventListener('click',()=>{try{window.blacksmithRestoreOrder(order.id);readLatestOrders();get('orderSearch').value='';readyFilter='all';render();window.blacksmithNavigateTab('ready-orders');window.blacksmithNotify('Order reopened. A free pickup location is assigned automatically.');}catch(error){window.blacksmithNotify(error.message,'error');}});const historySummary=window.blacksmithHistorySummary(order);card.append(title);for(const line of historySummary){const summary=document.createElement('p');summary.className='history-order-summary';summary.textContent=line;card.append(summary);}card.append(detail,undo);window.setupBlacksmithHistoryActions?.(card,order);window.setupDeliveryConfirmation?.(card,order,{load:path=>window.blacksmithCourierImageRequest(path)});window.setupBlacksmithHistoryCollapse(card,order);root.append(card);}if(!root.children.length)root.textContent=history.length?'No completed orders match your search.':'Completed orders will appear here when archived.';}
-  function readyOrderCosts(order,legacy){
+  function readyOrderCosts(order,legacy,deliveryEra=false){
       const selects=[...document.querySelectorAll('select[data-group]')];const normalize=value=>value.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim();
       const entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[normalize(select.dataset.name),normalize(select.dataset.name.split('|').pop())]}));
       const parsed=window.parsePastedBlacksmithOrders(order.items,entries);
@@ -1309,7 +1309,11 @@ window.formatBlacksmithItemList=function(entries){
       for(const [key,quantity] of parsed.totals){const select=selects[key],group=select.dataset.group,[category,name]=select.dataset.name.split('|');let item;
         if(['regular','platform','teksaddles'].includes(group))item=BLACKSMITH.saddles[group][category];else{const collection=group.startsWith('cursed')?BLACKSMITH.cursed:BLACKSMITH.equipment;const tier=group.endsWith('2')?'tier2':'tier1';item=collection[tier][category][name];}
         if(item.deliveryOnly){skiffs+=quantity;continue;}otherCount+=quantity;
-        const price=legacy?(group==='teksaddles'?item.tek:DTJ_PRICING.priceLegacyItem(item.materials).CC.ideal+(item.additionalTek||0)):item.tek;
+        let price = item.tek;
+        if (group !== 'teksaddles' && (legacy || deliveryEra)) {
+          const historicalPrice = deliveryEra ? DTJ_PRICING.priceDeliveryEraItem : DTJ_PRICING.priceLegacyItem;
+          price = historicalPrice(item.materials).CC.ideal + (item.additionalTek || 0);
+        }
         total+=price*quantity;if(name&&['weapons','tools','armor','tek'].includes(category))reinforcement+=price*quantity;
       }
       if(skiffs&&!order.delivery)throw Error('Skiff is available for delivery orders only.');
@@ -1327,7 +1331,7 @@ window.formatBlacksmithItemList=function(entries){
     const reinforced=typeof order.body==='string'?window.isBlacksmithReinforced(order.body):order.reinforced===true;
     if(!reinforced||order.reinforcementRoundingVersion===2)return false;
     if(order.reinforcementPricingApplied===1&&order.paymentBeforeRoundingCorrection===undefined)order.paymentBeforeRoundingCorrection=order.payment||'';
-    try{window.applyBlacksmithOrderReinforcement(order,readyOrderCosts(order,!order.pricingVersion||order.pricingVersion==='legacy-quoted'));}
+    try{window.applyBlacksmithOrderReinforcement(order,readyOrderCosts(order,!order.pricingVersion||order.pricingVersion==='legacy-quoted',order.pricingVersion==='2026-10-14-delivery-1000'));}
     catch(error){order.reinforced=true;order.priceWarning=error.message;}
     return true;
   }

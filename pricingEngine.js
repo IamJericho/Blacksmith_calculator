@@ -67,17 +67,16 @@ DEDI_PRICE.SP = (
     2 * DEDI_PRICE.N / STACK_SIZE.N
 ) * STACK_SIZE.SP;
 
-// Preserve the previous schedule for orders accepted before this increase.
-const LEGACY_DEDI_PRICE = { ...DEDI_PRICE };
-const MATERIAL_DELIVERY_PER_DEDI = 1000;
-for (const key of Object.keys(DEDI_PRICE)) DEDI_PRICE[key] += MATERIAL_DELIVERY_PER_DEDI;
-const PRICING_VERSION = '2026-10-14-delivery-1000';
+// Retain historical rates for correcting older reinforced quotes.
+const DELIVERY_ERA_DEDI_PRICE = Object.fromEntries(
+    Object.entries(DEDI_PRICE).map(([key, price]) => [key, price + 1000])
+);
+const PRICING_VERSION = '2026-11-08-base-materials';
 
 // -----------------------------
 // Red Element Conversion
 // -----------------------------
 
-// Dust pricing includes the per-dedi delivery cost.
 // 1 Dedi = 1800 stacks
 // 1 Element = 1 Dust stack
 // 1 RE = 2 Dust stacks
@@ -163,9 +162,9 @@ function calculateCC(tc) {
 // Public API
 // -----------------------------
 
-function priceItem(materials, legacy = false) {
+function priceItem(materials, legacy = false, prices = DEDI_PRICE) {
 
-    const result = legacy ? calculateTC(materials, LEGACY_DEDI_PRICE, 2) : calculateTC(materials);
+    const result = calculateTC(materials, prices, legacy ? 2 : prices.ED / 900);
     const cc = calculateCC(result.TC);
 
     return {
@@ -186,6 +185,7 @@ window.DTJ_PRICING = {
     calculateCC,
     priceItem,
     priceLegacyItem: materials => priceItem(materials, true),
+    priceDeliveryEraItem: materials => priceItem(materials, false, DELIVERY_ERA_DEDI_PRICE),
     pricingVersion: PRICING_VERSION
 };
 

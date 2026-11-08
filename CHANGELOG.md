@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 8, 2026 — material pricing
+
+Removed the 1,000 Tek per-dedi surcharge from standard material rates and recalculated shop prices. Deployment pending verification. [Rates and selling-price examples](docs/updates/2026-11-08.md)
+
 ## November 7, 2026 — confirmed published
 
 [Full change details, material recipes and selling-price comparison](docs/updates/2026-11-07.md)
