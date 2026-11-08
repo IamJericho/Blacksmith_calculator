@@ -1,0 +1,21 @@
+# Blacksmith update log
+
+Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
+
+## November 7, 2026 — confirmed published
+
+[Full change details, material recipes and selling-price comparison](docs/updates/2026-11-07.md)
+
+- #446: saddle Blueprint Library stats; seven saddle recipe updates and five Hazmat recipe reviews. Customer price changes documented in the full entry.
+- #447: mutually exclusive Starfall discounts, applied to the overall order total.
+- #448: 26 equipment blueprint stat records and Gas Mask recipe; Gas Mask selling price remains 15 Tek.
+- #449: additional Material and Item Analytics time filters.
+- #450: processing checklist / overall packing correlation with customer-specific shared-item controls.
+- #451: account management shortcuts, Activity / Access filters and grouped order edits.
+- #452: access history grouped by account.
+
+These deployment numbers refer to GitHub Pages workflows in this repository. Backend changes require separate verification; a Pages build alone does not prove a server change is live.
+
+## Reference maintenance
+
+The current readable catalog snapshot is [docs/CATALOG-REFERENCE.md](docs/CATALOG-REFERENCE.md). Consult [BLACKSMITH-CONTEXT.md](BLACKSMITH-CONTEXT.md) before answering pricing or update questions.
