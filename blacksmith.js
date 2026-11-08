@@ -103,6 +103,7 @@ window.BLACKSMITH = {
       "Doedicurus": { materials: { F: 969, M: 44, H: 1762, S: 132 } },
       "Dunkleosteus": { materials: { A: 1045, H: 2612, F: 1567, M: 696 } },
 
+      "Enigmasaur": { materials: { H: 4770, F: 2534, M: 447, D: 416 }, additionalTek: 20 },
       "Equus": { materials: { F: 1413, S: 706, H: 2120, W: 750 } },
       "Fasolasuchus": { materials: { F: 1750, M: 262, H: 1312, W: 875 } },
 
@@ -182,7 +183,7 @@ window.BLACKSMITH = {
       "Trike": { materials: { H: 1249, F: 713, W: 223 } },
       "Tusoteuthis": { materials: { A: 391, H: 2782, F: 6914, M: 260 } },
       
-      "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 }, additionalTek: 20 },
+      "Umbra": { materials: { F: 2117, M: 846, H: 3104, K: 423 } },
 
       "Velonasaur": { materials: { K: 1318, H: 3077, F: 1626 } },
 

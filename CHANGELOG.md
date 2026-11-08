@@ -4,6 +4,8 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 8, 2026 — material pricing
 
+Removed the Umbra saddle surcharge after confirming the 124 armor blueprint. Base price went from 45 to 25 Tek. Added the Mastercraft Enigmasaur saddle at 45 Tek, including a 20 Tek surcharge.
+
 Removed the 1,000 Tek per-dedi surcharge from standard material rates and recalculated shop prices. Deployment pending verification. [Rates and selling-price examples](docs/updates/2026-11-08.md)
 
 ## November 7, 2026 — confirmed published

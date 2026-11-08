@@ -54,6 +54,7 @@ Sources: [blacksmith.js](../blacksmith.js), [pricingEngine.js](../pricingEngine.
 | regular | Dire Bear | 25 | Cementing Paste: 922, Hide: 2,766, Fiber: 1,199 |
 | regular | Doedicurus | 15 | Fiber: 969, Metal Ingots: 44, Hide: 1,762, Stone: 132 |
 | regular | Dunkleosteus | 30 | Cementing Paste: 1,045, Hide: 2,612, Fiber: 1,567, Metal Ingots: 696 |
+| regular | Enigmasaur | 45 | Hide: 4,770, Fiber: 2,534, Metal Ingots: 447 |
 | regular | Equus | 20 | Fiber: 1,413, Stone: 706, Hide: 2,120, Wood: 750 |
 | regular | Fasolasuchus | 20 | Fiber: 1,750, Metal Ingots: 262, Hide: 1,312, Wood: 875 |
 | regular | Gacha | 20 | Chitin / Keratin: 1,399, Hide: 3,264, Fiber: 1,725 |
@@ -120,7 +121,7 @@ Sources: [blacksmith.js](../blacksmith.js), [pricingEngine.js](../pricingEngine.
 | regular | Tidepup | 15 | Fiber: 699, Metal Ingots: 139, Cementing Paste: 69, Hide: 1,118, Wood: 279 |
 | regular | Trike | 15 | Hide: 1,249, Fiber: 713, Wood: 223 |
 | regular | Tusoteuthis | 25 | Cementing Paste: 391, Hide: 2,782, Fiber: 6,914, Metal Ingots: 260 |
-| regular | Umbra | 45 | Fiber: 2,117, Metal Ingots: 846, Hide: 3,104, Chitin / Keratin: 423 |
+| regular | Umbra | 25 | Fiber: 2,117, Metal Ingots: 846, Hide: 3,104, Chitin / Keratin: 423 |
 | regular | Velonasaur | 20 | Chitin / Keratin: 1,318, Hide: 3,077, Fiber: 1,626 |
 | regular | Woolly Rhino | 25 | Cementing Paste: 857, Hide: 2,143, Fiber: 1,114, Metal Ingots: 514 |
 | regular | Xiphactinus | 20 | Cementing Paste: 409, Hide: 2,374, Fiber: 1,268, Metal Ingots: 122 |
@@ -252,6 +253,7 @@ These values describe Blueprints in the library. Recording Item Rating, Armor or
 | Diplodocus | 6.57 | 94.6 | — | Diplo |
 | Dire Bear | 6.85 | 117.6 | — | Dire Bear |
 | Doedicurus | 6.51 | 122.3 | — | Doedic |
+| Enigmasaur | 9.27 | 85.6 | 416 | Enigma |
 | Equus | 6.53 | 119.3 | — | Equus |
 | Fasolasuchus | 6.46 | 113.6 | — | Fasola |
 | Gacha | 6.94 | 123.5 | — | Gacha |
