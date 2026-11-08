@@ -37,3 +37,9 @@ This repository contains front-end code. It is not a live database of customer o
 ## Reusable question
 
 > Use GitHub repository IamJericho/Blacksmith_calculator. Read BLACKSMITH-CONTEXT.md, CHANGELOG.md, and docs/updates/2026-11-07.md. Summarize the saddle and Hazmat recipe changes published on November 7, 2026, including old and new customer selling prices. Cite the files you actually read. Do not confuse blueprint stat changes with price changes.
+
+## Operational data interpretation
+
+- `previousCraftingItems` is an obsolete, one-time pre-migration crafting-list backup. It is NOT inventory, current demand, completed goods, or evidence that any item is owned. Ignore it if encountered in older snapshots. The application no longer creates it and removes it from current settings on a successful crafting-totals refresh; the cleanup reaches cloud data through normal successful sync. Older backups are intentionally unchanged.
+- `blacksmith-internal-items-v1.items` is a derived projection of active crafting orders, NOT owned stock. Determine customer demand from active order records, crafted/packed progress from each order, and material stock from `blacksmith-material-inventory-v1`.
+- A `blacksmith-data.json` file is a saved operational snapshot; its saved timestamp and source matter. Do not assume a GitHub copy or local backup is the live cloud state.

@@ -26,7 +26,7 @@
       materialsOutput.textContent=Object.entries(materials).sort(([a],[b])=>a.localeCompare(b)).map(([code,amount])=>(BLACKSMITH.materialsKey[code]||code)+': '+amount.toLocaleString()).join('\n')||'No materials needed.';
       note.textContent=active.length+' active crafting order'+(active.length===1?'':'s')+' · Not Processing and Processing only. Complete orders and History are excluded.';
       const items=Object.fromEntries([...totals].map(([key,quantity])=>[selects[key].dataset.group+'|'+selects[key].dataset.name,quantity]));
-      const prefs=JSON.parse(localStorage.getItem(prefsKey)||'{}');if(JSON.stringify(prefs.items||{})!==JSON.stringify(items)||prefs.craftingOrdersProjectionVersion!==1){if(prefs.craftingOrdersProjectionVersion!==1&&Object.keys(prefs.items||{}).length)prefs.previousCraftingItems={...prefs.items};prefs.items=items;prefs.craftingOrdersProjectionVersion=1;localStorage.setItem(prefsKey,JSON.stringify(prefs));}
+      const prefs=JSON.parse(localStorage.getItem(prefsKey)||'{}'),hadObsoleteSnapshot=Object.prototype.hasOwnProperty.call(prefs,'previousCraftingItems');delete prefs.previousCraftingItems;if(hadObsoleteSnapshot||JSON.stringify(prefs.items||{})!==JSON.stringify(items)||prefs.craftingOrdersProjectionVersion!==1){prefs.items=items;prefs.craftingOrdersProjectionVersion=1;localStorage.setItem(prefsKey,JSON.stringify(prefs));}
     }catch(error){note.textContent='Crafting totals could not be updated: '+error.message;summary.textContent='Crafting totals unavailable. Check the order items above.';materialsOutput.textContent='Material totals unavailable.';}
   };
   window.addEventListener('blacksmith-order-updated',window.refreshBlacksmithCraftingOrders);
