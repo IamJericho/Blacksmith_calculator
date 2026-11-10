@@ -33,8 +33,7 @@
    lines.push('Once payment is received, we’ll ' + processing + ' your order and contact you when it’s ready to deliver.');
   } else {
    lines.push(
-    'Payment room: ' + order.room,
-    'Payment dedi: ' + order.paymentDedi,
+    'Room: ' + order.room + order.vault,
     'Payment dedi PIN: ' + order.paymentDediPin,
     '',
     'Bring a flyer unless you can use a teleporter.',
@@ -51,6 +50,7 @@
     'Look for the red, white, and blue buildings.',
     '',
     'Please let us know once you’ve dropped off the payment. The pickup vault won’t have a PIN until we confirm receipt.',
+    '',
     'Once payment is received, we’ll ' + processing + ' your order and contact you when it’s ready for pickup.'
    );
   }
