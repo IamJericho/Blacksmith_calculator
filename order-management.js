@@ -118,7 +118,9 @@
  function editDialog(order,trigger){const current=read(ORDER_KEY,[]).find(o=>o.id===order.id);if(!current)return;const original=clone(current);const {d,form,error,close}=dialog('Edit order',trigger),name=field(form,'Customer name / Discord mention',original.name),orderName=field(form,'Order name (optional)',original.orderName||''),items=field(form,'Order items and quantities',original.items,'textarea'),delivery=field(form,'Delivery order',original.delivery,'checkbox'),reinforced=field(form,'Reinforced',original.reinforced,'checkbox'),f2f=field(form,'Face to Face',original.faceToFace,'checkbox'),note=field(form,'Include outside-location delivery note',original.deliveryNote,'checkbox'),payment=field(form,'Payment',original.payment),paid=field(form,'Payment received',original.paid,'checkbox'),status=field(form,'Order progress','','select');for(const [value,label]of [['new','Not started'],['processing','Processing'],['complete','Complete — awaiting pickup/delivery']]){const option=el('option',label,status);option.value=value;}status.value=original.workStatus||'new';const location=el('div',null,form);location.className='order-edit-location';const room=field(location,'Room',original.room),vault=field(location,'Vault number',original.vault),pin=field(form,'PIN / Dedi PIN',original.pin),instructions=field(form,'Instructions', [original.privateNotes,original.courierNotes,original.deliveryDetails].filter((v,i,a)=>v&&a.indexOf(v)===i).join('\n\n'),'textarea'),quote=el('p',null,form);
  quote.className='note';
  const requestPrepayment = field(form, 'Request prepayment', original.prepaymentRequested, 'checkbox');
+ payment.parentElement.before(requestPrepayment.parentElement);
  const prepaymentFields = el('fieldset', null, form);
+ paid.parentElement.after(prepaymentFields);
  el('legend', 'Prepayment instructions', prepaymentFields);
  const pickupFields = el('div', null, prepaymentFields);
  const slot = field(pickupFields, 'Payment room and pickup vault', '', 'select');
@@ -133,7 +135,8 @@
  const dediPin = field(pickupFields, 'Payment dedi PIN', original.paymentDediPin || '');
  dediPin.inputMode = 'numeric';
  dediPin.maxLength = 4;
- el('p', 'Use the PIN you set on the payment dedi in game. Keep it separate from the pickup vault PIN.', pickupFields).className = 'note';
+ const pinHint = el('p', 'Use the PIN you set on the payment dedi in game. Keep it separate from the pickup vault PIN.', pickupFields);
+ pinHint.className = 'note';
  const message = field(prepaymentFields, 'Customer prepayment message', '', 'textarea');
  message.readOnly = true;
  const copy = el('button', 'Save and copy prepayment message', prepaymentFields);
@@ -148,7 +151,11 @@
   message.parentElement.hidden = paid.checked;
   copy.hidden = paid.checked;
   location.hidden = delivery.checked || requested || status.value !== 'complete';
-  pin.parentElement.hidden = status.value !== 'complete';
+  const awaitingPrepayment = requested && !paid.checked;
+  pin.parentElement.hidden = status.value !== 'complete' || awaitingPrepayment;
+  dedi.parentElement.hidden = !awaitingPrepayment;
+  dediPin.parentElement.hidden = !awaitingPrepayment;
+  pinHint.hidden = !awaitingPrepayment;
   instructions.parentElement.hidden = status.value !== 'complete';
   f2f.parentElement.hidden = delivery.checked || requested;
   note.parentElement.hidden = !delivery.checked;

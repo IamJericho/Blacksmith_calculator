@@ -37,3 +37,5 @@ Added pickup room reservations and pickup or delivery prepayment messages in Edi
 Added an Outside Orders filter with copyable pickup instructions for occupied locations. [Pickup instructions](docs/updates/2026-11-09.md#pickup-locations-outside-orders)
 
 Edit order shows fulfillment PIN and Instructions only at Complete.
+
+Moved prepayment into the order options and show one PIN at a time.
