@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-zjhxEu/3zf00ygVBq6i6pcPB6fvmRtsox17YTMUr4qw=' 'sha256-SxCgHswYB3TmtLxpxDKzpYEAmbBEaDQgRKJShvfvc6I=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-pVTdAX3wqJrSbpEf7mguVTsCf7aOkH5/qxKtLhKG7KE=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-zjhxEu/3zf00ygVBq6i6pcPB6fvmRtsox17YTMUr4qw=' 'sha256-SxCgHswYB3TmtLxpxDKzpYEAmbBEaDQgRKJShvfvc6I=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-Ub3r9qSG9YUtRE3qU1F/DB3WnxI42pW/m4t+jqielfE=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -1163,8 +1163,13 @@ window.formatBlacksmithItemList=function(entries){
   function restoreOrderFocus(focus){if(!focus)return;const cards=[...get('readyOrderCards').children],same=cards.find(c=>c.dataset.orderId===focus.id);const target=same?.querySelectorAll('input,textarea,button')[focus.index]||cards[Math.min(focus.cardIndex,cards.length-1)]?.querySelector('h3')||(!undoBar.hidden?undoOrder:get('orderSearch'));target?.focus({preventScroll:true});}
 
   get('orderSearch').addEventListener('input',render);
-  const readyFilterLabels={f2f:'F2F Pickups',pickup:'Pick Up Only',delivery:'Delivery Only',processing:'Processing Orders','not-processing':'Not Processing','waiting-pickup':'Waiting for Pickup','waiting-delivery':'Waiting for Delivery'};
+  const readyFilterLabels={'outside-orders':'Outside Orders',f2f:'F2F Pickups',pickup:'Pick Up Only',delivery:'Delivery Only',processing:'Processing Orders','not-processing':'Not Processing','waiting-pickup':'Waiting for Pickup','waiting-delivery':'Waiting for Delivery'};
   window.filterBlacksmithReadyOrders=function(list,filter){return list.filter(order=>filter==='all'||(filter==='f2f'?!order.delivery&&order.faceToFace===true:filter==='pickup'?!order.delivery:filter==='delivery'?!!order.delivery:filter==='processing'?order.workStatus==='processing':filter==='not-processing'?(!order.workStatus||order.workStatus==='new')&&!order.fulfilled&&!order.craftingCompletedAt&&!order.processingStartedAt:filter==='waiting-pickup'?order.workStatus==='complete'&&!order.delivery&&!order.fulfilled:filter==='waiting-delivery'?order.workStatus==='complete'&&!!order.delivery&&!order.fulfilled:false));};
+  const outsideFilter = document.createElement('button');
+  outsideFilter.type = 'button';
+  outsideFilter.className = 'catalog-tab';
+  outsideFilter.dataset.readyFilter = 'outside-orders';
+  get('readyOrderFilters').append(outsideFilter);
   get('readyOrderFilters').addEventListener('click',event=>{const button=event.target.closest('[data-ready-filter]');if(!button)return;readyFilter=readyFilter===button.dataset.readyFilter?'all':button.dataset.readyFilter;render();});
   function save(){try{localStorage.setItem(storageKey,JSON.stringify(orders));return true;}catch(_){get('readyOrdersStatus').textContent='Ready orders could not be saved in this browser.';return false;}}
   const pickupSlots=[...get('roomSelect').options].flatMap(room=>[...get('vaultSelect').options].map(vault=>({room:room.value,vault:vault.value})));
@@ -1197,7 +1202,85 @@ window.formatBlacksmithItemList=function(entries){
   function loadOccupied(){try{const saved=JSON.parse(localStorage.getItem(occupiedKey)||'null');if(Array.isArray(saved))occupied=new Set(saved.filter(key=>pickupSlots.some(slot=>slotKey(slot)===key)));}catch(_){get('readyOrdersStatus').textContent='Could not load occupied locations.';}}
   loadOccupied();
   try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){}
-  for(const slot of pickupSlots){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=occupied.has(slotKey(slot));label.append(input,document.createTextNode(slot.room+slot.vault));input.addEventListener('change',()=>{if(input.checked)occupied.add(slotKey(slot));else occupied.delete(slotKey(slot));try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){get('readyOrdersStatus').textContent='Occupied locations could not be saved.';}render();});get('occupiedPickupSlots').append(label);}
+  for(const slot of pickupSlots){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=occupied.has(slotKey(slot));label.append(input,document.createTextNode(slot.room+slot.vault));input.addEventListener('change',()=>{if(input.checked)occupied.add(slotKey(slot));else {occupied.delete(slotKey(slot));outsidePickupPins.delete(slotKey(slot));}try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){get('readyOrdersStatus').textContent='Occupied locations could not be saved.';}render();});get('occupiedPickupSlots').append(label);}
+  const outsidePickupPins = new Map();
+  function renderOutsidePickups(query) {
+    const cards = get('readyOrderCards');
+    const locations = pickupSlots.filter(slot => occupied.has(slotKey(slot)) &&
+      (slot.room + slot.vault).toLowerCase().includes(query.replace(/\s+/g, '')));
+    get('readyFilterSummary').textContent = 'Showing ' + locations.length + ' occupied pickup locations outside Orders.';
+    if (!locations.length) {
+      const empty = document.createElement('p');
+      empty.textContent = query ? 'No occupied locations match your search.' : 'Mark a location in Locations occupied outside Orders to create pickup instructions.';
+      cards.append(empty);
+    }
+    for (const slot of locations) {
+      const key = slotKey(slot);
+      const card = document.createElement('section');
+      card.className = 'output';
+      const title = document.createElement('h3');
+      title.textContent = 'Room ' + slot.room + ' · Vault ' + slot.room + slot.vault;
+      const label = document.createElement('label');
+      label.textContent = 'Vault PIN (optional) for ' + slot.room + slot.vault;
+      const pin = document.createElement('input');
+      pin.type = 'text';
+      pin.className = 'form-control';
+      pin.inputMode = 'numeric';
+      pin.maxLength = 4;
+      pin.pattern = '[0-9]{4}';
+      pin.value = outsidePickupPins.get(key) || '';
+      pin.addEventListener('input', () => outsidePickupPins.set(key, pin.value));
+      label.append(pin);
+      const copy = document.createElement('button');
+      copy.type = 'button';
+      copy.className = 'btn btn-primary';
+      copy.textContent = 'Copy pickup instructions';
+      copy.setAttribute('aria-label', 'Copy pickup instructions for vault ' + slot.room + slot.vault);
+      const preview = document.createElement('textarea');
+      preview.className = 'form-control';
+      preview.readOnly = true;
+      preview.rows = 7;
+      preview.setAttribute('aria-label', 'Pickup instructions for vault ' + slot.room + slot.vault);
+      const updatePreview = () => {
+        preview.value = [
+          'Your items are ready for pickup.',
+          '',
+          'Server: 5986',
+          'Spawn: Lemonkis East',
+          'Shop coordinates: 18.9 - 89.8',
+          'Tribe: Department of War',
+          'Room: ' + slot.room,
+          'Vault: ' + slot.room + slot.vault,
+          ...(pin.value && pin.validity.valid ? ['Vault PIN: ' + pin.value] : []),
+          '',
+          'Bring a flyer unless you can use a teleporter.',
+          'Teleporter directions:',
+          'Spawn: Korinthos East',
+          'World TP: Korinthos East > E',
+          'Coordinates: 41.1 - 33.4 or 44.4 - 36.8',
+          'TP: DoW Trade',
+          'Look for the red, white, and blue buildings.'
+        ].join('\n');
+      };
+      updatePreview();
+      pin.addEventListener('input', updatePreview);
+      copy.addEventListener('click', async () => {
+        if (!pin.reportValidity()) return;
+        loadOccupied();
+        if (!occupied.has(key)) {
+          render();
+          window.blacksmithNotify('This location is no longer marked occupied.', 'error');
+          return;
+        }
+        if (!await window.blacksmithCopy(preview.value, copy, 'Pickup instructions copied!')) {
+          preview.focus();
+          preview.select();
+        }
+      });
+      card.append(title, label, preview, copy);
+      cards.append(card);
+    }
+  }
   window.blacksmithHasUnsavedOrderLocation=()=>[...locationDrafts].some(([id,draft])=>{const order=orders.find(o=>o.id===id);return order&&(draft.room!==(order.room||'')||draft.vault!==(order.vault||''));});
   function readLatestOrders(){try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(Array.isArray(saved))orders=saved.filter(o=>o&&typeof o.name==='string'&&typeof o.items==='string'&&typeof o.id==='string');}catch(_){throw new Error('Saved Orders could not be read. Reload before assigning another location.');}loadOccupied();loadOffline();syncOfflineControls();}
   window.reconcileBlacksmithRooms=function(list,slots,external){
@@ -1244,7 +1327,11 @@ window.formatBlacksmithItemList=function(entries){
   }
   function render(){const savedFocus=rememberOrderFocus();if(fillRememberedOrderNames(orders))save();try{const archived=archiveFinishedOrders();if(archived)window.blacksmithNotify(archived===1?'Order completed and moved to Order History. Undo / reopen is available there.':archived+' completed orders moved to Order History.');}catch(error){get('readyOrdersStatus').textContent='Could not archive completed orders: '+error.message;}let reinforcementChanged=false;for(const order of orders){if(syncOrderReinforcement(order))reinforcementChanged=true;}if(reinforcementChanged)save();assignWaitingRooms();const pendingCount=orders.filter(order=>!order.delivery&&!order.fulfilled&&order.workStatus==='complete'&&(!order.room||!order.vault)).length;const tab=document.querySelector('.catalog-tab[data-group="ready-orders"]');if(tab)tab.textContent=orders.length?`Orders (${orders.length})`:'Orders';const online=onlinePickupSlots(),onlineKeys=new Set(online.map(slotKey));const used=new Set([...occupied,...orders.filter(order=>!order.delivery&&order.room&&order.vault).map(slotKey)].filter(key=>onlineKeys.has(key)));get('readyRoomStatus').textContent=`Pickup locations: ${used.size} assigned/occupied · ${online.length-used.size} available · ${offline.size} offline · ${pendingCount} completed orders waiting for a room. Rooms are assigned automatically when pickup orders are marked complete. Prepayment can reserve a room earlier.`;get('readyOrderCards').replaceChildren();window.renderBlacksmithProcessingPacking?.(readyFilter);
     const query=get('orderSearch').value.trim().toLowerCase();const visibleOrders=window.filterBlacksmithReadyOrders(orders,readyFilter).filter(o=>[o.orderName||'',o.name,o.items,o.room+o.vault,o.privateNotes||''].join(' ').toLowerCase().includes(query));renderHistory(query);
-    for(const button of get('readyOrderFilters').querySelectorAll('[data-ready-filter]')){button.setAttribute('aria-pressed',String(readyFilter===button.dataset.readyFilter));const count=window.filterBlacksmithReadyOrders(orders,button.dataset.readyFilter).length;button.textContent=readyFilterLabels[button.dataset.readyFilter]+' ('+count+')';}
+    for(const button of get('readyOrderFilters').querySelectorAll('[data-ready-filter]')){button.setAttribute('aria-pressed',String(readyFilter===button.dataset.readyFilter));const count=button.dataset.readyFilter==='outside-orders'?occupied.size:window.filterBlacksmithReadyOrders(orders,button.dataset.readyFilter).length;button.textContent=readyFilterLabels[button.dataset.readyFilter]+' ('+count+')';}
+    if (readyFilter === 'outside-orders') {
+      renderOutsidePickups(query);
+      return;
+    }
     get('readyFilterSummary').textContent=readyFilter==='all'?`Showing all ${orders.length} orders`:`Showing ${visibleOrders.length} ${readyFilterLabels[readyFilter].toLowerCase()} · Click the selected filter again to show all`;
     if(!visibleOrders.length){const empty=document.createElement('p');empty.className='empty-results';empty.textContent=readyFilter==='all'?'No orders yet. Paste orders in Create Order to get started.':'No orders matching '+readyFilterLabels[readyFilter].toLowerCase()+'.';get('readyOrderCards').append(empty);}
     for(const order of visibleOrders){

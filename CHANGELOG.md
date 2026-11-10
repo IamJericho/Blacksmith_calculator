@@ -33,3 +33,5 @@ Stopped creating `previousCraftingItems`; remove this unused legacy snapshot fro
 ## November 9, 2026 — order prepayment
 
 Added pickup room reservations and pickup or delivery prepayment messages in Edit order. [Prepayment details](docs/updates/2026-11-09.md)
+
+Added an Outside Orders filter with copyable pickup instructions for occupied locations. [Pickup instructions](docs/updates/2026-11-09.md#pickup-locations-outside-orders)
