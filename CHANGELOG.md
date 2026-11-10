@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 10, 2026 — Enigmasaur listing
+
+Hid the Enigmasaur saddle’s durability on the customer order page. [Update details](docs/updates/2026-11-10.md)
+
 ## November 9, 2026 — analytics search
 
 Added search to Material Analytics and Item Analytics. [Update details](docs/updates/2026-11-09.md)

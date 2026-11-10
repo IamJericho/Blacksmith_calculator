@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-ljcsrGg5JljpAP53m2r7qFrEd6PdTp/oE9XxGs+A4vQ=' 'sha256-U4eopndNAF890AcCunJb3KzGOBnI9cLz7kgUsNxLN00=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-I69wB8OKKc3o6hU8x+1YcT5/hnEZh+0e/1MYq5TT4h0=' 'sha256-U4eopndNAF890AcCunJb3KzGOBnI9cLz7kgUsNxLN00=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -306,11 +306,11 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
        STAT FORMATTER
     ============================= */
 
-    function formatStats(materials = {}) {
+    function formatStats(materials = {}, showDurability = true) {
 
       const stats = [];
 
-      if ("D" in materials) stats.push(`Durability: ${materials.D}`);
+      if (showDurability && "D" in materials) stats.push(`Durability: ${materials.D}`);
       if ("J" in materials) stats.push(`Armor: ${materials.J}`);
       if ("Q" in materials) stats.push(`Damage: ${materials.Q}`);
 
@@ -328,7 +328,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       Object.entries(data).forEach(([name, itemData]) => {
         t.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${name} — ${itemData.tek} TEK${formatStats(itemData.materials)}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
+        <td>${name} — ${itemData.tek} TEK${formatStats(itemData.materials, name !== "Enigmasaur")}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
         <td>${qtySelect(group, name)}</td>
       </tr>
     `);
