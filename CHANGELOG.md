@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 9, 2026 — analytics search
+
+Added search to Material Analytics and Item Analytics. [Update details](docs/updates/2026-11-09.md)
+
 ## November 8, 2026 — material pricing
 
 Removed the Umbra saddle surcharge after confirming the 124 armor blueprint. Base price went from 45 to 25 Tek. Added the Mastercraft Enigmasaur saddle at 45 Tek, including a 20 Tek surcharge.
