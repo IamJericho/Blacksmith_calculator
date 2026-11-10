@@ -39,3 +39,5 @@ Added an Outside Orders filter with copyable pickup instructions for occupied lo
 Edit order shows fulfillment PIN and Instructions only at Complete.
 
 Moved prepayment into the order options and show one PIN at a time.
+
+Pickup prepayment fills the payment dedi label and suggested PIN when a room is chosen, then shows the message.

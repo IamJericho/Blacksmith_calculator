@@ -132,10 +132,13 @@
  slot.value = choices.some(choice => choice.key === original.room + '|' + original.vault)
   ? original.room + '|' + original.vault : '';
  const dedi = field(pickupFields, 'Payment dedi name', original.paymentDedi || '');
+ if (original.paymentDedi === 'Payment dedi by vault ' + original.room + original.vault) {
+  dedi.dataset.suggested = original.paymentDedi;
+ }
  const dediPin = field(pickupFields, 'Payment dedi PIN', original.paymentDediPin || '');
  dediPin.inputMode = 'numeric';
  dediPin.maxLength = 4;
- const pinHint = el('p', 'Use the PIN you set on the payment dedi in game. Keep it separate from the pickup vault PIN.', pickupFields);
+ const pinHint = el('p', 'Set the suggested PIN on the payment dedi in game, or replace it with the PIN you already use there. The pickup vault has a separate PIN.', pickupFields);
  pinHint.className = 'note';
  const message = field(prepaymentFields, 'Customer prepayment message', '', 'textarea');
  message.readOnly = true;
@@ -143,6 +146,24 @@
  copy.type = 'button';
  const save = buttons(form,close,'Save changes');
  const values=()=>({name:name.value,orderName:orderName.value,items:items.value,delivery:delivery.checked,reinforced:reinforced.checked,faceToFace:f2f.checked,deliveryNote:note.checked,payment:payment.value,paid:paid.checked,workStatus:status.value,room:room.value,vault:vault.value,pin:pin.value,instructions:instructions.value,prepaymentRequested:requestPrepayment.checked,prepaymentSlot:slot.value,paymentDedi:dedi.value,paymentDediPin:dediPin.value});
+ function fillPrepaymentDefaults(){
+  const choice = choices.find(location => location.key === slot.value);
+  if (!requestPrepayment.checked || delivery.checked || !choice) return;
+  const defaultDedi = 'Payment dedi by vault ' + choice.room + choice.vault;
+  if (!dedi.value.trim() || dedi.value === dedi.dataset.suggested) {
+   dedi.value = defaultDedi;
+   dedi.dataset.suggested = defaultDedi;
+  }
+  if (!dediPin.value.trim()) {
+   const random = crypto.getRandomValues(new Uint32Array(1))[0];
+   let suggested = 1000 + random % 9000;
+   if (String(suggested) === pin.value.trim()) suggested = suggested === 9999 ? 1000 : suggested + 1;
+   dediPin.value = String(suggested);
+  }
+ }
+ for (const input of [slot, requestPrepayment, delivery]) {
+  input.addEventListener('change', fillPrepaymentDefaults);
+ }
  let wasRepriced=false;
  function preview(){
   const requested = requestPrepayment.checked;
@@ -198,7 +219,7 @@
  }
  form.addEventListener('submit', event=>{event.preventDefault();submitEdit(false);});
  copy.addEventListener('click', ()=>submitEdit(true));
- preview();d.showModal();name.focus();}
+ fillPrepaymentDefaults();preview();d.showModal();name.focus();}
 
  function combineDialog(order,trigger){const all=read(ORDER_KEY,[]),base=all.find(o=>o.id===order.id);if(!base)return;const {d,form,error,close}=dialog('Combine orders',trigger);el('p','Select orders for '+base.name+'. Existing quotes and delivery payouts are added together.',form);el('p','Choose the pickup arrangement to keep. Other selected locations are released when you combine. Move any items into the retained location. Progress follows the least advanced selected order.',form).className='note';const choices=el('div',null,form),checks=[];for(const o of all.filter(o=>customer(base.name)&&customer(base.name)===customer(o.name))){const reason=incompatibility(base,o),choice=el('div',null,choices),input=field(choice,'Order '+(all.indexOf(o)+1)+' · '+(o.createdAt?new Date(o.createdAt).toLocaleString():'Older order')+' · '+(o.count||0)+' items · '+o.payment+(reason?' · '+reason:''),o.id===base.id,'checkbox');input.disabled=!!reason;const details=el('details',null,choice);el('summary','View order items',details);el('pre',o.items,details);checks.push({input,order:clone(o)});}
  const pickup=field(form,'Pickup arrangement to keep','','select');pickup.parentElement.hidden=!!base.delivery;
