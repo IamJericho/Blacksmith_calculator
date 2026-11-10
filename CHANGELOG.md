@@ -29,3 +29,7 @@ The current readable catalog snapshot is [docs/CATALOG-REFERENCE.md](docs/CATALO
 ## November 7, 2026 — obsolete crafting snapshot cleanup
 
 Stopped creating `previousCraftingItems`; remove this unused legacy snapshot from active settings when crafting totals refresh successfully, then persist through normal cloud sync. Historical backups remain intact. Shared context now explicitly distinguishes obsolete snapshots and derived crafting totals from actual inventory. Cleanup of a particular device/cloud copy requires that updated client to refresh and save successfully.
+
+## November 9, 2026 — order prepayment
+
+Added pickup room reservations and pickup or delivery prepayment messages in Edit order. [Prepayment details](docs/updates/2026-11-09.md)

@@ -2,9 +2,64 @@
  const ORDER_KEY='blacksmith-ready-orders-v1',PREF_KEY='blacksmith-internal-items-v1',OCCUPIED_KEY='blacksmith-occupied-pickup-locations-v1';
  const read=(key,fallback)=>JSON.parse(localStorage.getItem(key)||JSON.stringify(fallback)),clone=value=>JSON.parse(JSON.stringify(value)),same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
  const customer=name=>{const id=String(name||'').match(/<@!?(\d+)>/);if(id)return 'discord:'+id[1];const text=String(name||'').trim().toLowerCase().replace(/^@/,'').replace(/\s+/g,' ');return !text||['your name','unassigned order'].includes(text)?null:'name:'+text;};
+ function pickupSlots(){
+  const offline = new Set(read(PREF_KEY, {}).offlinePickupLocations || []);
+  return [...document.querySelector('#roomSelect').options].flatMap(room =>
+   [...document.querySelector('#vaultSelect').options].map(vault => ({
+    room: room.value, vault: vault.value, key: room.value + '|' + vault.value
+   }))
+  ).filter(slot => !offline.has(slot.key));
+ }
+ function availablePrepaymentSlots(orderId, orders = read(ORDER_KEY, [])){
+  const reserved = new Set(read(OCCUPIED_KEY, []));
+  for (const order of orders) {
+   if (order.id !== orderId && !order.delivery && !order.fulfilled && order.room && order.vault) {
+    reserved.add(order.room + '|' + order.vault);
+   }
+  }
+  return pickupSlots().filter(slot => !reserved.has(slot.key));
+ }
+ window.blacksmithHasPickupPrepayment = order => !!order.prepaymentRequested && !order.delivery && !order.fulfilled;
+ window.blacksmithPrepaymentMessage = function(order){
+  const lines = [
+   'Hi ' + order.name + ', thank you for your order! Because it includes ' + order.count + ' items, we’re asking for prepayment.',
+   '',
+   'Amount due: ' + order.payment,
+   ''
+  ];
+  const processing = order.workStatus === 'processing' ? 'continue processing' : 'start processing';
+  if (order.delivery) {
+   lines.push('Please send your server, map, coordinates, spawn point, teleporter name (if you have one), and tribe name so we can arrange to collect payment.');
+   lines.push('Once payment is received, we’ll ' + processing + ' your order and contact you when it’s ready to deliver.');
+  } else {
+   lines.push(
+    'Payment room: ' + order.room,
+    'Payment dedi: ' + order.paymentDedi,
+    'Payment dedi PIN: ' + order.paymentDediPin,
+    '',
+    'Bring a flyer unless you can use a teleporter.',
+    'Server: 5986',
+    'Spawn: Lemonkis East',
+    'Shop coordinates: 18.9 - 89.8',
+    'Tribe: Department of War',
+    '',
+    'If you can use a teleporter:',
+    'Spawn: Korinthos East',
+    'World TP: Korinthos East > E',
+    'Coordinates: 41.1 - 33.4 or 44.4 - 36.8',
+    'TP: DoW Trade',
+    'Look for the red, white, and blue buildings.',
+    '',
+    'Please let us know once you’ve dropped off the payment. The pickup vault won’t have a PIN until we confirm receipt.',
+    'Once payment is received, we’ll ' + processing + ' your order and contact you when it’s ready for pickup.'
+   );
+  }
+  lines.push('', 'Thank you for prepaying. We appreciate your understanding and your business!');
+  return lines.join('\n');
+ };
  function parse(items){const selects=[...document.querySelectorAll('select[data-group]')],norm=s=>s.toLowerCase().replace(/[–—|:_]/g,' ').replace(/\s+/g,' ').trim(),entries=selects.map((select,key)=>({key,group:select.dataset.group,aliases:[norm(select.dataset.name),norm(select.dataset.name.split('|').pop())]})),result=window.parsePastedBlacksmithOrders(items,entries);if(result.errors.length||!result.totals.size)throw Error('Check the order items: '+(result.errors.join(', ')||'No items found.'));const rows=[...result.totals].map(([key,quantity])=>({select:selects[key],quantity,key:selects[key].dataset.group+'|'+selects[key].dataset.name}));return {rows,items:window.formatBlacksmithItemList(rows),count:rows.reduce((n,row)=>n+row.quantity,0)};}
  function amounts(payment){const m=String(payment||'').trim().match(/^([\d,]+(?:\.\d+)?)\s+(.+)$/);if(!m)throw Error('Enter payment as an amount and currency, for example 800 Tek Ceilings.');const value=Number(m[1].replace(/,/g,''));if(!Number.isFinite(value)||value<0)throw Error('Payment amount is invalid.');let unit=m[2].trim();if(/^(tek(?: ceilings?)?|tc)$/i.test(unit))unit='Tek Ceilings';return {value,unit};}
- function incompatibility(base,other){if(base.id===other.id)return '';if(!customer(base.name)||customer(base.name)!==customer(other.name))return 'Different customer';if((base.starfallDiscount||'')!==(other.starfallDiscount||''))return 'Different Starfall discount';if(!!base.delivery!==!!other.delivery)return 'Different pickup/delivery type';if(!!base.reinforced!==!!other.reinforced)return 'Different reinforcement option';if(!!base.paid!==!!other.paid)return 'Different payment status';if(base.fulfilled||other.fulfilled)return 'Already fulfilled';return '';}
+ function incompatibility(base,other){if(base.id===other.id)return '';if(base.prepaymentRequested||other.prepaymentRequested)return 'Remove the prepayment request before combining these orders';if(!customer(base.name)||customer(base.name)!==customer(other.name))return 'Different customer';if((base.starfallDiscount||'')!==(other.starfallDiscount||''))return 'Different Starfall discount';if(!!base.delivery!==!!other.delivery)return 'Different pickup/delivery type';if(!!base.reinforced!==!!other.reinforced)return 'Different reinforcement option';if(!!base.paid!==!!other.paid)return 'Different payment status';if(base.fulfilled||other.fulfilled)return 'Already fulfilled';return '';}
  function body(order){return 'Name: '+order.name+'\nOrder:\n'+order.items+(order.starfallDiscount?'\nStarfall: '+order.starfallDiscount:'')+'\nReinforced: '+(order.reinforced?'Yes':'No')+'\nDelivery: '+(order.delivery?'Yes':'No')+'\nPayment: '+order.payment;}
  function cleanChecks(order,parsed,original){let old;try{old=parse(original.items);}catch(_){old={rows:[]};}const oldCounts=Object.fromEntries(old.rows.map(r=>[r.key,r.quantity])),variant=!!order.reinforced!==!!original.reinforced;order.packedItems={};order.craftedItems={};for(const row of parsed.rows){if(!variant&&Number.isSafeInteger(original.packedItems?.[row.key])&&original.packedItems[row.key]>0)order.packedItems[row.key]=Math.min(row.quantity,original.packedItems[row.key]);if(!variant&&oldCounts[row.key]===row.quantity&&original.craftedItems?.[row.key])order.craftedItems[row.key]=true;}}
  function edited(original,values){const parsed=parse(values.items),next={...clone(original),name:values.name.trim(),orderName:values.orderName.trim().slice(0,120),items:parsed.items,count:parsed.count,delivery:values.delivery,reinforced:values.reinforced,faceToFace:!values.delivery&&values.faceToFace,deliveryNote:values.delivery&&values.deliveryNote,workStatus:values.workStatus,pin:values.pin.trim(),privateNotes:values.instructions,paid:values.paid};if(!next.name)throw Error('Enter the customer name or Discord mention.');delete next.courierNotes;delete next.deliveryDetails;
@@ -13,6 +68,24 @@
  if(repriced){Object.assign(next,window.calculateBlacksmithEditedQuote(next));cleanChecks(next,parsed,original);}else next.payment=values.payment.trim();if(!next.payment)throw Error('Enter a payment amount.');
  next.priceLocked=true;next.reinforcementPricingApplied=1;next.reinforcementCharged=next.reinforced;delete next.priceWarning;if(next.workStatus==='complete'&&(original.workStatus!=='complete'||next.name!==original.name||next.orderName!==original.orderName||next.delivery!==original.delivery))window.BLACKSMITH_BUYER_PICKUP?.apply(next,read(PREF_KEY,{}).orderHistory||[]);next.body=body(next);next.editedAt=new Date().toISOString();if(next.paid&&!original.paid)next.paidAt=next.editedAt;if(!next.paid)next.paidAt=null;
  if(next.workStatus==='new'){next.processingStartedAt=null;next.craftingCompletedAt=null;}else if(next.workStatus==='processing')next.processingStartedAt=next.processingStartedAt||next.editedAt;
+ if (values.prepaymentRequested) {
+  next.prepaymentRequested = true;
+  if (!next.delivery) next.faceToFace = false;
+ } else {
+  delete next.prepaymentRequested;
+ }
+ if (window.blacksmithHasPickupPrepayment(next)) {
+  [next.room, next.vault] = values.prepaymentSlot.split('|');
+  next.room ||= '';
+  next.vault ||= '';
+  next.paymentDedi = values.paymentDedi.trim();
+  next.paymentDediPin = values.paymentDediPin.trim();
+  next.pendingRoom = false;
+  next.manualLocation = true;
+  return {next, repriced};
+ }
+ delete next.paymentDedi;
+ delete next.paymentDediPin;
  if(next.delivery||next.workStatus!=='complete'){next.room='';next.vault='';next.pendingRoom=false;next.manualLocation=false;}else{next.room=values.room.trim().toUpperCase();next.vault=values.vault.trim();next.pendingRoom=!next.room||!next.vault;}
  return {next,repriced};}
  function combine(list,options={}){if(list.length<2)throw Error('Select at least two orders.');const base=list[0],mixedPickup=!base.delivery&&list.some(o=>!!o.faceToFace!==!!base.faceToFace),pickupSource=list.find(o=>o.id===options.pickupSourceId);if(mixedPickup&&!pickupSource)throw Error('Choose the pickup arrangement to keep.');for(const o of list){const reason=incompatibility(base,o);if(reason)throw Error(reason+'. Combine only matching orders.');}const rows=new Map();for(const o of list)for(const row of parse(o.items).rows){const current=rows.get(row.key);if(current)current.quantity+=row.quantity;else rows.set(row.key,{...row});}const entries=[...rows.values()],payments=list.map(o=>amounts(o.payment)),unit=payments[0].unit;if(payments.some(p=>p.unit.toLowerCase()!==unit.toLowerCase()))throw Error('These orders use different payment currencies.');const total=payments.reduce((n,p)=>n+p.value,0);if(!Number.isFinite(total)||total>Number.MAX_SAFE_INTEGER)throw Error('Combined payment is too large.');const ranks={new:0,processing:1,complete:2},stage=Math.min(...list.map(o=>ranks[o.workStatus]??0)),status=['new','processing','complete'][stage],next={...clone(base),items:window.formatBlacksmithItemList(entries),count:entries.reduce((n,r)=>n+r.quantity,0),payment:Number(total.toFixed(2))+' '+unit,priceLocked:true,reinforcementPricingApplied:1,reinforcementCharged:!!base.reinforced,pricingVersion:'combined-locked-quotes',workStatus:status,paid:list.every(o=>o.paid),fulfilled:false,combinedAt:new Date().toISOString(),combinedOrders:list.flatMap(o=>o.combinedOrders?.length?clone(o.combinedOrders):[clone(o)]),analyticsSourceOrders:list.flatMap(o=>o.analyticsSourceOrders?.length?clone(o.analyticsSourceOrders):[clone(o)]),packedItems:{},craftedItems:{}};
@@ -22,7 +95,19 @@
  if(status!=='complete'){next.room='';next.vault='';next.pendingRoom=false;next.manualLocation=false;next.craftingCompletedAt=null;}if(status==='new')next.processingStartedAt=null;if(status==='processing')next.processingStartedAt=list.find(o=>o.processingStartedAt)?.processingStartedAt||next.combinedAt;const pickup=pickupSource||base;next.faceToFace=!base.delivery&&!!pickup.faceToFace;if(!base.delivery){next.pin=pickup.pin||'';if(status==='complete'){next.room=pickup.room||'';next.vault=pickup.vault||'';next.pendingRoom=!next.room||!next.vault;next.manualLocation=!!pickup.manualLocation;}}next.body=body(next);return next;
  }
  function commit(originals,next,operation){const current=read(ORDER_KEY,[]);for(const original of originals){const latest=current.find(o=>o.id===original.id);if(!latest||!same(latest,original))throw Error('An order changed while this window was open. Close it and try again with the latest copy.');}
- const prefs=read(PREF_KEY,{}),external=new Set(read(OCCUPIED_KEY,[]));if(!next.delivery&&next.workStatus==='complete'&&next.room&&next.vault){const slots=[...document.querySelector('#roomSelect').options].flatMap(r=>[...document.querySelector('#vaultSelect').options].map(v=>({room:r.value,vault:v.value}))).filter(s=>!(prefs.offlinePickupLocations||[]).includes(s.room+'|'+s.vault));if(!slots.some(s=>s.room===next.room&&s.vault===next.vault))throw Error('That pickup location is offline or invalid.');const selected=new Set(originals.map(o=>o.id));if(current.some(o=>!selected.has(o.id)&&!o.delivery&&o.room===next.room&&o.vault===next.vault))throw Error('That location belongs to another order. Choose a free location or use Save location to override it.');external.delete(next.room+'|'+next.vault);if(operation==='edit'&&(next.room!==originals[0].room||next.vault!==originals[0].vault))next.manualLocation=true;}
+ const prefs=read(PREF_KEY,{}),external=new Set(read(OCCUPIED_KEY,[]));
+ if (window.blacksmithHasPickupPrepayment(next)) {
+  if (!availablePrepaymentSlots(next.id, current).some(slot => slot.room === next.room && slot.vault === next.vault)) {
+   throw Error('Choose an available room and vault for the prepayment.');
+  }
+  if (!next.paymentDedi || !/^\d{4}$/.test(next.paymentDediPin)) {
+   throw Error('Enter the payment dedi name and its four-digit PIN.');
+  }
+  if (next.paymentDediPin === next.pin) {
+   throw Error('Use a different PIN for the payment dedi and the pickup vault.');
+  }
+ }
+ if(!next.delivery&&next.workStatus==='complete'&&next.room&&next.vault){const slots=[...document.querySelector('#roomSelect').options].flatMap(r=>[...document.querySelector('#vaultSelect').options].map(v=>({room:r.value,vault:v.value}))).filter(s=>!(prefs.offlinePickupLocations||[]).includes(s.room+'|'+s.vault));if(!slots.some(s=>s.room===next.room&&s.vault===next.vault))throw Error('That pickup location is offline or invalid.');const selected=new Set(originals.map(o=>o.id));if(current.some(o=>!selected.has(o.id)&&!o.delivery&&o.room===next.room&&o.vault===next.vault))throw Error('That location belongs to another order. Choose a free location or use Save location to override it.');external.delete(next.room+'|'+next.vault);if(operation==='edit'&&(next.room!==originals[0].room||next.vault!==originals[0].vault))next.manualLocation=true;}
  const ids=new Set(originals.map(o=>o.id)),first=current.findIndex(o=>ids.has(o.id)),remaining=current.filter(o=>!ids.has(o.id));remaining.splice(first,0,next);prefs.orderRevisionHistory=[{id:crypto.randomUUID(),operation,at:new Date().toISOString(),before:clone(originals),afterIds:[next.id]},...(prefs.orderRevisionHistory||[])].slice(0,50);
  if(operation==='edit'&&originals[0].workStatus==='processing'&&next.workStatus==='new'){const usageIds=new Set([next.id,...(next.analyticsSourceOrders||[]).map(o=>o.id)]);prefs.materialUsage=(prefs.materialUsage||[]).filter(e=>!usageIds.has(e.orderId));}
  const changes=[[PREF_KEY,JSON.stringify(prefs)],[OCCUPIED_KEY,JSON.stringify([...external])],[ORDER_KEY,JSON.stringify(remaining)]],before=changes.map(([key])=>[key,localStorage.getItem(key)]);try{for(const [key,value]of changes)localStorage.setItem(key,value);}catch(error){for(const [key,value]of before){if(value===null)localStorage.removeItem(key);else localStorage.setItem(key,value);}throw error;}window.dispatchEvent(new Event('blacksmith-order-management-updated'));window.dispatchEvent(new Event('blacksmith-order-updated'));window.blacksmithNotify(operation==='edit'?'Order updated.':'Orders combined. Original records retained.');}
@@ -30,10 +115,82 @@
  function dialog(title,trigger){const d=el('dialog');d.className='order-management-dialog';const form=el('form',null,d);form.method='dialog';const heading=el('h2',title,form);heading.id='order-dialog-'+crypto.randomUUID();d.setAttribute('aria-labelledby',heading.id);const error=el('p',null,form);error.className='order-edit-error';error.setAttribute('role','alert');document.body.append(d);const triggerOrderId=trigger?.closest('.ready-order-card')?.dataset.orderId;const close=()=>{d.close();d.remove();const target=trigger?.isConnected?trigger:[...document.querySelectorAll('.ready-order-card')].find(c=>c.dataset.orderId===triggerOrderId)?.querySelector('.order-management-actions button')||document.getElementById('orderSearch');if(window.blacksmithRestoreVisibleFocus)window.blacksmithRestoreVisibleFocus(trigger,triggerOrderId);else target?.focus({preventScroll:true})};d.addEventListener('cancel',e=>{e.preventDefault();close()});return {d,form,error,close};}
  function field(form,label,value,type='text'){const l=el('label',null,form),caption=el('span',label,l);caption.id='order-field-'+crypto.randomUUID();const n=el(type==='textarea'?'textarea':type==='select'?'select':'input',null,l);if(type!=='textarea'&&type!=='select')n.type=type;n.className='form-control';n.setAttribute('aria-labelledby',caption.id);if(type==='checkbox'){l.className='check';l.prepend(n);n.checked=!!value;}else n.value=value??'';if(type==='textarea')n.rows=5;return n;}
  function buttons(form,close,label){const actions=el('div',null,form);actions.className='order-edit-actions';const cancel=el('button','Cancel',actions);cancel.type='button';cancel.addEventListener('click',close);const save=el('button',label,actions);save.type='submit';save.className='btn btn-primary';return save;}
- function editDialog(order,trigger){const current=read(ORDER_KEY,[]).find(o=>o.id===order.id);if(!current)return;const original=clone(current);const {d,form,error,close}=dialog('Edit order',trigger),name=field(form,'Customer name / Discord mention',original.name),orderName=field(form,'Order name (optional)',original.orderName||''),items=field(form,'Order items and quantities',original.items,'textarea'),delivery=field(form,'Delivery order',original.delivery,'checkbox'),reinforced=field(form,'Reinforced',original.reinforced,'checkbox'),f2f=field(form,'Face to Face',original.faceToFace,'checkbox'),note=field(form,'Include outside-location delivery note',original.deliveryNote,'checkbox'),payment=field(form,'Payment',original.payment),paid=field(form,'Payment received',original.paid,'checkbox'),status=field(form,'Order progress','','select');for(const [value,label]of [['new','Not started'],['processing','Processing'],['complete','Complete — awaiting pickup/delivery']]){const option=el('option',label,status);option.value=value;}status.value=original.workStatus||'new';const location=el('div',null,form);location.className='order-edit-location';const room=field(location,'Room',original.room),vault=field(location,'Vault number',original.vault),pin=field(form,'PIN / Dedi PIN',original.pin),instructions=field(form,'Instructions', [original.privateNotes,original.courierNotes,original.deliveryDetails].filter((v,i,a)=>v&&a.indexOf(v)===i).join('\n\n'),'textarea'),quote=el('p',null,form);quote.className='note';const save=buttons(form,close,'Save changes');
- const values=()=>({name:name.value,orderName:orderName.value,items:items.value,delivery:delivery.checked,reinforced:reinforced.checked,faceToFace:f2f.checked,deliveryNote:note.checked,payment:payment.value,paid:paid.checked,workStatus:status.value,room:room.value,vault:vault.value,pin:pin.value,instructions:instructions.value});
- let wasRepriced=false;function preview(){try{const result=edited(original,values());if(result.repriced)payment.value=result.next.payment;else if(wasRepriced)payment.value=original.payment;wasRepriced=result.repriced;payment.readOnly=result.repriced;quote.textContent=result.repriced?'Updated quote: '+result.next.payment+' · Recalculated using current prices.':'Existing quote retained unless you edit the payment.';error.textContent='';save.disabled=false;location.hidden=delivery.checked||status.value!=='complete';f2f.parentElement.hidden=delivery.checked;note.parentElement.hidden=!delivery.checked;}catch(e){error.textContent=e.message;save.disabled=true;}}
- for(const input of [items,delivery,reinforced,status])input.addEventListener(input===items?'input':'change',preview);form.addEventListener('submit',e=>{e.preventDefault();try{const result=edited(original,values());commit([original],result.next,'edit');close();}catch(e){error.textContent=e.message;}});preview();d.showModal();name.focus();}
+ function editDialog(order,trigger){const current=read(ORDER_KEY,[]).find(o=>o.id===order.id);if(!current)return;const original=clone(current);const {d,form,error,close}=dialog('Edit order',trigger),name=field(form,'Customer name / Discord mention',original.name),orderName=field(form,'Order name (optional)',original.orderName||''),items=field(form,'Order items and quantities',original.items,'textarea'),delivery=field(form,'Delivery order',original.delivery,'checkbox'),reinforced=field(form,'Reinforced',original.reinforced,'checkbox'),f2f=field(form,'Face to Face',original.faceToFace,'checkbox'),note=field(form,'Include outside-location delivery note',original.deliveryNote,'checkbox'),payment=field(form,'Payment',original.payment),paid=field(form,'Payment received',original.paid,'checkbox'),status=field(form,'Order progress','','select');for(const [value,label]of [['new','Not started'],['processing','Processing'],['complete','Complete — awaiting pickup/delivery']]){const option=el('option',label,status);option.value=value;}status.value=original.workStatus||'new';const location=el('div',null,form);location.className='order-edit-location';const room=field(location,'Room',original.room),vault=field(location,'Vault number',original.vault),pin=field(form,'PIN / Dedi PIN',original.pin),instructions=field(form,'Instructions', [original.privateNotes,original.courierNotes,original.deliveryDetails].filter((v,i,a)=>v&&a.indexOf(v)===i).join('\n\n'),'textarea'),quote=el('p',null,form);
+ quote.className='note';
+ const requestPrepayment = field(form, 'Request prepayment', original.prepaymentRequested, 'checkbox');
+ const prepaymentFields = el('fieldset', null, form);
+ el('legend', 'Prepayment instructions', prepaymentFields);
+ const pickupFields = el('div', null, prepaymentFields);
+ const slot = field(pickupFields, 'Payment room and pickup vault', '', 'select');
+ el('option', 'Choose an available room and vault', slot).value = '';
+ const choices = availablePrepaymentSlots(original.id);
+ for (const choice of choices) {
+  el('option', 'Room ' + choice.room + ' · Vault ' + choice.room + choice.vault, slot).value = choice.key;
+ }
+ slot.value = choices.some(choice => choice.key === original.room + '|' + original.vault)
+  ? original.room + '|' + original.vault : '';
+ const dedi = field(pickupFields, 'Payment dedi name', original.paymentDedi || '');
+ const dediPin = field(pickupFields, 'Payment dedi PIN', original.paymentDediPin || '');
+ dediPin.inputMode = 'numeric';
+ dediPin.maxLength = 4;
+ el('p', 'Use the PIN you set on the payment dedi in game. Keep it separate from the pickup vault PIN.', pickupFields).className = 'note';
+ const message = field(prepaymentFields, 'Customer prepayment message', '', 'textarea');
+ message.readOnly = true;
+ const copy = el('button', 'Save and copy prepayment message', prepaymentFields);
+ copy.type = 'button';
+ const save = buttons(form,close,'Save changes');
+ const values=()=>({name:name.value,orderName:orderName.value,items:items.value,delivery:delivery.checked,reinforced:reinforced.checked,faceToFace:f2f.checked,deliveryNote:note.checked,payment:payment.value,paid:paid.checked,workStatus:status.value,room:room.value,vault:vault.value,pin:pin.value,instructions:instructions.value,prepaymentRequested:requestPrepayment.checked,prepaymentSlot:slot.value,paymentDedi:dedi.value,paymentDediPin:dediPin.value});
+ let wasRepriced=false;
+ function preview(){
+  const requested = requestPrepayment.checked;
+  prepaymentFields.hidden = !requested;
+  pickupFields.hidden = delivery.checked;
+  message.parentElement.hidden = paid.checked;
+  copy.hidden = paid.checked;
+  location.hidden = delivery.checked || requested || status.value !== 'complete';
+  f2f.parentElement.hidden = delivery.checked || requested;
+  note.parentElement.hidden = !delivery.checked;
+  try {
+   const result = edited(original, values());
+   if(result.repriced)payment.value=result.next.payment;
+   else if(wasRepriced){payment.value=original.payment;result.next.payment=original.payment;}
+   wasRepriced=result.repriced;
+   payment.readOnly=result.repriced;
+   quote.textContent=result.repriced?'Updated quote: '+result.next.payment+' · Recalculated using current prices.':'Existing quote retained unless you edit the payment.';
+   if (requested) {
+    const ready = delivery.checked || (slot.value && dedi.value.trim() && /^\d{4}$/.test(dediPin.value.trim()) && dediPin.value.trim() !== pin.value.trim());
+    message.value = ready ? window.blacksmithPrepaymentMessage(result.next) : 'Choose the location and enter the payment dedi and its separate four-digit PIN.';
+    copy.disabled = !ready || paid.checked;
+   }
+   error.textContent='';
+   save.disabled=false;
+  }catch(e){error.textContent=e.message;save.disabled=true;copy.disabled=true;}
+ }
+ for(const input of [items,delivery,reinforced,status,requestPrepayment,paid,slot,dedi,dediPin,pin,payment,name]){
+  input.addEventListener(input.matches('select,input[type=checkbox]')?'change':'input',preview);
+ }
+ async function submitEdit(copyRequested){
+  if (!form.reportValidity()) return;
+  try {
+   const result=edited(original,values());
+   copyRequested = copyRequested && result.next.prepaymentRequested && !result.next.paid;
+   commit([original],result.next,'edit');
+   const text=copyRequested ? window.blacksmithPrepaymentMessage(result.next) : '';
+   if (copyRequested && !await window.blacksmithCopy(text,copy,'Prepayment message copied!')) {
+    error.textContent = 'Order saved. Copy the selected message manually, then close this window.';
+    message.focus();
+    message.select();
+    save.disabled = true;
+    copy.disabled = true;
+    return;
+   }
+   close();
+  }catch(e){error.textContent=e.message;}
+ }
+ form.addEventListener('submit', event=>{event.preventDefault();submitEdit(false);});
+ copy.addEventListener('click', ()=>submitEdit(true));
+ preview();d.showModal();name.focus();}
+
  function combineDialog(order,trigger){const all=read(ORDER_KEY,[]),base=all.find(o=>o.id===order.id);if(!base)return;const {d,form,error,close}=dialog('Combine orders',trigger);el('p','Select orders for '+base.name+'. Existing quotes and delivery payouts are added together.',form);el('p','Choose the pickup arrangement to keep. Other selected locations are released when you combine. Move any items into the retained location. Progress follows the least advanced selected order.',form).className='note';const choices=el('div',null,form),checks=[];for(const o of all.filter(o=>customer(base.name)&&customer(base.name)===customer(o.name))){const reason=incompatibility(base,o),choice=el('div',null,choices),input=field(choice,'Order '+(all.indexOf(o)+1)+' · '+(o.createdAt?new Date(o.createdAt).toLocaleString():'Older order')+' · '+(o.count||0)+' items · '+o.payment+(reason?' · '+reason:''),o.id===base.id,'checkbox');input.disabled=!!reason;const details=el('details',null,choice);el('summary','View order items',details);el('pre',o.items,details);checks.push({input,order:clone(o)});}
  const pickup=field(form,'Pickup arrangement to keep','','select');pickup.parentElement.hidden=!!base.delivery;
  const preview=el('pre',null,form);preview.className='order-combine-preview';const instructions=field(form,'Combined instructions','','textarea'),save=buttons(form,close,'Combine selected orders');let prepared=null,lastIds='';function update(){try{const selected=checks.filter(c=>c.input.checked).map(c=>c.order);const previous=pickup.value;pickup.replaceChildren();const placeholder=el('option','Choose a selected order’s pickup arrangement',pickup);placeholder.value='';for(const o of selected){const option=el('option',(o.orderName||'Order '+(all.findIndex(a=>a.id===o.id)+1))+' · '+(o.faceToFace?'Face-to-face pickup':'Vault pickup')+' · '+(o.room&&o.vault?o.room+o.vault:'Location pending'),pickup);option.value=o.id;}pickup.value=selected.some(o=>o.id===previous)?previous:(!selected.some(o=>!!o.faceToFace!==!!selected[0]?.faceToFace)?selected[0]?.id||'':'');prepared=combine(selected,{pickupSourceId:pickup.value});const ids=selected.map(o=>o.id).join('|');if(ids!==lastIds){instructions.value=prepared.privateNotes;lastIds=ids;}preview.textContent=prepared.items+'\n\nCombined payment: '+prepared.payment+(prepared.delivery?'\nCourier payout: '+prepared.courierPayout+' Tek Ceilings':'')+'\nProgress: '+prepared.workStatus+(!prepared.delivery?'\nPickup location: '+(prepared.room&&prepared.vault?prepared.room+prepared.vault+' · PIN '+prepared.pin:(prepared.workStatus==='complete'?'Pending room assignment':'Assigned when complete')):'');save.disabled=false;error.textContent='';}catch(e){prepared=null;preview.textContent='';error.textContent=e.message;save.disabled=true;}}pickup.addEventListener('change',update);for(const {input}of checks)input.addEventListener('change',update);form.addEventListener('submit',e=>{e.preventDefault();try{if(!prepared)return;prepared.privateNotes=instructions.value;commit(checks.filter(c=>c.input.checked).map(c=>c.order),prepared,'combine');close();}catch(e){error.textContent=e.message;}});update();d.showModal();checks.find(c=>!c.input.disabled)?.input.focus();}
