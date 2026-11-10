@@ -148,6 +148,8 @@
   message.parentElement.hidden = paid.checked;
   copy.hidden = paid.checked;
   location.hidden = delivery.checked || requested || status.value !== 'complete';
+  pin.parentElement.hidden = status.value !== 'complete';
+  instructions.parentElement.hidden = status.value !== 'complete';
   f2f.parentElement.hidden = delivery.checked || requested;
   note.parentElement.hidden = !delivery.checked;
   try {
