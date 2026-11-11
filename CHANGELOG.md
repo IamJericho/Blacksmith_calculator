@@ -4,7 +4,7 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 11, 2026 — Tek Revenue
 
-Added a report for recorded Tek payments under Analytics. [Update details](docs/updates/2026-11-11.md)
+Added a report for recorded Tek payments under Analytics with the same period controls as Item Analytics. [Update details](docs/updates/2026-11-11.md)
 
 ## November 11, 2026 — individual packing checklists
 

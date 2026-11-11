@@ -5,29 +5,37 @@
   panel.innerHTML = `
     <h2>Tek Revenue</h2>
     <p class="note">Totals recorded Tek payments from Orders and Order History. Older orders can use the completion or original order date when a payment date is unavailable. Undated payments appear in All time.</p>
-    <div class="row">
-      <label for="revenuePeriod">Period
-        <select id="revenuePeriod" class="form-select">
-          <option value="all">All time</option>
-          <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
-          <option value="q1">1st Qtr</option>
-          <option value="q2">2nd Qtr</option>
-          <option value="q3">3rd Qtr</option>
-          <option value="q4">4th Qtr</option>
-          <option value="year1">1 year</option>
-          <option value="year3">3 year</option>
-        </select>
-      </label>
-      <label for="revenueDate" hidden>Date in the report period
+    <div class="catalog-tabs" role="group" aria-label="Tek revenue period">
+      <button class="catalog-tab" type="button" data-period="weekly" aria-pressed="false">Weekly</button>
+      <button class="catalog-tab" type="button" data-period="monthly" aria-pressed="false">Monthly</button>
+      <button class="catalog-tab" type="button" data-period="q1" aria-pressed="false">1st Qtr</button>
+      <button class="catalog-tab" type="button" data-period="q2" aria-pressed="false">2nd Qtr</button>
+      <button class="catalog-tab" type="button" data-period="q3" aria-pressed="false">3rd Qtr</button>
+      <button class="catalog-tab" type="button" data-period="q4" aria-pressed="false">4th Qtr</button>
+      <button class="catalog-tab" type="button" data-period="year1" aria-pressed="false">1 year</button>
+      <button class="catalog-tab" type="button" data-period="year3" aria-pressed="false">3 year</button>
+      <button class="catalog-tab" type="button" data-period="all" aria-pressed="true">All time</button>
+    </div>
+    <div class="row" id="revenuePeriodControls" hidden>
+      <button class="btn btn-secondary" type="button" id="revenuePrevious">Previous period</button>
+      <label for="revenueDate">Report ending date (quarters use its year)
         <input id="revenueDate" class="form-control" type="date">
       </label>
+      <label id="revenueYearLabel" hidden>Quarter year
+        <input id="revenueYear" class="form-control" type="number" min="1900" max="9998" step="1">
+      </label>
+      <button class="btn btn-secondary" type="button" id="revenueNext">Next period</button>
+      <button class="btn btn-secondary" type="button" id="revenueToday">Current period</button>
     </div>
     <h3 id="revenueHeading">All time</h3>
     <p id="revenueTotal" role="status"></p>
   `;
 
-  const period = panel.querySelector('#revenuePeriod');
+  const periodButtons = panel.querySelectorAll('button[data-period]');
+  const controls = panel.querySelector('#revenuePeriodControls');
+  const yearLabel = panel.querySelector('#revenueYearLabel');
+  const year = panel.querySelector('#revenueYear');
+  let mode = 'all';
   const date = panel.querySelector('#revenueDate');
   const heading = panel.querySelector('#revenueHeading');
   const result = panel.querySelector('#revenueTotal');
@@ -37,9 +45,13 @@
 
   function render() {
     if (location.hash !== '#tek-revenue') return;
-    const mode = period.value;
     const range = mode === 'all' ? null : window.blacksmithUsagePeriod(mode, date.value || today());
-    date.parentElement.hidden = !range;
+    controls.hidden = !range;
+    yearLabel.hidden = !/^q[1-4]$/.test(mode);
+    year.value = (date.value || today()).slice(0, 4);
+    for (const button of periodButtons) {
+      button.setAttribute('aria-pressed', String(button.dataset.period === mode));
+    }
     heading.textContent = range ? window.blacksmithUsageHeading(mode, range) : 'All time';
 
     try {
@@ -69,7 +81,28 @@
     }
   }
 
-  period.addEventListener('change', render);
+  for (const button of periodButtons) {
+    button.addEventListener('click', () => {
+      mode = button.dataset.period;
+      render();
+    });
+  }
+  for (const [id, step] of [['#revenuePrevious', -1], ['#revenueNext', 1]]) {
+    panel.querySelector(id).addEventListener('click', () => {
+      date.value = window.blacksmithShiftUsagePeriod(mode, date.value || today(), step);
+      render();
+    });
+  }
+  panel.querySelector('#revenueToday').addEventListener('click', () => {
+    date.value = today();
+    render();
+  });
+  year.addEventListener('change', () => {
+    const selectedYear = year.valueAsNumber;
+    if (!Number.isInteger(selectedYear) || selectedYear < 1900 || selectedYear > 9998) return;
+    date.value = selectedYear + '-01-01';
+    render();
+  });
   date.addEventListener('change', render);
   for (const event of ['hashchange', 'blacksmith-order-updated', 'blacksmith-order-management-updated', 'blacksmith-courier-delivery-updated', 'storage']) {
     window.addEventListener(event, render);
