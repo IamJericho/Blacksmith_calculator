@@ -4,7 +4,7 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 11, 2026 — individual packing checklists
 
-Fully packed items appear below items still to pack on individual order checklists. The Processing page also places fully crafted items last in each order’s crafting checklist. [Update details](docs/updates/2026-11-11.md)
+Fully packed items appear below items still to pack on individual order checklists. The Processing page also places fully crafted items last in each order’s crafting checklist and checks the box only once the full quantity is crafted. [Update details](docs/updates/2026-11-11.md)
 
 ## November 10, 2026 — Enigmasaur listing
 
