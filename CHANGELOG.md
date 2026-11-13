@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 13, 2026 — Blueprint Library editing
+
+Added an Edit button to blueprint cards. [Update details](docs/updates/2026-11-13.md)
+
 ## November 11, 2026 — Tek Revenue
 
 Added a report for recorded Tek payments under Analytics with the same period controls as Item Analytics. [Update details](docs/updates/2026-11-11.md)

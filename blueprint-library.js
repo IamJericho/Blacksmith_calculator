@@ -7,7 +7,194 @@
   for(const [family,tiers]of [['equipment',BLACKSMITH.equipment],['cursed',BLACKSMITH.cursed]])for(const [tier,categories]of Object.entries(tiers||{}))for(const [category,items]of Object.entries(categories))for(const [name,item]of Object.entries(items))entries.push({group:family==='cursed'?'cursed'+tier.slice(-1):tier,name,category,item});
   const libraryOnly=[{"group": "library-only", "name": "Gigadesmodus (Ascendant)", "item": {"materials": {"F": 36763, "M": 13786, "A": 9803, "H": 33699, "B": 13479}}, "stats": {"aliases": ["Gigadesmo", "Gigadesmodus Ascendant"], "itemRating": "28.70", "armor": "74.5"}, "libraryOnly": true}];for(const entry of libraryOnly){entries.push(entry);blueprintStats[entry.name]=entry.stats;}labels['library-only']='Library only · Not for sale';
   const category=panel.querySelector('#blueprintCategory');for(const group of Object.keys(labels).filter(group=>entries.some(e=>e.group===group)))category.add(new Option(labels[group],group));
-  const cards=entries.map(entry=>{const card=document.createElement('article');card.className='blueprint-card';const heading=document.createElement('h3');heading.textContent=blueprintStats[entry.name]?.displayName||entry.name;const tag=document.createElement('p');tag.className='note';tag.textContent=labels[entry.group]+(entry.category?' · '+entry.category:'');const stats=entry.group.startsWith('cursed')?null:blueprintStats[entry.name];const statsList=document.createElement('dl');statsList.className='blueprint-materials';if(stats){for(const [key,label] of [['itemRating','Item Rating'],['armor','Armor'],['damage','Damage'],['durability','Durability']]){if(stats[key]===undefined)continue;const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=label;dd.textContent=stats[key];statsList.append(dt,dd);}card.append(heading,tag,statsList);if(stats.note){const note=document.createElement('p');note.className='note';note.textContent=stats.note;card.append(note);}}const details=document.createElement('details');details.className='blueprint-recipe';const summary=document.createElement('summary');summary.textContent='Recipe details';details.append(summary);const materials=Object.entries(entry.item.materials||{}).filter(([code])=>!['D','J','Q'].includes(code));if(materials.length){const dl=document.createElement('dl');dl.className='blueprint-materials';for(const [code,amount]of materials){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=BLACKSMITH.materialsKey[code]||code;dd.textContent=amount.toLocaleString();dl.append(dt,dd);}details.append(dl);}else{const p=document.createElement('p');p.className='note';p.textContent='No material recipe recorded.';details.append(p);}const copy=document.createElement('button');copy.type='button';copy.className='btn btn-secondary';copy.textContent='Copy materials';copy.style.marginTop='14px';copy.disabled=!materials.length;copy.setAttribute('aria-label','Copy materials for '+heading.textContent+' · '+labels[entry.group]);copy.addEventListener('click',()=>{const text=heading.textContent+'\n'+labels[entry.group]+(entry.category?' · '+entry.category:'')+'\nMaterials for 1 item:\n'+materials.map(([code,amount])=>(BLACKSMITH.materialsKey[code]||code)+': '+amount.toLocaleString()).join('\n');window.blacksmithCopy(text,copy,'Materials copied for '+entry.name+'!');});if(!stats)card.append(heading,tag);card.append(details,copy);panel.querySelector('#blueprintCards').append(card);return {card,group:entry.group,search:[heading.textContent,entry.name,...(stats?.aliases||[]),labels[entry.group],entry.category||'',...materials.map(([code])=>BLACKSMITH.materialsKey[code]||code)].join(' ').toLowerCase()};});
+  const prefsKey = 'blacksmith-internal-items-v1';
+  const statFields = [['itemRating','Item Rating'], ['armor','Armor'], ['damage','Damage'], ['durability','Durability']];
+  const materialNames = BLACKSMITH.materialsKey;
+  const readPrefs = () => JSON.parse(localStorage.getItem(prefsKey) || '{}');
+  const status = document.createElement('p');
+  status.setAttribute('role', 'status');
+  panel.querySelector('#blueprintCards').before(status);
+
+  function editBlueprint(row) {
+    const {entry, edit} = row;
+    const {name, stats, materials} = row;
+    const dialog = document.createElement('dialog');
+    dialog.className = 'order-management-dialog';
+    dialog.setAttribute('aria-labelledby', 'blueprintEditHeading');
+    const form = document.createElement('form');
+    dialog.append(form);
+    const heading = document.createElement('h2');
+    heading.id = 'blueprintEditHeading';
+    heading.textContent = 'Edit ' + name;
+    const help = document.createElement('p');
+    help.textContent = 'Changes apply to the Blueprint Library. Leave a field blank to clear it.';
+    form.append(heading, help);
+
+    function numberField(parent, labelText, value, step) {
+      const label = document.createElement('label');
+      const input = document.createElement('input');
+      input.type = 'number';
+      input.min = '0';
+      input.step = step;
+      input.className = 'form-control';
+      input.value = value ?? '';
+      label.append(labelText, input);
+      parent.append(label);
+      return input;
+    }
+
+    const statInputs = statFields.map(([key, label]) => [key, numberField(form, label, stats[key], 'any')]);
+    const notesLabel = document.createElement('label');
+    const notes = document.createElement('textarea');
+    notes.className = 'form-control';
+    notes.rows = 2;
+    notes.maxLength = 500;
+    notes.value = stats.note || '';
+    notesLabel.append('Blueprint notes', notes);
+    form.append(notesLabel);
+
+    const details = document.createElement('details');
+    const summary = document.createElement('summary');
+    summary.textContent = 'Edit recipe materials';
+    details.append(summary);
+    const materialCodes = new Set([...Object.keys(materials), ...Object.keys(materialNames)]);
+    const materialInputs = [...materialCodes].filter(code => !['D','J','Q'].includes(code))
+      .map(code => [code, numberField(details, materialNames[code] || code, materials[code], '1')]);
+    form.append(details);
+    details.addEventListener('invalid', () => { details.open = true; }, true);
+
+    const message = document.createElement('p');
+    message.setAttribute('role', 'alert');
+    const actions = document.createElement('div');
+    actions.className = 'order-edit-actions';
+    const cancel = document.createElement('button');
+    cancel.type = 'button';
+    cancel.className = 'btn btn-secondary';
+    cancel.textContent = 'Cancel';
+    cancel.addEventListener('click', () => dialog.close());
+    const save = document.createElement('button');
+    save.type = 'submit';
+    save.className = 'btn btn-primary';
+    save.textContent = 'Save blueprint';
+    actions.append(cancel, save);
+    form.append(message, actions);
+    dialog.addEventListener('close', () => {
+      dialog.remove();
+      (row.card.hidden ? panel.querySelector('#blueprintSearch') : edit).focus();
+    });
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      try {
+        const updatedStats = Object.fromEntries(statInputs.filter(([, input]) => input.value !== '')
+          .map(([key, input]) => [key, input.value]));
+        const updatedMaterials = Object.fromEntries(materialInputs.filter(([, input]) => input.valueAsNumber > 0)
+          .map(([code, input]) => [code, input.valueAsNumber]));
+        if (Object.values(updatedMaterials).some(value => !Number.isSafeInteger(value))) {
+          throw Error('Enter whole material quantities within the supported number range.');
+        }
+        const prefs = readPrefs();
+        prefs.blueprintEdits = {...prefs.blueprintEdits, [row.key]: {stats: {...updatedStats, note: notes.value.trim()}, materials: updatedMaterials}};
+        localStorage.setItem(prefsKey, JSON.stringify(prefs));
+        renderCard(row, prefs.blueprintEdits[row.key]);
+        filter();
+        dialog.close();
+        status.textContent = 'Blueprint saved for ' + entry.name + '.';
+      } catch (error) {
+        message.textContent = 'Could not save the blueprint. ' + error.message;
+      }
+    });
+    document.body.append(dialog);
+    dialog.showModal();
+  }
+
+  function renderCard(row, saved) {
+    const {entry, card, edit} = row;
+    const baseStats = entry.group.startsWith('cursed') ? {} : blueprintStats[entry.name] || {};
+    const name = baseStats.displayName || entry.name;
+    const stats = saved?.stats ?? baseStats;
+    const materials = saved?.materials ?? Object.fromEntries(Object.entries(entry.item.materials || {})
+      .filter(([code]) => !['D','J','Q'].includes(code)));
+    Object.assign(row, {name, stats, materials});
+
+    const heading = document.createElement('h3');
+    heading.textContent = name;
+    const tag = document.createElement('p');
+    tag.className = 'note';
+    tag.textContent = labels[entry.group] + (entry.category ? ' · ' + entry.category : '');
+    card.replaceChildren(heading, tag);
+
+    function appendList(parent, pairs) {
+      const list = document.createElement('dl');
+      list.className = 'blueprint-materials';
+      for (const [label, value] of pairs) {
+        const term = document.createElement('dt');
+        const definition = document.createElement('dd');
+        term.textContent = label;
+        definition.textContent = value;
+        list.append(term, definition);
+      }
+      parent.append(list);
+    }
+
+    const statsPairs = statFields.filter(([key]) => stats[key] !== undefined)
+      .map(([key, label]) => [label, stats[key]]);
+    if (statsPairs.length) appendList(card, statsPairs);
+    if (stats.note) {
+      const note = document.createElement('p');
+      note.className = 'note';
+      note.textContent = stats.note;
+      card.append(note);
+    }
+
+    const details = document.createElement('details');
+    details.className = 'blueprint-recipe';
+    const summary = document.createElement('summary');
+    summary.textContent = 'Recipe details';
+    details.append(summary);
+    const materialPairs = Object.entries(materials).map(([code, value]) => [materialNames[code] || code, value.toLocaleString()]);
+    if (materialPairs.length) appendList(details, materialPairs);
+    else {
+      const note = document.createElement('p');
+      note.className = 'note';
+      note.textContent = 'No material recipe recorded.';
+      details.append(note);
+    }
+
+    const copy = document.createElement('button');
+    copy.type = 'button';
+    copy.className = 'btn btn-secondary';
+    copy.textContent = 'Copy materials';
+    copy.disabled = !materialPairs.length;
+    copy.setAttribute('aria-label', 'Copy materials for ' + name + ' · ' + labels[entry.group]);
+    copy.addEventListener('click', () => {
+      const lines = [name, tag.textContent, 'Materials for 1 item:', ...materialPairs.map(([label, value]) => label + ': ' + value)];
+      window.blacksmithCopy(lines.join('\n'), copy, 'Materials copied for ' + entry.name + '!');
+    });
+    const actions = document.createElement('div');
+    actions.className = 'order-edit-actions';
+    actions.append(copy, edit);
+    card.append(details, actions);
+    row.search = [name, entry.name, ...(baseStats.aliases || []), tag.textContent,
+      ...materialPairs.map(([label]) => label)].join(' ').toLowerCase();
+  }
+
+  let edits;
+  try { edits = readPrefs().blueprintEdits || {}; } catch { edits = {}; }
+  const cards = entries.map(entry => {
+    const key = JSON.stringify([entry.group, entry.category || '', entry.name]);
+    const card = document.createElement('article');
+    card.className = 'blueprint-card';
+    const edit = document.createElement('button');
+    edit.type = 'button';
+    edit.className = 'btn btn-secondary';
+    edit.textContent = 'Edit';
+    edit.setAttribute('aria-label', 'Edit ' + entry.name + ' · ' + labels[entry.group]);
+    const row = {entry, key, card, edit, group: entry.group};
+    edit.addEventListener('click', () => editBlueprint(row));
+    renderCard(row, edits[key]);
+    panel.querySelector('#blueprintCards').append(card);
+    return row;
+  });
   function filter(){const query=panel.querySelector('#blueprintSearch').value.trim().toLowerCase();let count=0;for(const row of cards){row.card.hidden=!(category.value==='all'||row.group===category.value)||!row.search.includes(query);if(!row.card.hidden)count++;}panel.querySelector('#blueprintCount').textContent=count+' recipe'+(count===1?'':'s')+(count?'':' · No matching recipes.');}
   panel.querySelector('#blueprintSearch').addEventListener('input',filter);category.addEventListener('change',filter);filter();
 })();
