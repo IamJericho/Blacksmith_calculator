@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-I69wB8OKKc3o6hU8x+1YcT5/hnEZh+0e/1MYq5TT4h0=' 'sha256-U4eopndNAF890AcCunJb3KzGOBnI9cLz7kgUsNxLN00=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-927hsJyj1to085PUiPN2dTg1efRrtIUv5Wu7n6MhX48=' 'sha256-U4eopndNAF890AcCunJb3KzGOBnI9cLz7kgUsNxLN00=' 'sha256-vuj+UOEFw2tU9LnKO7ZCpKd2IX0sKDv2BOsFbd9/uDs='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script><script src="auth-client.js?v=20261026-public"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
   <title>Client Calculator</title>
@@ -213,7 +213,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="starfall-discounts.js?v=20261107"></script><script src="pricingEngine.js?v=20261108-base-materials"></script>
-  <script src="blacksmith.js?v=20261108-umbra"></script>
+  <script src="blacksmith.js?v=20261113-blueprint-price"></script>
   <script>
 
     /* =============================
@@ -328,7 +328,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
       Object.entries(data).forEach(([name, itemData]) => {
         t.insertAdjacentHTML("beforeend", `
       <tr>
-        <td>${name} — ${itemData.tek} TEK${formatStats(itemData.materials, name !== "Enigmasaur")}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
+        <td>${name} — <span data-blueprint-shop-price>${itemData.tek}</span> TEK${formatStats(itemData.materials, name !== "Enigmasaur")}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
         <td>${qtySelect(group, name)}</td>
       </tr>
     `);
@@ -350,7 +350,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
         items.forEach(([item, itemData]) => {
           t.insertAdjacentHTML("beforeend", `
         <tr>
-          <td>${item} — ${itemData.tek} TEK${formatStats(itemData.materials)}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
+          <td>${item} — <span data-blueprint-shop-price>${itemData.tek}</span> TEK${formatStats(itemData.materials)}<span class="item-alternative" data-item-cc="${itemData.tek}" hidden></span></td>
           <td>${qtySelect(id, `${category}|${item}`)}</td>
         </tr>
       `);
@@ -380,6 +380,21 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
     /* =============================
        CALC
     ============================= */
+
+    window.addEventListener('blacksmith-blueprint-pricing-change', () => {
+      for (const select of document.querySelectorAll('select[data-group]')) {
+        const {group, name} = select.dataset;
+        const [category, itemName] = name.split('|');
+        const item = BLACKSMITH.saddles[group]?.[name] ??
+          (group.startsWith('cursed') ? BLACKSMITH.cursed['tier' + group.slice(-1)] : BLACKSMITH.equipment[group])?.[category]?.[itemName];
+        const row = select.closest('tr');
+        const price = row?.querySelector('[data-blueprint-shop-price]');
+        if (!item || !price) continue;
+        price.textContent = String(item.tek);
+        row.querySelector('[data-item-cc]').dataset.itemCc = String(item.tek);
+      }
+      calc();
+    });
 
     function calc() {
 

@@ -27,7 +27,7 @@
     heading.id = 'blueprintEditHeading';
     heading.textContent = 'Edit ' + name;
     const help = document.createElement('p');
-    help.textContent = 'Changes apply to the Blueprint Library. Leave a field blank to clear it.';
+    help.textContent = 'Leave a field blank to clear it. Recipe and surcharge changes update the price for recipe-priced shop items.';
     form.append(heading, help);
 
     function numberField(parent, labelText, value, step) {
@@ -57,10 +57,58 @@
     const summary = document.createElement('summary');
     summary.textContent = 'Edit recipe materials';
     details.append(summary);
-    const materialCodes = new Set([...Object.keys(materials), ...Object.keys(materialNames)]);
-    const materialInputs = [...materialCodes].filter(code => !['D','J','Q'].includes(code))
-      .map(code => [code, numberField(details, materialNames[code] || code, materials[code], '1')]);
+    const materialInputs = new Map();
+    const materialFields = document.createElement('div');
+    const materialPicker = document.createElement('select');
+    materialPicker.className = 'form-select';
+    const pickerLabel = document.createElement('label');
+    pickerLabel.append('Material to add', materialPicker);
+    const add = document.createElement('button');
+    add.type = 'button';
+    add.className = 'btn btn-secondary';
+    add.textContent = '+ Add material';
+    function addMaterial(code, value) {
+      const input = numberField(materialFields, materialNames[code] || code, value, '1');
+      input.max = '1000000000';
+      materialInputs.set(code, input);
+      return input;
+    }
+    function refreshPicker() {
+      const available = Object.keys(materialNames).filter(code => !['D','J','Q'].includes(code) && !materialInputs.has(code));
+      materialPicker.replaceChildren(...available.map(code => new Option(materialNames[code], code)));
+      add.disabled = materialPicker.disabled = !available.length;
+    }
+    for (const [code, value] of Object.entries(materials)) addMaterial(code, value);
+    refreshPicker();
+    add.addEventListener('click', () => {
+      if (!materialPicker.value) return;
+      const input = addMaterial(materialPicker.value, '');
+      refreshPicker();
+      input.focus();
+    });
+    details.append(materialFields, pickerLabel, add);
     form.append(details);
+    const surcharge = row.priced ? numberField(form, 'Additional surcharge (Tek)', row.surcharge, '1') : null;
+    if (surcharge) surcharge.max = '1000000000';
+    const pricePreview = document.createElement('p');
+    pricePreview.setAttribute('role', 'status');
+    const readMaterials = () => Object.fromEntries([...materialInputs]
+      .filter(([, input]) => input.valueAsNumber > 0)
+      .map(([code, input]) => [code, input.valueAsNumber]));
+    function previewPrice() {
+      if (!surcharge) return;
+      const materials = readMaterials();
+      try {
+        pricePreview.textContent = Object.keys(materials).length
+          ? 'Shop price: ' + (window.DTJ_PRICING.priceItem(materials).CC.ideal + (surcharge.valueAsNumber || 0)).toLocaleString() + ' Tek'
+          : 'Add at least one material to calculate a shop price.';
+      } catch (error) {
+        pricePreview.textContent = error.message;
+      }
+    }
+    form.addEventListener('input', previewPrice);
+    form.append(pricePreview);
+    previewPrice();
     details.addEventListener('invalid', () => { details.open = true; }, true);
 
     const message = document.createElement('p');
@@ -87,14 +135,19 @@
       try {
         const updatedStats = Object.fromEntries(statInputs.filter(([, input]) => input.value !== '')
           .map(([key, input]) => [key, input.value]));
-        const updatedMaterials = Object.fromEntries(materialInputs.filter(([, input]) => input.valueAsNumber > 0)
-          .map(([code, input]) => [code, input.valueAsNumber]));
+        const updatedMaterials = readMaterials();
         if (Object.values(updatedMaterials).some(value => !Number.isSafeInteger(value))) {
           throw Error('Enter whole material quantities within the supported number range.');
         }
+        if (surcharge && !Object.keys(updatedMaterials).length) {
+          details.open = true;
+          throw Error('Enter at least one material to price this item.');
+        }
+        if (surcharge) window.DTJ_PRICING.priceItem(updatedMaterials);
         const prefs = readPrefs();
-        prefs.blueprintEdits = {...prefs.blueprintEdits, [row.key]: {stats: {...updatedStats, note: notes.value.trim()}, materials: updatedMaterials}};
+        prefs.blueprintEdits = {...prefs.blueprintEdits, [row.key]: {stats: {...updatedStats, note: notes.value.trim()}, materials: updatedMaterials, ...(surcharge ? {surcharge: surcharge.valueAsNumber || 0} : {})}};
         localStorage.setItem(prefsKey, JSON.stringify(prefs));
+        window.blacksmithApplyBlueprintPricing(prefs.blueprintEdits);
         renderCard(row, prefs.blueprintEdits[row.key]);
         filter();
         dialog.close();
@@ -114,7 +167,9 @@
     const stats = saved?.stats ?? baseStats;
     const materials = saved?.materials ?? Object.fromEntries(Object.entries(entry.item.materials || {})
       .filter(([code]) => !['D','J','Q'].includes(code)));
-    Object.assign(row, {name, stats, materials});
+    const priced = !entry.libraryOnly && entry.group !== 'teksaddles' && Number.isFinite(entry.item.tek) && Object.keys(entry.item.materials || {}).some(code => !['D','J','Q'].includes(code));
+    const surcharge = saved?.surcharge ?? entry.item.additionalTek ?? 0;
+    Object.assign(row, {name, stats, materials, priced, surcharge});
 
     const heading = document.createElement('h3');
     heading.textContent = name;
@@ -122,6 +177,13 @@
     tag.className = 'note';
     tag.textContent = labels[entry.group] + (entry.category ? ' · ' + entry.category : '');
     card.replaceChildren(heading, tag);
+    if (priced) {
+      const pricing = document.createElement('p');
+      pricing.className = 'note';
+      pricing.textContent = 'Shop price: ' + entry.item.tek.toLocaleString() + ' Tek'
+        + (surcharge ? ' · Includes ' + surcharge.toLocaleString() + ' Tek surcharge' : '');
+      card.append(pricing);
+    }
 
     function appendList(parent, pairs) {
       const list = document.createElement('dl');
@@ -180,6 +242,7 @@
 
   let edits;
   try { edits = readPrefs().blueprintEdits || {}; } catch { edits = {}; }
+  window.blacksmithApplyBlueprintPricing(edits);
   const cards = entries.map(entry => {
     const key = JSON.stringify([entry.group, entry.category || '', entry.name]);
     const card = document.createElement('article');

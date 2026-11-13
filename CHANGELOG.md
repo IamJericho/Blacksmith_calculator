@@ -4,7 +4,7 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 13, 2026 — Blueprint Library editing
 
-Added an Edit button to blueprint cards. [Update details](docs/updates/2026-11-13.md)
+Added an Edit button to blueprint cards, with recipe pricing and editable surcharges. [Update details](docs/updates/2026-11-13.md)
 
 ## November 11, 2026 — Tek Revenue
 

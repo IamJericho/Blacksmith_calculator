@@ -452,6 +452,41 @@ window.BLACKSMITH = {
   }
 })();
 
+window.blacksmithApplyBlueprintPricing = function(edits) {
+  const catalog = window.BLACKSMITH;
+  for (const [key, edit] of Object.entries(edits || {})) {
+    let identity;
+    try { identity = JSON.parse(key); } catch { continue; }
+    if (!Array.isArray(identity) || identity.length !== 3) continue;
+    const [group, category, name] = identity;
+    if (!Number.isSafeInteger(edit?.surcharge) || edit.surcharge < 0 || edit.surcharge > 1000000000) continue;
+    let items;
+    if (group === 'regular' || group === 'platform') {
+      if (category !== '') continue;
+      items = catalog.saddles[group];
+    } else if (['tier1','tier2','cursed1','cursed2'].includes(group)) {
+      const collection = group.startsWith('cursed') ? catalog.cursed : catalog.equipment;
+      const tier = collection['tier' + group.slice(-1)];
+      if (tier && Object.hasOwn(tier, category)) items = tier[category];
+    }
+    const target = items && Object.hasOwn(items, name) ? items[name] : null;
+    if (!target?.materials || !edit.materials || Array.isArray(edit.materials)) continue;
+    const materials = Object.entries(edit.materials);
+    if (!materials.length || materials.some(([code, value]) =>
+      !Object.hasOwn(catalog.materialsKey, code) || ['D','J','Q'].includes(code) ||
+      !Number.isSafeInteger(value) || value < 1 || value > 1000000000)) continue;
+    const stats = Object.fromEntries(Object.entries(target.materials).filter(([code]) => ['D','J','Q'].includes(code)));
+    const recipe = {...edit.materials, ...stats};
+    let price;
+    try { price = window.DTJ_PRICING.priceItem(recipe).CC.ideal + edit.surcharge; }
+    catch { continue; }
+    target.materials = recipe;
+    target.additionalTek = edit.surcharge;
+    target.tek = price;
+  }
+  window.dispatchEvent(new Event('blacksmith-blueprint-pricing-change'));
+};
+
 window.blacksmithSkiffPricing=function(base,otherCount,skiffs,delivery){const included=delivery?skiffs:0,skiffTek=included&&otherCount===0?window.BLACKSMITH.saddles.teksaddles.Skiff.tek:0;return {included,skiffTek,deliveryFee:delivery&&(otherCount||included)?(included&&!otherCount?0:Math.max(100,Math.ceil(base*.25))):0};};
 
 window.blacksmithOrderNotes=function(items,includeFeedback=true){
@@ -462,6 +497,10 @@ window.blacksmithOrderNotes=function(items,includeFeedback=true){
 (()=>{
  const valid=v=>Number.isSafeInteger(v)&&v>=0&&v<=1000000000;
  const apply=value=>{if(!valid(value))return;BLACKSMITH.saddles.teksaddles.Skiff.tek=value;if(typeof document!=='undefined')for(const node of document.querySelectorAll('[data-skiff-price]'))node.textContent=String(value);window.dispatchEvent(new Event('blacksmith-shop-pricing-change'));if(typeof window.calc==='function')window.calc();};
- try{if(window.BAuth?.state){const prefs=JSON.parse(localStorage.getItem('blacksmith-internal-items-v1')||'{}');apply(prefs.shopPricing?.skiffTek);}}catch{}
- if(typeof fetch==='function')fetch('https://blacksmith-sync.h255y626rp.workers.dev/public',{signal:AbortSignal.timeout(15000)}).then(r=>r.ok?r.json():null).then(data=>{if(data)apply(data.shopPricing?.skiffTek);}).catch(()=>{});
+ try{if(window.BAuth?.state){const prefs=JSON.parse(localStorage.getItem('blacksmith-internal-items-v1')||'{}');apply(prefs.shopPricing?.skiffTek);window.blacksmithApplyBlueprintPricing(prefs.blueprintEdits);}}catch{}
+ if(typeof fetch==='function')fetch('https://blacksmith-sync.h255y626rp.workers.dev/public',{signal:AbortSignal.timeout(15000)}).then(r=>r.ok?r.json():null).then(data=>{if (!data) return;
+   apply(data.shopPricing?.skiffTek);
+   if (typeof document === 'undefined' || !document.getElementById('blueprintLibraryPanel')) {
+     window.blacksmithApplyBlueprintPricing(data.shopPricing?.blueprints);
+   }}).catch(()=>{});
 })();
