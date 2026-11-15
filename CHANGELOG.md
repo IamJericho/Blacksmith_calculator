@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 15, 2026 — Discord name in pasted orders
+
+Recognize a Discord mention after Name with or without a colon. [Update details](docs/updates/2026-11-15.md)
+
 ## November 14, 2026 — Undo completed pickup
 
 Undo restores the original pickup location and PIN. [Update details](docs/updates/2026-11-14.md)
