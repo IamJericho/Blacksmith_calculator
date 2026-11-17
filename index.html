@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-lftTfWbHTudj+qkN7fMXhAEmypIt/M1XT6Th/O7Ak6M=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-qV882uKD+kh40VSvtcGPHpnSedIKB/m90WZYMEzsIIM=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -1239,8 +1239,7 @@ window.formatBlacksmithItemList=function(entries){
       }
       pin.value = outsidePickupPins.get(key);
       label.append(pin);
-      const pinSummary = document.createElement('p');
-      pinSummary.textContent = 'PIN: ' + pin.value;
+      title.textContent += ' · PIN: ' + pin.value;
       const edit = document.createElement('button');
       edit.type = 'button';
       edit.className = 'btn btn-secondary';
@@ -1282,7 +1281,7 @@ window.formatBlacksmithItemList=function(entries){
           event.preventDefault();
           if (!pin.reportValidity()) return;
           outsidePickupPins.set(key, pin.value);
-          pinSummary.textContent = 'PIN: ' + pin.value;
+          title.textContent = 'Room ' + slot.room + ' · Vault ' + slot.room + slot.vault + ' · PIN: ' + pin.value;
           updatePreview();
           dialog.close();
         });
@@ -1341,7 +1340,7 @@ window.formatBlacksmithItemList=function(entries){
           preview.select();
         }
       });
-      card.append(title, pinSummary, edit, preview, copy);
+      card.append(title, edit, preview, copy);
       cards.append(card);
     }
   }
