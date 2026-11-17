@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-npyihvtE5jYfqOQjZI9hF7JIo7NxZ/E/TFE+iHqYkk4=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-8NiWNUvxD8+0XkX4jKF4YD1niuVCMCtdGNfmOAHC5/w=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -1225,14 +1225,19 @@ window.formatBlacksmithItemList=function(entries){
       const title = document.createElement('h3');
       title.textContent = 'Room ' + slot.room + ' · Vault ' + slot.room + slot.vault;
       const label = document.createElement('label');
-      label.textContent = 'Vault PIN (optional) for ' + slot.room + slot.vault;
+      label.textContent = 'Vault PIN for ' + slot.room + slot.vault;
       const pin = document.createElement('input');
       pin.type = 'text';
       pin.className = 'form-control';
       pin.inputMode = 'numeric';
       pin.maxLength = 4;
       pin.pattern = '[0-9]{4}';
-      pin.value = outsidePickupPins.get(key) || '';
+      if (!outsidePickupPins.has(key)) {
+        const random = new Uint32Array(1);
+        crypto.getRandomValues(random);
+        outsidePickupPins.set(key, String(1000 + random[0] % 9000));
+      }
+      pin.value = outsidePickupPins.get(key);
       pin.addEventListener('input', () => outsidePickupPins.set(key, pin.value));
       label.append(pin);
       const copy = document.createElement('button');

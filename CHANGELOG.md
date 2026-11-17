@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 17, 2026 — outside-order pickup PINs
+
+Outside-order pickup instructions automatically fill an editable four-digit vault PIN. [Update details](docs/updates/2026-11-17.md)
+
 ## November 15, 2026 — Discord name in pasted orders
 
 Recognize a Discord mention after Name with or without a colon. [Update details](docs/updates/2026-11-15.md)
