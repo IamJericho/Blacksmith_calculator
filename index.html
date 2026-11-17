@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-8NiWNUvxD8+0XkX4jKF4YD1niuVCMCtdGNfmOAHC5/w=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-lftTfWbHTudj+qkN7fMXhAEmypIt/M1XT6Th/O7Ak6M=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -1238,8 +1238,64 @@ window.formatBlacksmithItemList=function(entries){
         outsidePickupPins.set(key, String(1000 + random[0] % 9000));
       }
       pin.value = outsidePickupPins.get(key);
-      pin.addEventListener('input', () => outsidePickupPins.set(key, pin.value));
       label.append(pin);
+      const pinSummary = document.createElement('p');
+      pinSummary.textContent = 'PIN: ' + pin.value;
+      const edit = document.createElement('button');
+      edit.type = 'button';
+      edit.className = 'btn btn-secondary';
+      edit.textContent = 'Edit';
+      edit.setAttribute('aria-label', 'Edit pickup location ' + slot.room + slot.vault);
+      edit.addEventListener('click', () => {
+        const dialog = document.createElement('dialog');
+        dialog.className = 'order-management-dialog';
+        const heading = document.createElement('h2');
+        heading.id = 'outsidePickupEditTitle';
+        heading.textContent = 'Edit pickup location ' + slot.room + slot.vault;
+        dialog.setAttribute('aria-labelledby', heading.id);
+        const header = document.createElement('div');
+        header.className = 'order-dialog-header';
+        const close = document.createElement('button');
+        close.type = 'button';
+        close.className = 'btn btn-secondary order-dialog-close';
+        close.textContent = '×';
+        close.setAttribute('aria-label', 'Close edit pickup location');
+        close.addEventListener('click', () => dialog.close());
+        header.append(heading, close);
+        const form = document.createElement('form');
+        const actions = document.createElement('div');
+        actions.className = 'order-edit-actions';
+        const cancel = document.createElement('button');
+        cancel.type = 'button';
+        cancel.className = 'btn btn-secondary';
+        cancel.textContent = 'Cancel';
+        cancel.addEventListener('click', () => dialog.close());
+        const save = document.createElement('button');
+        save.type = 'submit';
+        save.className = 'btn btn-primary';
+        save.textContent = 'Save changes';
+        pin.value = outsidePickupPins.get(key);
+        pin.required = true;
+        actions.append(cancel, save);
+        form.append(label, actions);
+        form.addEventListener('submit', event => {
+          event.preventDefault();
+          if (!pin.reportValidity()) return;
+          outsidePickupPins.set(key, pin.value);
+          pinSummary.textContent = 'PIN: ' + pin.value;
+          updatePreview();
+          dialog.close();
+        });
+        dialog.append(header, form);
+        dialog.addEventListener('close', () => {
+          pin.value = outsidePickupPins.get(key);
+          dialog.remove();
+          edit.focus();
+        }, {once: true});
+        document.body.append(dialog);
+        dialog.showModal();
+        pin.focus();
+      });
       const copy = document.createElement('button');
       copy.type = 'button';
       copy.className = 'btn btn-primary';
@@ -1272,7 +1328,6 @@ window.formatBlacksmithItemList=function(entries){
         ].join('\n');
       };
       updatePreview();
-      pin.addEventListener('input', updatePreview);
       copy.addEventListener('click', async () => {
         if (!pin.reportValidity()) return;
         loadOccupied();
@@ -1286,7 +1341,7 @@ window.formatBlacksmithItemList=function(entries){
           preview.select();
         }
       });
-      card.append(title, label, preview, copy);
+      card.append(title, pinSummary, edit, preview, copy);
       cards.append(card);
     }
   }
