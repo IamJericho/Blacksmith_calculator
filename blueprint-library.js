@@ -354,12 +354,13 @@
   }
   const cards = entries.map(createCard);
   const categorySections = new Map();
+  const categoryOrder = ['regular','platform','teksaddles','tier1','tier2','cursed1','cursed2','library-only'];
   const alphabetic = (a, b) => a.localeCompare(b, undefined, {sensitivity: 'base', numeric: true});
   function filter() {
     const query = panel.querySelector('#blueprintSearch').value.trim().toLowerCase();
     const root = panel.querySelector('#blueprintCards');
     const selected = category.value;
-    const groups = [...new Set(cards.map(row => row.group))].sort((a,b) => alphabetic(labels[a], labels[b]));
+    const groups = [...new Set(cards.map(row => row.group))].sort((a,b) => categoryOrder.indexOf(a) - categoryOrder.indexOf(b));
     category.replaceChildren(new Option('All categories', 'all'), ...groups.map(group => new Option(labels[group], group)));
     category.value = groups.includes(selected) ? selected : 'all';
     let count = 0;
