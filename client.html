@@ -213,7 +213,7 @@ pre,h1,h2,h3,p,label{overflow-wrap:anywhere}
   </div>
 
   <script src="starfall-discounts.js?v=20261107"></script><script src="pricingEngine.js?v=20261108-base-materials"></script>
-  <script src="blacksmith.js?v=20261113-blueprint-price"></script>
+  <script src="blacksmith.js?v=20261118-custom-shop"></script>
   <script>
 
     /* =============================
@@ -617,6 +617,6 @@ Trader: <@1303790610620350587>`;
 
 </script>
 <script src="client-quantities.js?v=20261029-account-limits"></script>
-<script>document.addEventListener("click",function(event){const target=event.target.closest("[data-security-action]");if(!target)return;const handlers={"action0":function(event){copyOrder();},"action1":function(event){resetAll();}};handlers[target.dataset.securityAction]?.call(target,event);});</script></body>
+<script>document.addEventListener("click",function(event){const target=event.target.closest("[data-security-action]");if(!target)return;const handlers={"action0":function(event){copyOrder();},"action1":function(event){resetAll();}};handlers[target.dataset.securityAction]?.call(target,event);});</script><script src="custom-blueprint-shop.js?v=20261118"></script></body>
 
 </html>

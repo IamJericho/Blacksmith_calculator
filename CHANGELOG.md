@@ -4,7 +4,7 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 18, 2026 — add blueprints
 
-Add library-only blueprints through the same modal used for editing. [Update details](docs/updates/2026-11-18.md)
+Add blueprints through the same modal used for editing, with optional shop listing, calculated recipe price and Tek surcharge. [Update details](docs/updates/2026-11-18.md)
 
 ## November 17, 2026 — outside-order pickup PINs
 

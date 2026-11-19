@@ -487,6 +487,37 @@ window.blacksmithApplyBlueprintPricing = function(edits) {
   window.dispatchEvent(new Event('blacksmith-blueprint-pricing-change'));
 };
 
+const customShopItems = new Map();
+window.blacksmithCustomBlueprintConflict = function(entry) {
+  const items = customBlueprintItems(entry);
+  const existing = items && Object.hasOwn(items, entry.name) ? items[entry.name] : null;
+  return Boolean(existing && existing.customBlueprintId !== entry.customId);
+};
+function customBlueprintItems(entry) {
+  const catalog = window.BLACKSMITH;
+  if (['regular','platform'].includes(entry.shopGroup)) return catalog.saddles[entry.shopGroup];
+  if (!['tier1','tier2','cursed1','cursed2'].includes(entry.shopGroup) || !['armor','weapons','tools'].includes(entry.shopCategory)) return null;
+  const collection = entry.shopGroup.startsWith('cursed') ? catalog.cursed : catalog.equipment;
+  return collection?.['tier' + entry.shopGroup.slice(-1)]?.[entry.shopCategory];
+}
+window.blacksmithApplyCustomBlueprints = function(entries) {
+  for (const {items, name, id} of customShopItems.values()) if (items[name]?.customBlueprintId === id) delete items[name];
+  customShopItems.clear();
+  for (const entry of Array.isArray(entries) ? entries : []) {
+    if (entry?.forSale !== true || typeof entry.customId !== 'string' || typeof entry.name !== 'string' || !entry.name.trim() || entry.name.length > 120 || /["&<>|]/.test(entry.name)) continue;
+    const items = customBlueprintItems(entry);
+    const materials = entry.item?.materials;
+    if (!items || Object.hasOwn(items, entry.name) || !materials || !Object.keys(materials).length || Object.entries(materials).some(([code,value]) => !Object.hasOwn(BLACKSMITH.materialsKey,code) || ['D','J','Q'].includes(code) || !Number.isSafeInteger(value) || value < 1 || value > 1000000000)) continue;
+    if (!Number.isSafeInteger(entry.surcharge) || entry.surcharge < 0 || entry.surcharge > 1000000000) continue;
+    const tek = window.DTJ_PRICING.priceItem(materials).CC.ideal + entry.surcharge;
+    const item = {materials: {...materials}, tek, additionalTek: entry.surcharge, customBlueprintId: entry.customId};
+    Object.defineProperty(items, entry.name, {value: item, configurable: true, enumerable: true, writable: true});
+    customShopItems.set(entry.customId, {items, name: entry.name, id: entry.customId, group: entry.shopGroup, category: ['regular','platform'].includes(entry.shopGroup) ? '' : entry.shopCategory});
+  }
+  window.blacksmithCustomShopItems = [...customShopItems.values()];
+  window.dispatchEvent(new Event('blacksmith-custom-shop-change'));
+};
+
 window.blacksmithSkiffPricing=function(base,otherCount,skiffs,delivery){const included=delivery?skiffs:0,skiffTek=included&&otherCount===0?window.BLACKSMITH.saddles.teksaddles.Skiff.tek:0;return {included,skiffTek,deliveryFee:delivery&&(otherCount||included)?(included&&!otherCount?0:Math.max(100,Math.ceil(base*.25))):0};};
 
 window.blacksmithOrderNotes=function(items,includeFeedback=true){
@@ -497,10 +528,11 @@ window.blacksmithOrderNotes=function(items,includeFeedback=true){
 (()=>{
  const valid=v=>Number.isSafeInteger(v)&&v>=0&&v<=1000000000;
  const apply=value=>{if(!valid(value))return;BLACKSMITH.saddles.teksaddles.Skiff.tek=value;if(typeof document!=='undefined')for(const node of document.querySelectorAll('[data-skiff-price]'))node.textContent=String(value);window.dispatchEvent(new Event('blacksmith-shop-pricing-change'));if(typeof window.calc==='function')window.calc();};
- try{if(window.BAuth?.state){const prefs=JSON.parse(localStorage.getItem('blacksmith-internal-items-v1')||'{}');apply(prefs.shopPricing?.skiffTek);window.blacksmithApplyBlueprintPricing(prefs.blueprintEdits);}}catch{}
+ try{if(window.BAuth?.state){const prefs=JSON.parse(localStorage.getItem('blacksmith-internal-items-v1')||'{}');apply(prefs.shopPricing?.skiffTek);window.blacksmithApplyBlueprintPricing(prefs.blueprintEdits);window.blacksmithApplyCustomBlueprints(prefs.customBlueprints);}}catch{}
  if(typeof fetch==='function')fetch('https://blacksmith-sync.h255y626rp.workers.dev/public',{signal:AbortSignal.timeout(15000)}).then(r=>r.ok?r.json():null).then(data=>{if (!data) return;
    apply(data.shopPricing?.skiffTek);
    if (typeof document === 'undefined' || !document.getElementById('blueprintLibraryPanel')) {
      window.blacksmithApplyBlueprintPricing(data.shopPricing?.blueprints);
+     window.blacksmithApplyCustomBlueprints(data.shopPricing?.customBlueprints);
    }}).catch(()=>{});
 })();
