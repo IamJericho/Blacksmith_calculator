@@ -15,7 +15,16 @@
   status.setAttribute('role', 'status');
   panel.querySelector('#blueprintCards').before(status);
 
-  function editBlueprint(row) {
+  const addBlueprint = document.createElement('button');
+  addBlueprint.type = 'button';
+  addBlueprint.className = 'btn btn-primary';
+  addBlueprint.textContent = 'Add blueprint';
+  panel.querySelector('.blueprint-search').before(addBlueprint);
+  addBlueprint.addEventListener('click', () => {
+    const entry = {group: 'library-only', name: '', category: 'Saddles', customId: crypto.randomUUID(), libraryOnly: true, item: {materials: {}}};
+    editBlueprint({entry, name: '', stats: {}, materials: {}, edit: addBlueprint}, true);
+  });
+  function editBlueprint(row, adding = false) {
     const {entry, edit} = row;
     const {name, stats, materials} = row;
     const dialog = document.createElement('dialog');
@@ -25,10 +34,38 @@
     dialog.append(form);
     const heading = document.createElement('h2');
     heading.id = 'blueprintEditHeading';
-    heading.textContent = 'Edit ' + name;
+    heading.textContent = adding ? 'Add blueprint' : 'Edit ' + name;
     const help = document.createElement('p');
     help.textContent = 'Leave a field blank to clear it. Recipe and surcharge changes update the price for recipe-priced shop items.';
     form.append(heading, help);
+    let nameInput, typeInput;
+    if (adding || entry.customId) {
+      help.textContent = 'Save a blueprint in your library. Library-only entries are not listed for sale in the customer shop.';
+      const nameLabel = document.createElement('label');
+      nameInput = document.createElement('input');
+      nameInput.className = 'form-control';
+      nameInput.required = true;
+      nameInput.maxLength = 120;
+      nameInput.value = entry.name;
+      nameLabel.append('Full blueprint name', nameInput);
+      const typeLabel = document.createElement('label');
+      typeInput = document.createElement('select');
+      typeInput.className = 'form-select';
+      for (const type of ['Saddles', 'Platform Saddles', 'Armor', 'Weapons', 'Tools', 'Companion', 'Other']) typeInput.add(new Option(type, type));
+      typeInput.value = entry.category || 'Other';
+      typeLabel.append('Blueprint type', typeInput);
+      form.append(nameLabel, typeLabel);
+    }
+    const close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'btn btn-secondary order-dialog-close';
+    close.textContent = '×';
+    close.setAttribute('aria-label', 'Close blueprint editor');
+    close.addEventListener('click', () => dialog.close());
+    const header = document.createElement('div');
+    header.className = 'order-dialog-header';
+    header.append(heading, close);
+    form.prepend(header);
 
     function numberField(parent, labelText, value, step) {
       const label = document.createElement('label');
@@ -128,7 +165,7 @@
     form.append(message, actions);
     dialog.addEventListener('close', () => {
       dialog.remove();
-      (row.card.hidden ? panel.querySelector('#blueprintSearch') : edit).focus();
+      (adding ? addBlueprint : row.card.hidden ? panel.querySelector('#blueprintSearch') : edit).focus();
     });
     form.addEventListener('submit', event => {
       event.preventDefault();
@@ -145,6 +182,25 @@
         }
         if (surcharge) window.DTJ_PRICING.priceItem(updatedMaterials);
         const prefs = readPrefs();
+        if (nameInput) {
+          const fullName = nameInput.value.trim();
+          if (!fullName) { nameInput.focus(); throw Error('Enter the full blueprint name.'); }
+          const custom = Array.isArray(prefs.customBlueprints) ? prefs.customBlueprints : [];
+          const updatedEntry = {...entry, name: fullName, category: typeInput.value, stats: {...updatedStats, note: notes.value.trim()}, item: {materials: updatedMaterials}};
+          prefs.customBlueprints = [...custom.filter(item => item.customId !== entry.customId), updatedEntry];
+          localStorage.setItem(prefsKey, JSON.stringify(prefs));
+          Object.assign(entry, updatedEntry);
+          if (adding) {
+            cards.push(createCard(entry));
+            if (![...category.options].some(option => option.value === entry.group)) category.add(new Option(labels[entry.group], entry.group));
+            category.value = 'all';
+            panel.querySelector('#blueprintSearch').value = '';
+          } else renderCard(row);
+          filter();
+          dialog.close();
+          status.textContent = 'Blueprint saved for ' + entry.name + '.';
+          return;
+        }
         prefs.blueprintEdits = {...prefs.blueprintEdits, [row.key]: {stats: {...updatedStats, note: notes.value.trim()}, materials: updatedMaterials, ...(surcharge ? {surcharge: surcharge.valueAsNumber || 0} : {})}};
         localStorage.setItem(prefsKey, JSON.stringify(prefs));
         window.blacksmithApplyBlueprintPricing(prefs.blueprintEdits);
@@ -162,7 +218,7 @@
 
   function renderCard(row, saved) {
     const {entry, card, edit} = row;
-    const baseStats = entry.group.startsWith('cursed') ? {} : blueprintStats[entry.name] || {};
+    const baseStats = entry.customId ? entry.stats || {} : entry.group.startsWith('cursed') ? {} : blueprintStats[entry.name] || {};
     const name = baseStats.displayName || entry.name;
     const stats = saved?.stats ?? baseStats;
     const materials = saved?.materials ?? Object.fromEntries(Object.entries(entry.item.materials || {})
@@ -243,8 +299,14 @@
   let edits;
   try { edits = readPrefs().blueprintEdits || {}; } catch { edits = {}; }
   window.blacksmithApplyBlueprintPricing(edits);
-  const cards = entries.map(entry => {
-    const key = JSON.stringify([entry.group, entry.category || '', entry.name]);
+  try {
+    const custom = readPrefs().customBlueprints;
+    if (Array.isArray(custom)) for (const entry of custom) {
+      if (entry && typeof entry.customId === 'string' && typeof entry.name === 'string' && entry.item && typeof entry.item.materials === 'object') entries.push({...entry, group: 'library-only', libraryOnly: true});
+    }
+  } catch { status.textContent = 'Saved blueprints could not be loaded.'; }
+  function createCard(entry) {
+    const key = entry.customId ? 'custom:' + entry.customId : JSON.stringify([entry.group, entry.category || '', entry.name]);
     const card = document.createElement('article');
     card.className = 'blueprint-card';
     const edit = document.createElement('button');
@@ -257,7 +319,8 @@
     renderCard(row, edits[key]);
     panel.querySelector('#blueprintCards').append(card);
     return row;
-  });
+  }
+  const cards = entries.map(createCard);
   function filter(){const query=panel.querySelector('#blueprintSearch').value.trim().toLowerCase();let count=0;for(const row of cards){row.card.hidden=!(category.value==='all'||row.group===category.value)||!row.search.includes(query);if(!row.card.hidden)count++;}panel.querySelector('#blueprintCount').textContent=count+' recipe'+(count===1?'':'s')+(count?'':' · No matching recipes.');}
   panel.querySelector('#blueprintSearch').addEventListener('input',filter);category.addEventListener('change',filter);filter();
 })();
