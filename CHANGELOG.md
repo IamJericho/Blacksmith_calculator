@@ -4,7 +4,7 @@ Dated, readable records for ChatGPT, Codex and the owner. This log begins with N
 
 ## November 24, 2026 — retain outside-order PINs
 
-Outside-order PINs persist across page refreshes in the existing cloud-synced settings. [Update details](docs/updates/2026-11-24.md)
+Outside-order PINs persist across page refreshes in the existing cloud-synced settings. Dedicated outside-order locations C11 and C12 are separate from regular order rooms. [Update details](docs/updates/2026-11-24.md)
 
 ## November 18, 2026 — add blueprints
 
