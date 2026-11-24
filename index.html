@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en" class="auth-locked">
 
-<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-bjxlroNfAq79ybYVz51dim1TEH9CENQxayyoOPwJiB8=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
+<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-GT0b6VkkHY/11A3bZ7lKEtkcFUOqmABorzb4zmjV9dY=' 'sha256-LPEEP/t2sSs2M1r3bkyEBiQQekMo2VkSdrpaLbHa7Yo=' 'sha256-tspT7QbGYaVEEzUjbekI1N1UlZKaS/6hjhzouCRPFmg=' 'sha256-8xxXphzpL88DVJ/K/BjVu/ovzFJoAFIoOfRo5y9J0lE=' 'sha256-W0NNZ2zBk9JkVLlk3Ja0hVq4QHb1jiv3i2oAO++laGw=' 'sha256-syZKceToaEhmumJ9A8k6wbAqfuVRDNvze3P9ndmW3Z8=' 'sha256-pbJuoEMPZFyauxq18xthpg806wqMmYhali4AM5chsVc=' 'sha256-wqdZOQDyn5uuJ+Ab+4FGpuuq7om0u+IdTYkXZ8gwNzg=' 'sha256-iz8kqLOiCh7jJs80aVD8NuFpdaJ8dik4lh/phfMzAIw=' 'sha256-KiPKGKqEYLA+6m3jF3NvgbWBh7gUp+8ubrfNDVIU7Es=' 'sha256-w7nEVI9bJL9f+9mYnjtGaHVeB3VXPRPfGelVnPF/y7A='; script-src-attr 'none'; style-src 'self' 'unsafe-inline'; img-src 'self' blob: data:; connect-src 'self' https://blacksmith-sync.h255y626rp.workers.dev; font-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'self'; frame-src 'none'"><meta name="referrer" content="no-referrer"><script src="theme.js?v=20261026-site"></script>
 <style>html.auth-locked body{visibility:hidden!important}</style><script src="auth-client.js?v=20261026-public"></script><script src="auth-gate.js?v=20261026"></script>
 <link rel="icon" type="image/svg+xml" href="favicon.svg?v=forge-20261017">
   <meta charset="utf-8">
@@ -1206,10 +1206,33 @@ window.formatBlacksmithItemList=function(entries){
   function loadOccupied(){try{const saved=JSON.parse(localStorage.getItem(occupiedKey)||'null');if(Array.isArray(saved))occupied=new Set(saved.filter(key=>pickupSlots.some(slot=>slotKey(slot)===key)));}catch(_){get('readyOrdersStatus').textContent='Could not load occupied locations.';}}
   loadOccupied();
   try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){}
-  for(const slot of pickupSlots){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=occupied.has(slotKey(slot));label.append(input,document.createTextNode(slot.room+slot.vault));input.addEventListener('change',()=>{if(input.checked)occupied.add(slotKey(slot));else {occupied.delete(slotKey(slot));outsidePickupPins.delete(slotKey(slot));}try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){get('readyOrdersStatus').textContent='Occupied locations could not be saved.';}render();});get('occupiedPickupSlots').append(label);}
+  for(const slot of pickupSlots){const label=document.createElement('label');label.className='check';const input=document.createElement('input');input.type='checkbox';input.checked=occupied.has(slotKey(slot));label.append(input,document.createTextNode(slot.room+slot.vault));input.addEventListener('change',()=>{if(input.checked)occupied.add(slotKey(slot));else {try{saveOutsidePickupPin(slotKey(slot), null);}catch(_){input.checked=true;get('readyOrdersStatus').textContent='The outside-order PIN could not be cleared. Try again.';return;}occupied.delete(slotKey(slot));}try{localStorage.setItem(occupiedKey,JSON.stringify([...occupied]));}catch(_){get('readyOrdersStatus').textContent='Occupied locations could not be saved.';}render();});get('occupiedPickupSlots').append(label);}
   const outsidePickupPins = new Map();
+  const outsidePickupPrefsKey = 'blacksmith-internal-items-v1';
+  function loadOutsidePickupPins() {
+    const prefs = JSON.parse(localStorage.getItem(outsidePickupPrefsKey) || '{}');
+    outsidePickupPins.clear();
+    for (const [key, pin] of Object.entries(prefs.outsidePickupPins || {})) {
+      if (pickupSlots.some(slot => slotKey(slot) === key) && typeof pin === 'string' && /^[0-9]{4}$/.test(pin)) outsidePickupPins.set(key, pin);
+    }
+  }
+  function saveOutsidePickupPin(key, pin) {
+    const prefs = JSON.parse(localStorage.getItem(outsidePickupPrefsKey) || '{}');
+    const saved = {...prefs.outsidePickupPins};
+    if (pin === null) delete saved[key];
+    else saved[key] = pin;
+    prefs.outsidePickupPins = saved;
+    localStorage.setItem(outsidePickupPrefsKey, JSON.stringify(prefs));
+    if (pin === null) outsidePickupPins.delete(key);
+    else outsidePickupPins.set(key, pin);
+  }
   function renderOutsidePickups(query) {
     const cards = get('readyOrderCards');
+    try { loadOutsidePickupPins(); }
+    catch (_) {
+      get('readyOrdersStatus').textContent = 'Saved outside-order PINs could not be loaded. Reload before copying pickup instructions.';
+      return;
+    }
     const locations = pickupSlots.filter(slot => occupied.has(slotKey(slot)) &&
       (slot.room + slot.vault).toLowerCase().includes(query.replace(/\s+/g, '')));
     get('readyFilterSummary').textContent = 'Showing ' + locations.length + ' occupied pickup locations outside Orders.';
@@ -1232,10 +1255,15 @@ window.formatBlacksmithItemList=function(entries){
       pin.inputMode = 'numeric';
       pin.maxLength = 4;
       pin.pattern = '[0-9]{4}';
+      pin.addEventListener('input', () => pin.setCustomValidity(''));
       if (!outsidePickupPins.has(key)) {
         const random = new Uint32Array(1);
         crypto.getRandomValues(random);
-        outsidePickupPins.set(key, String(1000 + random[0] % 9000));
+        try { saveOutsidePickupPin(key, String(1000 + random[0] % 9000)); }
+        catch (_) {
+          get('readyOrdersStatus').textContent = 'The outside-order PIN could not be saved. Pickup instructions are unavailable until storage is working.';
+          continue;
+        }
       }
       pin.value = outsidePickupPins.get(key);
       label.append(pin);
@@ -1280,7 +1308,12 @@ window.formatBlacksmithItemList=function(entries){
         form.addEventListener('submit', event => {
           event.preventDefault();
           if (!pin.reportValidity()) return;
-          outsidePickupPins.set(key, pin.value);
+          try { saveOutsidePickupPin(key, pin.value); }
+          catch (_) {
+            pin.setCustomValidity('The PIN could not be saved. Try again before copying instructions.');
+            pin.reportValidity();
+            return;
+          }
           title.textContent = 'Room ' + slot.room + ' · Vault ' + slot.room + slot.vault + ' · PIN: ' + pin.value;
           updatePreview();
           dialog.close();

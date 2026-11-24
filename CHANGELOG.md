@@ -2,6 +2,10 @@
 
 Dated, readable records for ChatGPT, Codex and the owner. This log begins with November 7, 2026; earlier repository commits remain the source for older changes. Current source may supersede a dated snapshot.
 
+## November 24, 2026 — retain outside-order PINs
+
+Outside-order PINs persist across page refreshes in the existing cloud-synced settings. [Update details](docs/updates/2026-11-24.md)
+
 ## November 18, 2026 — add blueprints
 
 Add blueprints through the same modal used for editing, with optional shop listing, calculated recipe price and Tek surcharge. The library displays alphabetical category sections and alphabetical blueprint cards. [Update details](docs/updates/2026-11-18.md)
